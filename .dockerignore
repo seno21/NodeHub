@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+vendor
+tests
+.env
+.env.*
+!.env.example
+!.env.docker
+public/build
+storage/logs/*.log
+storage/app/vnc-tokens.cfg
+storage/app/vnc-bridge*
+.phpunit.result.cache
+docker-compose*.yml
+README.md

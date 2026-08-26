@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Mobile Web App Touch Optimizations */
+html, body {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+@layer components {
+    .toolbar-btn {
+        @apply flex h-8 items-center justify-center rounded-md px-2 text-gray-300 transition hover:bg-white/10 hover:text-white;
+    }
+
+    .menu-item {
+        @apply flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[13px] text-gray-200 transition hover:bg-white/10;
+    }
+}

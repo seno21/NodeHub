@@ -1,0 +1,98 @@
+name: webvnc
+
+# Override any value via a separate env file, e.g.:
+#   WEBVNC_DB_PASSWORD=secret docker compose up -d
+# (deliberately NOT reusing the Laravel .env to avoid clashing variable names)
+
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    ports:
+      - "${WEBVNC_DB_HOST_PORT:-33066}:3306"
+    environment:
+      MARIADB_DATABASE: ${WEBVNC_DB_NAME:-webvnc}
+      MARIADB_USER: ${WEBVNC_DB_USER:-webvnc}
+      MARIADB_PASSWORD: ${WEBVNC_DB_PASSWORD:-webvnc-secret}
+      MARIADB_ROOT_PASSWORD: ${WEBVNC_DB_ROOT_PASSWORD:-root-secret}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  app:
+    image: webvnc-portal
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment: &app-environment
+      APP_ENV: ${WEBVNC_APP_ENV:-local}
+      APP_DEBUG: "${WEBVNC_APP_DEBUG:-true}"
+      APP_URL: ${WEBVNC_APP_URL:-http://localhost:8000}
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: ${WEBVNC_DB_NAME:-webvnc}
+      DB_USERNAME: ${WEBVNC_DB_USER:-webvnc}
+      DB_PASSWORD: ${WEBVNC_DB_PASSWORD:-webvnc-secret}
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      MAIL_MAILER: log
+      VNC_WEBSOCKIFY_BINARY: websockify
+      VNC_WEBSOCKIFY_LISTEN: 0.0.0.0:6080
+      # websockify runs in its own container, so the app container cannot
+      # probe it via 127.0.0.1 — compose already restarts the bridge.
+      VNC_BRIDGE_CHECK: "false"
+      VNC_WS_URL: ${WEBVNC_WS_URL:-}
+      VNC_TOKEN_TTL: ${WEBVNC_TOKEN_TTL:-120}
+      VNC_STATUS_TIMEOUT: ${WEBVNC_STATUS_TIMEOUT:-1}
+      ADMIN_EMAIL: ${WEBVNC_ADMIN_EMAIL:-admin@example.com}
+      ADMIN_NAME: ${WEBVNC_ADMIN_NAME:-Admin}
+      ADMIN_PASSWORD: ${WEBVNC_ADMIN_PASSWORD:-password}
+    volumes:
+      - .:/var/www/html
+      - app-storage:/var/www/html/storage/app
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  bridge:
+    image: webvnc-portal
+    restart: unless-stopped
+    ports:
+      - "${BRIDGE_PORT:-6080}:6080"
+    environment:
+      SKIP_BOOTSTRAP: "1"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        mkdir -p /var/www/html/storage/app /var/www/html/storage/logs
+        touch /var/www/html/storage/app/vnc-tokens.cfg
+        exec websockify \
+          --log-file=/var/www/html/storage/logs/websockify.log \
+          --token-plugin TokenFile \
+          --token-source /var/www/html/storage/app/vnc-tokens.cfg \
+          0.0.0.0:6080
+    volumes:
+      - app-storage:/var/www/html/storage/app
+
+  scheduler:
+    image: webvnc-portal
+    restart: unless-stopped
+    environment: *app-environment
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - app-storage:/var/www/html/storage/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  app-storage:

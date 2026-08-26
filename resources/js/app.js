@@ -1,0 +1,188 @@
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+Alpine.data('deviceStats', (statusUrl) => ({
+    loading: true,
+    online: 0,
+    offline: 0,
+
+    async init() {
+        try {
+            const response = await fetch(statusUrl, {
+                headers: { Accept: 'application/json' },
+            });
+
+            if (response.ok) {
+                const statuses = Object.values(await response.json());
+                this.online = statuses.filter(Boolean).length;
+                this.offline = statuses.length - this.online;
+            }
+        } catch {
+            // keep counters at zero on failure
+        } finally {
+            this.loading = false;
+        }
+    },
+}));
+
+Alpine.data('deviceBoard', () => ({
+    /** @type {Record<string, boolean|undefined>} */
+    statuses: {},
+    connecting: false,
+    pending: false,
+    targetName: '',
+    boardError: '',
+    term: { open: false, title: '', lines: [], running: false },
+
+    showBoardError(message) {
+        this.boardError = message;
+        setTimeout(() => {
+            this.boardError = '';
+        }, 6000);
+    },
+
+    statusClass(id) {
+        const status = this.statuses[id];
+
+        if (status === undefined) {
+            return 'bg-gray-300';
+        }
+
+        return status ? 'bg-green-500' : 'bg-red-500';
+    },
+
+    statusLabel(id) {
+        const status = this.statuses[id];
+
+        if (status === undefined) {
+            return '—';
+        }
+
+        return status ? 'Online' : 'Offline';
+    },
+
+    closeTerminal() {
+        this.term.open = false;
+    },
+
+    scrollTerm() {
+        requestAnimationFrame(() => {
+            const body = this.$refs?.termBody;
+            if (body) {
+                body.scrollTop = body.scrollHeight;
+            }
+        });
+    },
+
+    async typeLine(text, cls = 'text-gray-300') {
+        await sleep(180);
+        this.term.lines.push({ text, cls });
+        this.scrollTerm();
+    },
+
+    async ping(id, host, port, url) {
+        this.term.open = true;
+        this.term.title = `Diagnosa Koneksi — ${host}`;
+        this.term.lines = [];
+        this.term.running = true;
+
+        await this.typeLine(`$ nodehub ping --host ${host}`, 'text-emerald-400 font-bold');
+
+        let data = null;
+
+        try {
+            const response = await fetch(url, {
+                headers: { Accept: 'application/json' },
+            });
+
+            if (response.ok) {
+                data = await response.json();
+            }
+        } catch {
+            data = null;
+        }
+
+        await sleep(120);
+
+        if (!data) {
+            await this.typeLine(`→ Gagal menghubungi server web portal`, 'text-red-400');
+            this.term.running = false;
+            return;
+        }
+
+        // ICMP Ping Result
+        if (data.icmp_ok) {
+            await this.typeLine(`→ ICMP System Ping [${host}] ... REPLIED (Network Card Reachable)`, 'text-emerald-400');
+        } else {
+            await this.typeLine(`→ ICMP System Ping [${host}] ... NO RESPONSE`, 'text-amber-400');
+        }
+
+        // VNC Port Result
+        if (data.vnc_ok) {
+            await this.typeLine(`→ VNC Service Port [${port}] ... CONNECTED (${data.vnc_latency ?? 0} ms)`, 'text-emerald-400');
+            this.statuses = { ...this.statuses, [id]: true };
+        } else {
+            await this.typeLine(`→ VNC Service Port [${port}] ... CLOSED / NOT LISTENING`, 'text-amber-400');
+        }
+
+        // SSH Port Result
+        if (data.ssh_ok) {
+            await this.typeLine(`→ SSH Service Port [22] ... CONNECTED (${data.ssh_latency ?? 0} ms)`, 'text-emerald-400');
+        } else {
+            await this.typeLine(`→ SSH Service Port [22] ... CLOSED`, 'text-slate-400');
+        }
+
+        await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+
+        if (data.vnc_ok) {
+            await this.typeLine('✔ HASIL: Layanan VNC Siap — Perangkat dapat langsung diremote!', 'text-emerald-400 font-bold');
+        } else if (data.icmp_ok || data.ssh_ok) {
+            await this.typeLine('ℹ HASIL: Jaringan/SSH Aktif, namun Service VNC (port ' + port + ') belum berjalan di komputer target.', 'text-amber-400 font-bold');
+        } else {
+            this.statuses = { ...this.statuses, [id]: false };
+            await this.typeLine('✘ HASIL: Perangkat sama sekali tidak dapat dijangkau di jaringan.', 'text-red-400 font-bold');
+        }
+
+        this.term.running = false;
+        this.scrollTerm();
+    },
+
+    async connect(event) {
+        const form = event.target;
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+        this.targetName = form.dataset.name ?? '';
+        this.boardError = '';
+        this.pending = true;
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': csrf ?? '',
+                },
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (response.ok && data.redirect) {
+                this.connecting = true;
+                await sleep(800);
+                window.location.href = data.redirect;
+
+                return;
+            }
+
+            this.showBoardError(data.message ?? 'Unable to start remote session.');
+        } catch {
+            this.showBoardError('Network error — please try again.');
+        } finally {
+            this.pending = false;
+        }
+    },
+}));
+
+Alpine.start();

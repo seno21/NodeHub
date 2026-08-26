@@ -1,0 +1,155 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Computer;
+use App\Models\RemoteAction;
+use App\Services\RemoteActionService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class RemoteActionController extends Controller
+{
+    public function __construct(private RemoteActionService $actionService) {}
+
+    /**
+     * Display the Remote Actions dashboard.
+     */
+    public function index(): View
+    {
+        $actions = RemoteAction::with('computers')->latest()->get();
+        $computers = Computer::query()->latest()->get();
+
+        return view('actions.index', [
+            'actions' => $actions,
+            'computers' => $computers,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new remote action.
+     */
+    public function create(): View
+    {
+        $computers = Computer::query()->latest()->get();
+
+        return view('actions.create', [
+            'computers' => $computers,
+        ]);
+    }
+
+    /**
+     * Store a newly created remote action.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'icon' => ['required', 'string', 'max:100'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'command' => ['required', 'string', 'max:2000'],
+            'computer_ids' => ['required', 'array', 'min:1'],
+            'computer_ids.*' => ['integer', 'exists:computers,id'],
+        ]);
+
+        $action = RemoteAction::query()->create([
+            'name' => $validated['name'],
+            'icon' => $validated['icon'],
+            'description' => $validated['description'] ?? null,
+            'command' => $validated['command'],
+        ]);
+
+        $action->computers()->sync($validated['computer_ids']);
+
+        return redirect()->route('actions.index')
+            ->with('status', __('Aksi Remote baru berhasil dibuat!'));
+    }
+
+    /**
+     * Display details / crosscheck preview of the specified remote action.
+     */
+    public function show(RemoteAction $action): View
+    {
+        $action->load('computers');
+
+        return view('actions.show', [
+            'action' => $action,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified remote action.
+     */
+    public function edit(RemoteAction $action): View
+    {
+        $action->load('computers');
+        $computers = Computer::query()->latest()->get();
+
+        return view('actions.edit', [
+            'action' => $action,
+            'computers' => $computers,
+        ]);
+    }
+
+    /**
+     * Update the specified remote action.
+     */
+    public function update(Request $request, RemoteAction $action): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'icon' => ['required', 'string', 'max:100'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'command' => ['required', 'string', 'max:2000'],
+            'computer_ids' => ['required', 'array', 'min:1'],
+            'computer_ids.*' => ['integer', 'exists:computers,id'],
+        ]);
+
+        $action->update([
+            'name' => $validated['name'],
+            'icon' => $validated['icon'],
+            'description' => $validated['description'] ?? null,
+            'command' => $validated['command'],
+        ]);
+
+        $action->computers()->sync($validated['computer_ids']);
+
+        return redirect()->route('actions.index')
+            ->with('status', __('Aksi Remote berhasil diperbarui!'));
+    }
+
+    /**
+     * Remove the specified remote action.
+     */
+    public function destroy(RemoteAction $action): RedirectResponse
+    {
+        $action->delete();
+
+        return redirect()->route('actions.index')
+            ->with('status', __('Aksi Remote berhasil dihapus.'));
+    }
+
+    /**
+     * Execute the specified remote action across targeted computers.
+     */
+    public function execute(Request $request, RemoteAction $action): JsonResponse
+    {
+        $targetIds = $request->input('computer_ids', []);
+        $results = $this->actionService->executeAction($action, is_array($targetIds) ? $targetIds : []);
+
+        $successCount = collect($results)->where('success', true)->count();
+        $failCount = count($results) - $successCount;
+
+        return response()->json([
+            'status' => 'completed',
+            'action_name' => $action->name,
+            'command' => $action->command,
+            'total' => count($results),
+            'success_count' => $successCount,
+            'fail_count' => $failCount,
+            'results' => $results,
+        ]);
+    }
+}
