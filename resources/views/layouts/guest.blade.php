@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Handons Portal') }}</title>
+    <title>{{ config('app.name', 'NodeHub Portal') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -54,7 +54,7 @@
 
         {{-- Footer --}}
         <div class="py-6 text-center text-xs text-slate-500">
-            <p>&copy; {{ date('Y') }} Handons Remote Access Management System. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} NodeHub Remote Access Management System. All rights reserved.</p>
         </div>
     </div>
 </body>

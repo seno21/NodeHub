@@ -91,7 +91,7 @@ pip3 install --user websockify
 ```bash
 # Clone repositori & masuk ke direktori proyek
 git clone <url-repository-anda>
-cd handons
+cd nodehub
 
 # Install dependensi PHP
 composer install
