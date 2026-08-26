@@ -13,10 +13,15 @@ COPY resources ./resources
 
 RUN npm run build
 
-# ---------- Stage 2: runtime (Laravel + websockify) ----------
+# ---------- Stage 2: All-in-One Runtime (PHP + MariaDB + Nginx + Websockify + Supervisord) ----------
 FROM php:8.4-cli-alpine
 
 RUN apk add --no-cache \
+        mariadb \
+        mariadb-client \
+        nginx \
+        supervisor \
+        openssl \
         icu-dev \
         libxml2-dev \
         linux-headers \
@@ -39,7 +44,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Install PHP dependencies first (cached unless composer files change)
+# Install PHP dependencies first (cached layer)
 COPY composer.json composer.lock ./
 RUN composer install \
         --no-dev \
@@ -48,17 +53,21 @@ RUN composer install \
         --prefer-dist \
         --optimize-autoloader
 
-# Application source
+# Copy application source & built assets
 COPY . .
 COPY --from=assets /app/public/build ./public/build
 
 RUN composer dump-autoload --optimize \
     && php artisan package:discover --ansi
 
+# Configurations
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENV PHP_CLI_SERVER_WORKERS=4
 
+EXPOSE 443 80
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000", "--no-reload"]

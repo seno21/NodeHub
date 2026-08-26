@@ -1,35 +1,18 @@
 name: nodehub
 
-# Override any value via a separate env file, e.g.:
-#   NODEHUB_DB_PASSWORD=secret docker compose up -d
-# (deliberately NOT reusing the Laravel .env to avoid clashing variable names)
-
 services:
-  db:
-    image: mariadb:11
-    restart: unless-stopped
-    environment:
-      MARIADB_DATABASE: ${NODEHUB_DB_NAME:-nodehub}
-      MARIADB_USER: ${NODEHUB_DB_USER:-nodehub}
-      MARIADB_PASSWORD: ${NODEHUB_DB_PASSWORD:-nodehub-secret}
-      MARIADB_ROOT_PASSWORD: ${NODEHUB_DB_ROOT_PASSWORD:-root-secret}
-    volumes:
-      - db-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-
-  app:
-    image: nodehub-portal
+  nodehub:
     build: .
+    image: nodehub:latest
+    container_name: nodehub
     restart: unless-stopped
-    environment: &app-environment
-      APP_ENV: ${NODEHUB_APP_ENV:-local}
-      APP_DEBUG: "${NODEHUB_APP_DEBUG:-true}"
-      APP_URL: ${NODEHUB_APP_URL:-http://localhost:8000}
-      DB_HOST: db
+    ports:
+      - "${APP_PORT:-8000}:443"
+    environment:
+      APP_ENV: ${NODEHUB_APP_ENV:-production}
+      APP_DEBUG: "${NODEHUB_APP_DEBUG:-false}"
+      APP_URL: ${NODEHUB_APP_URL:-https://localhost:8000}
+      DB_HOST: 127.0.0.1
       DB_PORT: "3306"
       DB_DATABASE: ${NODEHUB_DB_NAME:-nodehub}
       DB_USERNAME: ${NODEHUB_DB_USER:-nodehub}
@@ -39,64 +22,18 @@ services:
       QUEUE_CONNECTION: database
       MAIL_MAILER: log
       VNC_WEBSOCKIFY_BINARY: websockify
-      VNC_WEBSOCKIFY_LISTEN: 0.0.0.0:6080
+      VNC_WEBSOCKIFY_LISTEN: 127.0.0.1:6080
       VNC_BRIDGE_CHECK: "false"
       VNC_WS_URL: ${NODEHUB_WS_URL:-}
       VNC_TOKEN_TTL: ${NODEHUB_TOKEN_TTL:-120}
       VNC_STATUS_TIMEOUT: ${NODEHUB_STATUS_TIMEOUT:-1}
-      ADMIN_EMAIL: ${NODEHUB_ADMIN_EMAIL:-admin@example.com}
+      ADMIN_EMAIL: ${NODEHUB_ADMIN_EMAIL:-admin@mail.com}
       ADMIN_NAME: ${NODEHUB_ADMIN_NAME:-Admin}
-      ADMIN_PASSWORD: ${NODEHUB_ADMIN_PASSWORD:-password}
+      ADMIN_PASSWORD: ${NODEHUB_ADMIN_PASSWORD:-qwerty21}
     volumes:
-      - .:/var/www/html
-      - app-storage:/var/www/html/storage/app
-    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
-    depends_on:
-      db:
-        condition: service_healthy
-
-  bridge:
-    image: nodehub-portal
-    restart: unless-stopped
-    environment:
-      SKIP_BOOTSTRAP: "1"
-    entrypoint:
-      - sh
-      - -c
-      - |
-        mkdir -p /var/www/html/storage/app /var/www/html/storage/logs
-        touch /var/www/html/storage/app/vnc-tokens.cfg
-        exec websockify \
-          --log-file=/var/www/html/storage/logs/websockify.log \
-          --token-plugin TokenFile \
-          --token-source /var/www/html/storage/app/vnc-tokens.cfg \
-          0.0.0.0:6080
-    volumes:
-      - app-storage:/var/www/html/storage/app
-
-  scheduler:
-    image: nodehub-portal
-    restart: unless-stopped
-    environment: *app-environment
-    command: ["php", "artisan", "schedule:work"]
-    volumes:
-      - app-storage:/var/www/html/storage/app
-    depends_on:
-      db:
-        condition: service_healthy
-
-  proxy:
-    image: nginx:1.27-alpine
-    restart: unless-stopped
-    ports:
-      - "${APP_PORT:-8000}:443"
-    volumes:
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./docker/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - app
-      - bridge
+      - nodehub-db:/var/lib/mysql
+      - nodehub-storage:/var/www/html/storage
 
 volumes:
-  db-data:
-  app-storage:
+  nodehub-db:
+  nodehub-storage:
