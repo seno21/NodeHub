@@ -23,12 +23,19 @@
     @php
         $computersJson = $computers
             ->map(function ($c) {
+                $tagNames = [];
+                if ($c->relationLoaded('tagsRelation') && $c->tagsRelation->isNotEmpty()) {
+                    $tagNames = $c->tagsRelation->pluck('name')->all();
+                } elseif ($c->tags) {
+                    $tagNames = array_values(array_filter(array_map('trim', explode(',', $c->tags))));
+                }
+
                 return [
                     'id' => $c->id,
                     'name' => $c->name,
                     'ip_address' => $c->ip_address,
                     'os_type' => $c->os_type,
-                    'tags' => array_values(array_filter(array_map('trim', explode(',', $c->tags ?? '')))),
+                    'tags' => array_values(array_unique($tagNames)),
                 ];
             })
             ->values();
@@ -123,10 +130,24 @@
                                 </div>
                             </div>
 
-                            {{-- Search Filter Input --}}
-                            <input type="text" x-model="searchQuery"
-                                placeholder="Cari nama perangkat, IP, atau tag..."
-                                class="w-full rounded-xl border-gray-200 text-xs py-2 focus:border-[#00828c] focus:ring-[#00828c] shadow-xs" />
+                            {{-- Search Filter Input & Tag Filter Dropdown --}}
+                            <div class="flex flex-col sm:flex-row items-center gap-2">
+                                <div class="relative flex-1 w-full">
+                                    <input type="text" x-model="searchQuery"
+                                        placeholder="Cari nama perangkat, IP..."
+                                        class="w-full rounded-xl border-gray-200 text-xs py-2 focus:border-[#00828c] focus:ring-[#00828c] shadow-xs" />
+                                </div>
+
+                                <div class="w-full sm:w-44 shrink-0">
+                                    <select x-model="selectedTagFilter"
+                                        class="w-full rounded-xl border-gray-200 text-xs py-2 focus:border-[#00828c] focus:ring-[#00828c] shadow-xs bg-slate-50">
+                                        <option value="">Semua Tag</option>
+                                        <template x-for="tagName in availableTags" :key="tagName">
+                                            <option :value="tagName" x-text="'#' + tagName"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
 
                             {{-- Device Checkboxes List --}}
                             <div
@@ -194,17 +215,33 @@
                 iconInput: '{{ old('icon', $action->icon ?: 'lucide:refresh-cw') }}',
                 selectedIds: initialSelectedIds,
                 searchQuery: '',
+                selectedTagFilter: '',
+
+                get availableTags() {
+                    const tagsSet = new Set();
+                    this.allDevices.forEach(d => {
+                        if (Array.isArray(d.tags)) {
+                            d.tags.forEach(t => {
+                                if (t) tagsSet.add(t);
+                            });
+                        }
+                    });
+                    return Array.from(tagsSet).sort();
+                },
 
                 get filteredDevices() {
-                    if (!this.searchQuery.trim()) {
-                        return this.allDevices;
-                    }
-                    const q = this.searchQuery.toLowerCase();
                     return this.allDevices.filter(d => {
-                        const matchName = d.name.toLowerCase().includes(q);
-                        const matchIp = d.ip_address.toLowerCase().includes(q);
-                        const matchTag = d.tags.some(t => t.toLowerCase().includes(q));
-                        return matchName || matchIp || matchTag;
+                        if (this.selectedTagFilter && (!d.tags || !d.tags.includes(this.selectedTagFilter))) {
+                            return false;
+                        }
+                        if (this.searchQuery.trim()) {
+                            const q = this.searchQuery.toLowerCase();
+                            const matchName = d.name.toLowerCase().includes(q);
+                            const matchIp = d.ip_address.toLowerCase().includes(q);
+                            const matchTag = d.tags && d.tags.some(t => t.toLowerCase().includes(q));
+                            return matchName || matchIp || matchTag;
+                        }
+                        return true;
                     });
                 },
 

@@ -33,10 +33,19 @@ class RemoteActionController extends Controller
      */
     public function create(): View
     {
-        $computers = Computer::query()->latest()->get();
+        $query = Computer::query();
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('tags')) {
+            $query->with('tagsRelation');
+        }
+
+        $allTags = \Illuminate\Support\Facades\Schema::hasTable('tags')
+            ? \App\Models\Tag::query()->orderBy('name')->get()
+            : collect();
 
         return view('actions.create', [
-            'computers' => $computers,
+            'computers' => $query->latest()->get(),
+            'allTags' => $allTags,
         ]);
     }
 
@@ -85,11 +94,20 @@ class RemoteActionController extends Controller
     public function edit(RemoteAction $action): View
     {
         $action->load('computers');
-        $computers = Computer::query()->latest()->get();
+        $query = Computer::query();
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('tags')) {
+            $query->with('tagsRelation');
+        }
+
+        $allTags = \Illuminate\Support\Facades\Schema::hasTable('tags')
+            ? \App\Models\Tag::query()->orderBy('name')->get()
+            : collect();
 
         return view('actions.edit', [
             'action' => $action,
-            'computers' => $computers,
+            'computers' => $query->latest()->get(),
+            'allTags' => $allTags,
         ]);
     }
 
