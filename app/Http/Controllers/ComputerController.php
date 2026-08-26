@@ -12,6 +12,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Schema;
 
+use Illuminate\Http\Request;
+
 class ComputerController extends Controller
 {
     public function __construct(private VncSessionService $sessions) {}
@@ -33,7 +35,7 @@ class ComputerController extends Controller
     /**
      * Display a listing of the devices.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $query = Computer::query();
 
@@ -41,8 +43,40 @@ class ComputerController extends Controller
             $query->with('tagsRelation');
         }
 
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('ip_address', 'like', "%{$search}%")
+                  ->orWhere('vnc_port', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('tag')) {
+            $tag = $request->input('tag');
+            $query->where(function ($q) use ($tag) {
+                $q->whereHas('tagsRelation', function ($t) use ($tag) {
+                    if (is_numeric($tag)) {
+                        $t->where('tags.id', $tag);
+                    } else {
+                        $t->where('tags.name', $tag);
+                    }
+                })
+                ->orWhere('tags', 'like', "%{$tag}%");
+            });
+        }
+
+        if ($request->filled('os')) {
+            $query->where('os_type', $request->input('os'));
+        }
+
+        $allTags = Schema::hasTable('tags') ? Tag::query()->orderBy('name')->get() : collect();
+
         return view('computers.index', [
-            'computers' => $query->latest()->get(),
+            'computers' => $query->latest()->paginate(15)->withQueryString(),
+            'allTags' => $allTags,
         ]);
     }
 

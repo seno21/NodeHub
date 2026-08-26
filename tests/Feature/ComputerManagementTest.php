@@ -154,6 +154,86 @@ class ComputerManagementTest extends TestCase
         }
     }
 
+    public function test_devices_page_paginates_15_items_per_page(): void
+    {
+        $user = User::factory()->create();
+        Computer::factory()->count(20)->create();
+
+        $response = $this->actingAs($user)->get('/computers');
+
+        $response->assertOk();
+        $response->assertViewHas('computers', function ($computers) {
+            return $computers->count() === 15 && $computers->total() === 20;
+        });
+    }
+
+    public function test_user_can_search_devices_by_name_location_address_and_description(): void
+    {
+        $user = User::factory()->create();
+        Computer::factory()->create(['name' => 'Alpha Server', 'ip_address' => '10.0.0.1']);
+        Computer::factory()->create(['location' => 'Gedung Merdeka', 'ip_address' => '10.0.0.2']);
+        Computer::factory()->create(['ip_address' => '192.168.99.88', 'vnc_port' => 5901]);
+        Computer::factory()->create(['description' => 'Server Khusus POS Kasir']);
+        Computer::factory()->create(['name' => 'Other PC', 'location' => 'Lobby', 'ip_address' => '172.16.0.1', 'description' => 'Unrelated']);
+
+        // Search by device name
+        $response = $this->actingAs($user)->get('/computers?search=Alpha');
+        $response->assertOk();
+        $response->assertSee('Alpha Server');
+        $response->assertDontSee('Other PC');
+
+        // Search by location
+        $response = $this->actingAs($user)->get('/computers?search=Merdeka');
+        $response->assertOk();
+        $response->assertSee('Gedung Merdeka');
+        $response->assertDontSee('Other PC');
+
+        // Search by address (IP)
+        $response = $this->actingAs($user)->get('/computers?search=192.168.99.88');
+        $response->assertOk();
+        $response->assertSee('192.168.99.88');
+        $response->assertDontSee('Other PC');
+
+        // Search by description
+        $response = $this->actingAs($user)->get('/computers?search=POS+Kasir');
+        $response->assertOk();
+        $response->assertSee('Server Khusus POS Kasir');
+        $response->assertDontSee('Other PC');
+    }
+
+    public function test_user_can_filter_devices_by_tag(): void
+    {
+        $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'Server Utama', 'color' => '#00828c']);
+
+        $taggedComp = Computer::factory()->create(['name' => 'Tagged Machine']);
+        $taggedComp->tagsRelation()->attach($tag->id);
+
+        Computer::factory()->create(['name' => 'Untagged Machine']);
+
+        $response = $this->actingAs($user)->get("/computers?tag={$tag->id}");
+        $response->assertOk();
+        $response->assertSee('Tagged Machine');
+        $response->assertDontSee('Untagged Machine');
+    }
+
+    public function test_user_can_filter_devices_by_os(): void
+    {
+        $user = User::factory()->create();
+        Computer::factory()->create(['name' => 'Win Server', 'os_type' => 'windows']);
+        Computer::factory()->create(['name' => 'Linux Box', 'os_type' => 'linux']);
+
+        $response = $this->actingAs($user)->get('/computers?os=windows');
+        $response->assertOk();
+        $response->assertSee('Win Server');
+        $response->assertDontSee('Linux Box');
+
+        $response = $this->actingAs($user)->get('/computers?os=linux');
+        $response->assertOk();
+        $response->assertSee('Linux Box');
+        $response->assertDontSee('Win Server');
+    }
+
     /**
      * Open a temporary TCP listener simulating a reachable VNC target.
      *

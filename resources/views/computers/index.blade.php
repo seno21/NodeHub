@@ -52,6 +52,72 @@
                 </div>
             @endif
 
+            <!-- Search & Tag Filter Bar -->
+            <div class="mb-6 bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
+                <form method="GET" action="{{ route('computers.index') }}" class="flex flex-col sm:flex-row items-center gap-3">
+                    <!-- Search Input -->
+                    <div class="relative flex-1 w-full">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        </div>
+                        <input type="text"
+                               name="search"
+                               value="{{ request('search') }}"
+                               placeholder="{{ __('Cari device, lokasi, IP address, deskripsi...') }}"
+                               class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
+                    </div>
+
+                    <!-- Tag Filter Dropdown -->
+                    @if (isset($allTags) && $allTags->isNotEmpty())
+                        <div class="w-full sm:w-48 shrink-0">
+                            <select name="tag"
+                                    class="w-full py-2.5 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
+                                <option value="">{{ __('Semua Tag') }}</option>
+                                @foreach ($allTags as $tagItem)
+                                    <option value="{{ $tagItem->id }}" {{ (string) request('tag') === (string) $tagItem->id ? 'selected' : '' }}>
+                                        {{ $tagItem->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
+                    <!-- OS Filter Dropdown -->
+                    <div class="w-full sm:w-40 shrink-0">
+                        <select name="os"
+                                class="w-full py-2.5 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
+                            <option value="">{{ __('Semua OS') }}</option>
+                            <option value="windows" {{ request('os') === 'windows' ? 'selected' : '' }}>Windows</option>
+                            <option value="linux" {{ request('os') === 'linux' ? 'selected' : '' }}>Linux</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons: Submit Search & Reset -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                        <button type="submit"
+                                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wider hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-xs">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                            {{ __('Cari') }}
+                        </button>
+
+                        @if (request('search') || request('tag') || request('os'))
+                            <a href="{{ route('computers.index') }}"
+                               class="inline-flex items-center justify-center gap-1 px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition"
+                               title="{{ __('Reset Filter') }}">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                                <span>{{ __('Reset') }}</span>
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
             @if ($computers->isEmpty())
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
                     <div class="p-14 text-center">
@@ -62,18 +128,33 @@
                                       d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/>
                             </svg>
                         </span>
-                        <h3 class="mt-4 text-base font-semibold text-gray-900">
-                            {{ __('No devices registered yet') }}
-                        </h3>
-                        <p class="mt-1 text-sm text-gray-500">
-                            {{ __('Add your first computer to start remote access.') }}
-                        </p>
-                        <div class="mt-6">
-                            <a href="{{ route('computers.create') }}"
-                               class="inline-flex items-center px-4 py-2 bg-[#00828c] rounded-md text-xs font-semibold uppercase tracking-widest text-white hover:bg-[#006e76] transition">
-                                {{ __('Add Device') }}
-                            </a>
-                        </div>
+                        @if (request('search') || request('tag') || request('os'))
+                            <h3 class="mt-4 text-base font-semibold text-gray-900">
+                                {{ __('Tidak ada perangkat yang ditemukan') }}
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                {{ __('Coba gunakan kata kunci lain atau hapus filter pencarian.') }}
+                            </p>
+                            <div class="mt-6">
+                                <a href="{{ route('computers.index') }}"
+                                   class="inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold uppercase tracking-widest transition">
+                                    {{ __('Reset Filter') }}
+                                </a>
+                            </div>
+                        @else
+                            <h3 class="mt-4 text-base font-semibold text-gray-900">
+                                {{ __('No devices registered yet') }}
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                {{ __('Add your first computer to start remote access.') }}
+                            </p>
+                            <div class="mt-6">
+                                <a href="{{ route('computers.create') }}"
+                                   class="inline-flex items-center px-4 py-2 bg-[#00828c] rounded-md text-xs font-semibold uppercase tracking-widest text-white hover:bg-[#006e76] transition">
+                                    {{ __('Add Device') }}
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @else
@@ -120,6 +201,26 @@
                                         </span>
                                     @endif
                                 </div>
+                                @if ($computer->tagsRelation && $computer->tagsRelation->isNotEmpty())
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach ($computer->tagsRelation as $tagItem)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium"
+                                                  style="background-color: {{ $tagItem->color ? $tagItem->color . '20' : '#e2e8f0' }}; color: {{ $tagItem->color ?? '#475569' }}; border: 1px solid {{ $tagItem->color ? $tagItem->color . '40' : '#cbd5e1' }}">
+                                                {{ $tagItem->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @elseif ($computer->tags)
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach (array_map('trim', explode(',', $computer->tags)) as $tagName)
+                                            @if ($tagName !== '')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                                    {{ $tagName }}
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
                                 @if ($computer->description)
                                     <p class="mt-2 text-xs text-gray-600 line-clamp-2">{{ $computer->description }}</p>
                                 @endif
@@ -217,6 +318,26 @@
                                                 </svg>
                                                 {{ $computer->location }}
                                             </span>
+                                        @endif
+                                        @if ($computer->tagsRelation && $computer->tagsRelation->isNotEmpty())
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                @foreach ($computer->tagsRelation as $tagItem)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium"
+                                                          style="background-color: {{ $tagItem->color ? $tagItem->color . '20' : '#e2e8f0' }}; color: {{ $tagItem->color ?? '#475569' }}; border: 1px solid {{ $tagItem->color ? $tagItem->color . '40' : '#cbd5e1' }}">
+                                                        {{ $tagItem->name }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @elseif ($computer->tags)
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                @foreach (array_map('trim', explode(',', $computer->tags)) as $tagName)
+                                                    @if ($tagName !== '')
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                                            {{ $tagName }}
+                                                        </span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         @endif
                                     </td>
 
@@ -321,6 +442,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if ($computers->hasPages())
+                    <div class="mt-6">
+                        {{ $computers->links() }}
+                    </div>
+                @endif
             @endif
         </div>
 
