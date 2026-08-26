@@ -454,16 +454,67 @@ function connect(ticket) {
         showPasswordPrompt();
     });
 
+    let lastHostClipboard = '';
+    let lastRemoteClipboard = '';
+
+    // 1. REMOTE -> HOST: Copy on Remote Windows -> Paste on Host (Arch Linux)
     state.rfb.addEventListener('clipboard', (event) => {
-        navigator.clipboard?.writeText(event.detail.text).catch(() => {});
+        const text = event.detail?.text;
+        if (!text || text === lastRemoteClipboard) return;
+
+        lastRemoteClipboard = text;
+
+        if (el.clipboardTextInput) {
+            el.clipboardTextInput.value = text;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                setStatus('Clipboard dari Remote Windows disalin ke Host (Siap paste di Arch)!');
+            }).catch(() => {
+                setStatus('Teks dari Remote Windows diterima (Lihat menu Clipboard Toolbar)');
+            });
+        } else {
+            setStatus('Teks dari Remote Windows diterima (Lihat menu Clipboard Toolbar)');
+        }
     });
 
+    // 2. HOST -> REMOTE: Auto-sync Host clipboard to Remote VNC on click / focus
+    async function syncHostClipboardToRemote() {
+        if (!state?.rfb || state.viewOnly) return;
+
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                if (text && text !== lastHostClipboard) {
+                    lastHostClipboard = text;
+                    state.rfb.clipboardPasteFrom(text);
+                    if (el.clipboardTextInput) {
+                        el.clipboardTextInput.value = text;
+                    }
+                    setStatus('Clipboard Host disinkronkan ke Remote Windows');
+                }
+            }
+        } catch (e) {
+            // Ignore background readText permissions if denied by browser
+        }
+    }
+
+    el.screen?.addEventListener('pointerdown', syncHostClipboardToRemote);
+    window.addEventListener('focus', syncHostClipboardToRemote);
+
+    // 3. HOST -> REMOTE: Paste event (Ctrl+V on Host)
     window.addEventListener('paste', (event) => {
         if (!state?.rfb || state.viewOnly) return;
         const text = event.clipboardData?.getData('text');
         if (text) {
+            lastHostClipboard = text;
             state.rfb.clipboardPasteFrom(text);
-            setStatus('Text clipboard dikirim ke VNC remote');
+            if (el.clipboardTextInput) {
+                el.clipboardTextInput.value = text;
+            }
+            setTimeout(sendCtrlV, 100);
+            setStatus('Teks dipaste & dikirim ke Remote Windows');
         }
     });
 }
@@ -620,11 +671,85 @@ function bindToolbar() {
         if (!el.toolbar?.contains(event.target)) {
             el.toolbarMenu?.classList.add('hidden');
             el.quickKeysPanel?.classList.add('hidden');
+            el.clipboardPanel?.classList.add('hidden');
             el.settingsPanel?.classList.add('hidden');
         } else if (!el.quickKeysPanel?.contains(event.target) && event.target !== el.btnQuickKeys) {
             el.quickKeysPanel?.classList.add('hidden');
+        } else if (!el.clipboardPanel?.contains(event.target) && event.target !== el.btnClipboard) {
+            el.clipboardPanel?.classList.add('hidden');
         } else if (!el.settingsPanel?.contains(event.target) && event.target !== el.btnSettings) {
             el.settingsPanel?.classList.add('hidden');
+        }
+    });
+
+    function sendCtrlV() {
+        if (!state?.rfb || state.viewOnly) return;
+        const CTRL_KEY = 0xffe3; // Control_L
+        const V_KEY = 0x0076;    // v
+
+        try {
+            state.rfb.sendKey(CTRL_KEY, 'ControlLeft', true);
+            setTimeout(() => {
+                state.rfb.sendKey(V_KEY, 'KeyV', true);
+                setTimeout(() => {
+                    state.rfb.sendKey(V_KEY, 'KeyV', false);
+                    setTimeout(() => {
+                        state.rfb.sendKey(CTRL_KEY, 'ControlLeft', false);
+                    }, 20);
+                }, 20);
+            }, 20);
+        } catch (e) {
+            console.error('sendCtrlV failed:', e);
+        }
+    }
+
+    function typeTextToRemote(text) {
+        if (!state?.rfb || state.viewOnly) return;
+        let delay = 0;
+        for (let i = 0; i < text.length; i++) {
+            const char = text.charAt(i);
+            let keysym = char.charCodeAt(0);
+            if (char === '\n' || char === '\r') keysym = 0xff0d; // Enter key
+            if (char === '\t') keysym = 0xff09; // Tab key
+
+            setTimeout(() => {
+                try {
+                    state.rfb.sendKey(keysym, null, true);
+                    setTimeout(() => {
+                        state.rfb.sendKey(keysym, null, false);
+                    }, 15);
+                } catch (e) {
+                    console.error('typeTextToRemote failed:', e);
+                }
+            }, delay);
+            delay += 35;
+        }
+    }
+
+    el.btnClipboard?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        el.clipboardPanel?.classList.toggle('hidden');
+        if (!el.clipboardPanel?.classList.contains('hidden')) {
+            setTimeout(() => el.clipboardTextInput?.focus(), 50);
+        }
+    });
+
+    el.btnSendClipboard?.addEventListener('click', () => {
+        const text = el.clipboardTextInput?.value;
+        if (text && state?.rfb) {
+            state.rfb.clipboardPasteFrom(text);
+            setTimeout(sendCtrlV, 150);
+            setStatus('Teks dikirim ke Clipboard & Ctrl+V otomatis');
+            el.clipboardPanel?.classList.add('hidden');
+        }
+    });
+
+    el.btnTypeClipboard?.addEventListener('click', () => {
+        const text = el.clipboardTextInput?.value;
+        if (text && state?.rfb && !state.viewOnly) {
+            typeTextToRemote(text);
+            setStatus('Mengetikkan teks langsung ke layar VNC Remote...');
+            el.clipboardPanel?.classList.add('hidden');
         }
     });
 
@@ -778,6 +903,11 @@ async function init() {
     el.qkCtrlEsc = qs('qk-ctrl-esc');
     el.qkF5 = qs('qk-f5');
     el.qkCtrlAltBackspace = qs('qk-ctrl-alt-backspace');
+    el.btnClipboard = qs('btn-clipboard');
+    el.clipboardPanel = qs('clipboard-panel');
+    el.clipboardTextInput = qs('clipboard-text-input');
+    el.btnSendClipboard = qs('btn-send-clipboard');
+    el.btnTypeClipboard = qs('btn-type-clipboard');
     el.btnViewOnly = qs('btn-view-only');
     el.btnScreenshot = qs('btn-screenshot');
     el.btnFullscreen = qs('btn-fullscreen');

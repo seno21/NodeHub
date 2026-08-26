@@ -129,6 +129,38 @@
 
                 <span class="mx-1 h-5 w-px bg-white/15"></span>
 
+                {{-- Clipboard / Send Text --}}
+                <div class="relative">
+                    <button type="button" id="btn-clipboard" title="{{ __('Kirim Clipboard / Teks ke Remote') }}" class="toolbar-btn">
+                        <svg class="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                        </svg>
+                    </button>
+
+                    <div id="clipboard-panel"
+                        class="hidden absolute left-0 top-10 z-50 w-72 rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
+                        <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            {{ __('Kirim Teks / Clipboard ke Remote') }}
+                        </p>
+                        <textarea id="clipboard-text-input" rows="3"
+                            class="w-full rounded-lg border border-white/10 bg-zinc-800 p-2 text-xs text-gray-100 placeholder-gray-500 focus:border-[#00828c] focus:outline-none focus:ring-1 focus:ring-[#00828c]"
+                            placeholder="{{ __('Tempel / ketik teks dari komputer Anda di sini...') }}"></textarea>
+                        <div class="mt-2 flex gap-1.5">
+                            <button type="button" id="btn-send-clipboard"
+                                class="flex-1 rounded-lg bg-[#00828c] py-1.5 text-xs font-bold text-white hover:bg-[#006e76] transition">
+                                {{ __('Kirim ke Clipboard VNC') }}
+                            </button>
+                            <button type="button" id="btn-type-clipboard"
+                                class="rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-gray-300 hover:bg-white/20 transition"
+                                title="{{ __('Ketik karakter demi karakter langsung ke layar remote') }}">
+                                {{ __('Ketik Teks') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <span class="mx-1 h-5 w-px bg-white/15"></span>
+
                 <button type="button" id="btn-view-only" title="{{ __('Toggle View-Only') }}" class="toolbar-btn">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="1.8">
