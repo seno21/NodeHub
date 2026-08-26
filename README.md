@@ -19,7 +19,12 @@ Sebelum melakukan instalasi, pastikan sistem Anda memenuhi kebutuhan berikut:
 
 ## Docker (Recommended)
 
-Metode ini adalah cara paling cepat dan mudah. Seluruh layanan (_App Laravel, Websockify Bridge Gateway, MariaDB Database, dan Scheduler_) akan langsung berjalan secara terisolasi dan terkonfigurasi otomatis.
+Metode ini adalah cara paling cepat dan aman. Seluruh layanan (_App Laravel, Websockify Bridge Gateway, MariaDB Database, Scheduler, dan Nginx Reverse Proxy_) berjalan secara terisolasi.
+
+> 🛡️ **Keamanan Arsitektur Docker:**
+> - **Database (MariaDB):** Port database `3306` **tidak di-expose** ke luar host.
+> - **App Laravel & Bridge Gateway:** Tidak di-expose langsung ke luar host.
+> - **Nginx Reverse Proxy:** Menjadi satu-satunya pintu masuk (entrypoint) publik. Seluruh trafik HTTP (`/`) dan VNC WebSocket (`/websockify`) diteruskan melalui reverse proxy pada port 8000.
 
 ### Run Container
 
@@ -29,12 +34,11 @@ Cukup jalankan satu perintah berikut di direktori proyek:
 docker compose up -d --build
 ```
 
-### Aplication Access
+### Application Access
 
 Setelah proses build dan startup selesai, aplikasi dapat diakses di:
 
-- **Portal Utama (Web):** `http://localhost:8000`
-- **Websockify Gateway:** `ws://localhost:6080`
+- **Portal Utama & VNC Gateway:** `http://localhost:8000` (Web & WebSocket VNC melalui Reverse Proxy Nginx)
 - **Kredensial Default Admin:**
     - **Email:** `admin@mail.com`
     - **Admin:** `admin`
@@ -44,17 +48,17 @@ Setelah proses build dan startup selesai, aplikasi dapat diakses di:
 
 ### Customize Port & Environment Docker
 
-Anda dapat mengubah port atau kredensial default tanpa perlu mengubah file konfigurasi:
+Anda dapat mengubah port publik proxy atau kredensial default tanpa perlu mengubah file konfigurasi:
 
 ```bash
-APP_PORT=9000 BRIDGE_PORT=6090 NODEHUB_ADMIN_PASSWORD=rahasia docker compose up -d
+APP_PORT=9000 NODEHUB_ADMIN_PASSWORD=rahasia docker compose up -d
 ```
 
 ### Syntax Docker:
 
 ```bash
-# Melihat log aktivitas aplikasi
-docker compose logs -f app
+# Melihat log aktivitas seluruh container / proxy
+docker compose logs -f proxy
 
 # Melihat status container yang berjalan
 docker compose ps

@@ -21,9 +21,43 @@ class Computer extends Model
         return [
             'vnc_port' => 'integer',
             'ssh_port' => 'integer',
-            'vnc_password' => 'encrypted',
-            'ssh_password' => 'encrypted',
         ];
+    }
+
+    public function getVncPasswordAttribute(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        try {
+            return decrypt($value);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public function setVncPasswordAttribute(?string $value): void
+    {
+        $this->attributes['vnc_password'] = !empty($value) ? encrypt($value) : null;
+    }
+
+    public function getSshPasswordAttribute(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        try {
+            return decrypt($value);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public function setSshPasswordAttribute(?string $value): void
+    {
+        $this->attributes['ssh_password'] = !empty($value) ? encrypt($value) : null;
     }
 
     /**

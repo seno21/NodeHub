@@ -139,15 +139,22 @@ class RemoteActionService
 
         try {
             $output = $ssh->exec($finalCommand);
+            $exitStatus = $ssh->getExitStatus();
+            $stdError = $ssh->getStdError();
             $execLatency = (int) round((microtime(true) - $startTime) * 1000);
             $totalLatency = $check['latency_ms'] + $execLatency;
 
             $rawOutput = (string) $output;
+            if (!empty($stdError)) {
+                $rawOutput .= ($rawOutput !== '' ? "\n" : '') . '[STDERR] ' . trim($stdError);
+            }
+
             if ($pass !== '') {
                 $rawOutput = str_replace($pass, '***', $rawOutput);
             }
 
-            $outputText = trim($rawOutput) ?: 'Perintah berhasil dieksekusi (no stdout)';
+            $isSuccess = ($exitStatus === 0 || $exitStatus === false || $exitStatus === null);
+            $outputText = trim($rawOutput) ?: ($isSuccess ? 'Perintah berhasil dieksekusi (no stdout)' : 'Perintah gagal tanpa output');
 
             return [
                 'computer_id' => $computer->id,
@@ -158,13 +165,15 @@ class RemoteActionService
                     'latency_ms' => $check['latency_ms'],
                 ],
                 'execution' => [
-                    'success' => true,
-                    'message' => "Script berhasil dijalankan ({$execLatency}ms)",
+                    'success' => $isSuccess,
+                    'message' => $isSuccess
+                        ? "Script berhasil dijalankan ({$execLatency}ms)"
+                        : "Script gagal dengan exit status {$exitStatus} ({$execLatency}ms)",
                     'output' => $outputText,
                     'latency_ms' => $execLatency,
                 ],
-                'success' => true,
-                'message' => "SUKSES ({$totalLatency}ms)",
+                'success' => $isSuccess,
+                'message' => $isSuccess ? "SUKSES ({$totalLatency}ms)" : "GAGAL (Exit status: {$exitStatus})",
                 'output' => $outputText,
                 'latency_ms' => $totalLatency,
             ];

@@ -127,7 +127,7 @@ class VncSessionTest extends TestCase
         $this->actingAs($user)
             ->getJson("http://10.0.3.5:8000/vnc/ticket/{$token}")
             ->assertOk()
-            ->assertJsonPath('ws_url', "ws://10.0.3.5:6080/websockify?token={$token}");
+            ->assertJsonPath('ws_url', "ws://10.0.3.5:8000/websockify?token={$token}");
     }
 
     public function test_expired_sessions_are_pruned_from_token_file(): void

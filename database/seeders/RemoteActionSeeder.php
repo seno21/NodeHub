@@ -23,7 +23,7 @@ class RemoteActionSeeder extends Seeder
                 'name' => 'Refresh Firefox (F5)',
                 'icon' => 'lucide:refresh-cw',
                 'description' => 'Kirim F5 keypress ke display Xubuntu/Firefox',
-                'command' => 'DISPLAY=:0 xdotool key F5',
+                'command' => 'DISPLAY=:0 xdotool search --onlyvisible --class firefox key F5',
                 'all_computers' => true,
             ],
             [

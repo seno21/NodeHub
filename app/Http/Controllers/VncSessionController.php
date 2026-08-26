@@ -83,8 +83,8 @@ class VncSessionController extends Controller
     /**
      * Resolve the public websockify base URL.
      *
-     * Falls back to the request host combined with the configured listen port
-     * so the portal also works when accessed from other machines.
+     * Falls back to the request host (including port) so the portal works
+     * seamlessly behind a reverse proxy routing /websockify.
      */
     private function websockifyUrl(Request $request): string
     {
@@ -93,8 +93,7 @@ class VncSessionController extends Controller
         }
 
         $scheme = $request->isSecure() ? 'wss' : 'ws';
-        $port = substr(strrchr((string) config('vnc.websockify.listen'), ':'), 1) ?: '6080';
 
-        return "{$scheme}://{$request->getHost()}:{$port}";
+        return "{$scheme}://{$request->getHttpHost()}";
     }
 }
