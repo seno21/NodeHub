@@ -1,19 +1,20 @@
-<aside x-cloak
-    x-bind:class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+<aside x-cloak x-bind:class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     class="fixed inset-y-0 left-0 z-50 w-64 bg-[#003e43] text-slate-100 flex flex-col shadow-2xl transition-transform duration-200 ease-in-out -translate-x-full lg:translate-x-0">
     <!-- Logo -->
     <div class="h-16 flex items-center gap-3 px-5 border-b border-white/10">
         <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00828c] shadow-lg shadow-[#00828c]/40">
             <svg class="h-5 w-5 text-white" viewBox="0 0 512 512" fill="currentColor">
                 <g transform="translate(49.08, 130.28) scale(0.56)">
-                    <path d="M 417.00,45.00 L 250.00,45.00 L 44.00,404.00 L 167.00,404.00 L 333.00,116.00 L 405.00,238.00 L 466.00,132.00 Z" />
-                    <path d="M 695.00,45.00 L 571.00,45.00 L 404.00,333.00 L 332.00,211.00 L 271.00,317.00 L 320.00,404.00 L 488.00,404.00 Z" />
+                    <path
+                        d="M 417.00,45.00 L 250.00,45.00 L 44.00,404.00 L 167.00,404.00 L 333.00,116.00 L 405.00,238.00 L 466.00,132.00 Z" />
+                    <path
+                        d="M 695.00,45.00 L 571.00,45.00 L 404.00,333.00 L 332.00,211.00 L 271.00,317.00 L 320.00,404.00 L 488.00,404.00 Z" />
                 </g>
             </svg>
         </span>
         <div>
             <p class="text-sm font-bold tracking-wide leading-none text-white">NodeHub</p>
-            <p class="text-[9px] uppercase tracking-wider text-teal-200/70 mt-0.5">Centralized Infrastructure Control</p>
+            <p class="text-[9px] uppercase tracking-wider text-teal-200/70 mt-0.5">Centralized Infra Control</p>
         </div>
 
         <!-- Close button (mobile) -->
