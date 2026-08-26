@@ -1,10 +1,10 @@
-# NodeHub Portal - Panduan Instalasi & Deployment
+# NodeHub
 
 **NodeHub Portal** adalah aplikasi manajemen remote desktop VNC berbasis web yang modern dan responsif (dioptimalkan untuk tampilan Desktop & Mobile). Aplikasi ini mengintegrasikan Laravel, Alpine.js, TailwindCSS, MariaDB, dan Websockify Gateway.
 
 ---
 
-## Prasyarat Sistem
+## Requirement Sistem
 
 Sebelum melakukan instalasi, pastikan sistem Anda memenuhi kebutuhan berikut:
 
@@ -15,11 +15,13 @@ Sebelum melakukan instalasi, pastikan sistem Anda memenuhi kebutuhan berikut:
 
 ---
 
-## Cara A: Instalasi Menggunakan Docker (Direkomendasikan)
+# Installation
+
+## Docker (Recommended)
 
 Metode ini adalah cara paling cepat dan mudah. Seluruh layanan (_App Laravel, Websockify Bridge Gateway, MariaDB Database, dan Scheduler_) akan langsung berjalan secara terisolasi dan terkonfigurasi otomatis.
 
-### 1. Jalankan Container
+### Run Container
 
 Cukup jalankan satu perintah berikut di direktori proyek:
 
@@ -27,19 +29,20 @@ Cukup jalankan satu perintah berikut di direktori proyek:
 docker compose up -d --build
 ```
 
-### 2. Akses Aplikasi
+### Aplication Access
 
 Setelah proses build dan startup selesai, aplikasi dapat diakses di:
 
 - **Portal Utama (Web):** `http://localhost:8000`
 - **Websockify Gateway:** `ws://localhost:6080`
 - **Kredensial Default Admin:**
-    - **Email:** `admin@example.com`
-    - **Password:** `password`
+    - **Email:** `admin@mail.com`
+    - **Admin:** `admin`
+    - **Password:** `qwerty21`
 
 > **Catatan:** Database MariaDB Docker secara otomatis di-migrate dan di-seed admin saat pertama kali container di-boot. Data tersimpan secara permanen di Docker volume (`nodehub_db-data` & `nodehub_app-storage`).
 
-### 3. Kustomisasi Port & Environment Docker
+### Customize Port & Environment Docker
 
 Anda dapat mengubah port atau kredensial default tanpa perlu mengubah file konfigurasi:
 
@@ -47,7 +50,7 @@ Anda dapat mengubah port atau kredensial default tanpa perlu mengubah file konfi
 APP_PORT=9000 BRIDGE_PORT=6090 NODEHUB_ADMIN_PASSWORD=rahasia docker compose up -d
 ```
 
-### Perintah Penting Docker:
+### Syntax Docker:
 
 ```bash
 # Melihat log aktivitas aplikasi
@@ -65,20 +68,13 @@ docker compose down -v
 
 ---
 
-## Cara B: Instalasi Manual Tanpa Docker (Host Native)
+## Host Native
 
 Gunakan metode ini jika Anda ingin menjalankan aplikasi langsung di server/komputer host tanpa Docker.
 
-### 1. Install Paket Dependensi OS
+### Install Packet Dependecies OS
 
-**Di Arch Linux:**
-
-```bash
-sudo pacman -S php php-fpm composer nodejs npm mariadb python-pip
-pip install --user websockify
-```
-
-**Di Ubuntu / Debian:**
+**Tested on Ubuntu / Debian:**
 
 ```bash
 sudo apt update
@@ -86,11 +82,11 @@ sudo apt install php-cli php-mysql php-intl php-xml php-curl composer nodejs npm
 pip3 install --user websockify
 ```
 
-### 2. Clone & Setup Proyek
+### Clone & Setup Proyek
 
 ```bash
 # Clone repositori & masuk ke direktori proyek
-git clone <url-repository-anda>
+git clone https://github.com/seno21/NodeHub.git
 cd nodehub
 
 # Install dependensi PHP
@@ -103,7 +99,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-### 3. Konfigurasi Database & Jalankan Migration
+### Database Config & Run Migration
 
 Buka file `.env` dan sesuaikan koneksi database MariaDB/MySQL Anda:
 
@@ -122,24 +118,24 @@ Jalankan perintah berikut untuk membuat tabel & seed admin pertama:
 php artisan migrate --seed
 ```
 
-### 4. Build Asset Frontend (CSS & JavaScript)
+### Build Asset Frontend (CSS & JavaScript)
 
 ```bash
 npm install
 npm run build
 ```
 
-### 5. Atur Izin Folder Storage
+### Permission Folder Storage
 
 ```bash
 chmod -R ug+w storage bootstrap/cache
 ```
 
-### 6. Install & Jalankan Websockify Bridge Service
+### Install & Run Websockify Bridge Service
 
 Websockify bertindak sebagai bridge antara koneksi WebSocket dari browser ke target VNC.
 
-**Menggunakan Service systemd (Otomatis & Direkomendasikan):**
+**Using Service systemd (Auto & Recommended):**
 
 ```bash
 sudo ./scripts/install-bridge-service.sh
@@ -154,13 +150,13 @@ sudo systemctl restart nodehub-bridge
 journalctl -u nodehub-bridge -e
 ```
 
-**Atau Jalankan Manual (Mode Development):**
+**Or Run Manual (Mode Development):**
 
 ```bash
 php artisan vnc:bridge
 ```
 
-### 7. Jalankan Task Scheduler & Server
+### Run Task Scheduler & Server
 
 Jalankan scheduler untuk pembersihan token VNC otomatis:
 
@@ -176,7 +172,7 @@ php artisan serve
 
 ---
 
-## Ringkasan Variabel `.env` Penting
+## Summary Variabel `.env` Penting
 
 | Variabel                | Deskripsi                                     | Default                            |
 | :---------------------- | :-------------------------------------------- | :--------------------------------- |
@@ -192,6 +188,6 @@ php artisan serve
 
 ---
 
-## Lisensi
+## License
 
 Proyek ini dirilis di bawah lisensi [MIT](LICENSE).
