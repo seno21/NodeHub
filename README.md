@@ -4,7 +4,7 @@
 
 ---
 
-## Requirement Sistem
+## Requirement System
 
 Sebelum melakukan instalasi, pastikan sistem Anda memenuhi kebutuhan berikut:
 
@@ -19,12 +19,13 @@ Sebelum melakukan instalasi, pastikan sistem Anda memenuhi kebutuhan berikut:
 
 ## Docker (Recommended)
 
-Metode ini adalah cara paling cepat dan aman. Seluruh layanan (_App Laravel, Websockify Bridge Gateway, MariaDB Database, Scheduler, dan Nginx Reverse Proxy_) berjalan secara terisolasi.
+Metode ini adalah cara paling cepat, mudah, dan aman. Seluruh layanan (_App Laravel, Websockify Bridge Gateway, MariaDB Database, Scheduler, dan Nginx Reverse Proxy dengan HTTPS SSL_) telah dibundel menjadi **1 Single Container All-in-One (`nodehub`)** yang dikelola oleh Supervisord.
 
 > 🛡️ **Keamanan Arsitektur Docker:**
-> - **Database (MariaDB):** Port database `3306` **tidak di-expose** ke luar host.
-> - **App Laravel & Bridge Gateway:** Tidak di-expose langsung ke luar host.
-> - **Nginx Reverse Proxy:** Menjadi satu-satunya pintu masuk (entrypoint) publik. Seluruh trafik HTTP (`/`) dan VNC WebSocket (`/websockify`) diteruskan melalui reverse proxy pada port 8000.
+>
+> - **Single Container Bundle:** Hanya ada 1 container tunggal bernama `nodehub`.
+> - **Database (MariaDB):** Berjalan di dalam jaringan internal container (`127.0.0.1:3306`) tanpa di-expose ke luar host.
+> - **SSL/HTTPS & Reverse Proxy Nginx:** Menjadi satu-satunya pintu masuk (entrypoint) publik pada port `8000` (`https://`). Menjelajah melalui HTTPS membuka fitur Secure Context browser untuk sinkronisasi clipboard otomatis 2 arah (`Ctrl + C` dan `Ctrl + V`).
 
 ### Run Container
 
@@ -38,13 +39,13 @@ docker compose up -d --build
 
 Setelah proses build dan startup selesai, aplikasi dapat diakses di:
 
-- **Portal Utama & VNC Gateway:** `http://localhost:8000` (Web & WebSocket VNC melalui Reverse Proxy Nginx)
+- **Portal Utama & VNC Gateway:** `https://localhost:8000` (atau `https://IP_SERVER:8000` via HTTPS)
 - **Kredensial Default Admin:**
     - **Email:** `admin@mail.com`
     - **Admin:** `admin`
     - **Password:** `qwerty21`
 
-> **Catatan:** Database MariaDB Docker secara otomatis di-migrate dan di-seed admin saat pertama kali container di-boot. Data tersimpan secara permanen di Docker volume (`nodehub_db-data` & `nodehub_app-storage`).
+> **Catatan:** Database MariaDB Docker secara otomatis di-migrate dan di-seed admin saat pertama kali container di-boot. Data tersimpan secara permanen di Docker volume (`nodehub-db` & `nodehub-storage`).
 
 ### Customize Port & Environment Docker
 
@@ -57,8 +58,8 @@ APP_PORT=9000 NODEHUB_ADMIN_PASSWORD=rahasia docker compose up -d
 ### Syntax Docker:
 
 ```bash
-# Melihat log aktivitas seluruh container / proxy
-docker compose logs -f proxy
+# Melihat log aktivitas container tunggal nodehub
+docker compose logs -f nodehub
 
 # Melihat status container yang berjalan
 docker compose ps
@@ -178,17 +179,17 @@ php artisan serve
 
 ## Summary Variabel `.env` Penting
 
-| Variabel                | Deskripsi                                     | Default                            |
-| :---------------------- | :-------------------------------------------- | :--------------------------------- |
-| `DB_HOST`               | Host database MySQL/MariaDB                   | `db` (Docker) / `127.0.0.1` (Host) |
-| `DB_PORT`               | Port database MySQL/MariaDB                   | `3306`                             |
-| `DB_DATABASE`           | Nama database                                 | `nodehub`                          |
-| `VNC_WEBSOCKIFY_LISTEN` | Alamat listen service Websockify              | `0.0.0.0:6080`                     |
-| `VNC_WS_URL`            | URL WebSocket yang diakses oleh browser       | `ws://localhost:6080`              |
-| `VNC_TOKEN_TTL`         | Masa berlaku token sesi VNC (detik)           | `120`                              |
-| `VNC_STATUS_TIMEOUT`    | Timeout pengecekan port status device (detik) | `1`                                |
-| `ADMIN_EMAIL`           | Email default akun administrator              | `admin@example.com`                |
-| `ADMIN_PASSWORD`        | Password default akun administrator           | `password`                         |
+| Variabel                | Deskripsi                                     | Default                           |
+| :---------------------- | :-------------------------------------------- | :-------------------------------- |
+| `DB_HOST`               | Host database MySQL/MariaDB                   | `127.0.0.1`                       |
+| `DB_PORT`               | Port database MySQL/MariaDB                   | `3306`                            |
+| `DB_DATABASE`           | Nama database                                 | `nodehub`                         |
+| `VNC_WEBSOCKIFY_LISTEN` | Alamat listen service Websockify              | `127.0.0.1:6080`                  |
+| `VNC_WS_URL`            | URL WebSocket yang diakses oleh browser       | `wss://localhost:8000/websockify` |
+| `VNC_TOKEN_TTL`         | Masa berlaku token sesi VNC (detik)           | `120`                             |
+| `VNC_STATUS_TIMEOUT`    | Timeout pengecekan port status device (detik) | `1`                               |
+| `ADMIN_EMAIL`           | Email default akun administrator              | `admin@mail.com`                  |
+| `ADMIN_PASSWORD`        | Password default akun administrator           | `qwerty21`                        |
 
 ---
 
