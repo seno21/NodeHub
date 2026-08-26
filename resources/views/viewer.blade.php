@@ -28,6 +28,11 @@
             background: #000;
             overflow: hidden;
         }
+
+        body.local-cursor-active #screen canvas,
+        body.local-cursor-active #screen {
+            cursor: default !important;
+        }
     </style>
 </head>
 

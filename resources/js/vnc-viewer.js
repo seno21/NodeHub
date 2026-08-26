@@ -361,8 +361,25 @@ function applyScaling(enabled) {
 }
 
 function applyLocalCursor(enabled) {
-    if (state.rfb) {
-        state.rfb.localCursor = enabled;
+    if (state?.rfb) {
+        try {
+            state.rfb.showDotCursor = enabled;
+        } catch (e) {}
+    }
+
+    if (enabled) {
+        document.body.classList.add('local-cursor-active');
+    } else {
+        document.body.classList.remove('local-cursor-active');
+    }
+
+    const canvas = el.screen?.querySelector('canvas');
+    if (canvas) {
+        if (enabled) {
+            canvas.style.setProperty('cursor', 'default', 'important');
+        } else {
+            canvas.style.removeProperty('cursor');
+        }
     }
 }
 
@@ -416,7 +433,7 @@ function connect(ticket) {
     
     // Automatically enable local cursor on desktop mode, keep default (false) for mobile mode
     const enableLocalCursor = !isMobileMode();
-    state.rfb.localCursor = enableLocalCursor;
+    applyLocalCursor(enableLocalCursor);
     if (el.chkCursor) {
         el.chkCursor.checked = enableLocalCursor;
     }
@@ -427,6 +444,9 @@ function connect(ticket) {
         el.passwordOverlay.classList.remove('flex');
         hideOverlays();
         setStatus(`Terhubung — ${state.deviceName}`);
+
+        // Re-apply local cursor styling once canvas is created and connected
+        applyLocalCursor(el.chkCursor ? el.chkCursor.checked : !isMobileMode());
 
         if (isMobileMode() && state.rfb._fbWidth && state.rfb._fbHeight) {
             trackpadState.cursorX = Math.round(state.rfb._fbWidth / 2);
