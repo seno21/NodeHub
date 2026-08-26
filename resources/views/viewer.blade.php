@@ -216,7 +216,7 @@
                         </label>
                         <label class="flex cursor-pointer items-center justify-between py-1 text-[13px] text-gray-200">
                             {{ __('Local cursor') }}
-                            <input type="checkbox" id="chk-cursor"
+                            <input type="checkbox" id="chk-cursor" checked
                                 class="h-4 w-4 rounded border-gray-600 bg-zinc-800 text-[#00828c] focus:ring-[#00828c]" />
                         </label>
                     </div>

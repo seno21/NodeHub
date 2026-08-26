@@ -413,7 +413,13 @@ function connect(ticket) {
     state.deviceName = ticket.device_name || 'remote';
 
     state.rfb.scaleViewport = true; // auto-fit by default
-    state.rfb.localCursor = false;
+    
+    // Automatically enable local cursor on desktop mode, keep default (false) for mobile mode
+    const enableLocalCursor = !isMobileMode();
+    state.rfb.localCursor = enableLocalCursor;
+    if (el.chkCursor) {
+        el.chkCursor.checked = enableLocalCursor;
+    }
     state.rfb.addEventListener('connect', () => {
         state.connected = true;
         state.authOk = true;
