@@ -56,7 +56,7 @@
                         🐳
                     </div>
                     <h4 class="font-bold text-sm text-gray-900">Docker Compose</h4>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Arsitektur multi-container terisolasi (`webvnc-app`, `webvnc-db`, `webvnc-bridge`).</p>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Arsitektur multi-container terisolasi (`nodehub-app`, `nodehub-db`, `nodehub-bridge`).</p>
                 </div>
             </div>
 

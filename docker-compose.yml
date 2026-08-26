@@ -1,7 +1,7 @@
-name: webvnc
+name: nodehub
 
 # Override any value via a separate env file, e.g.:
-#   WEBVNC_DB_PASSWORD=secret docker compose up -d
+#   NODEHUB_DB_PASSWORD=secret docker compose up -d
 # (deliberately NOT reusing the Laravel .env to avoid clashing variable names)
 
 services:
@@ -9,12 +9,12 @@ services:
     image: mariadb:11
     restart: unless-stopped
     ports:
-      - "${WEBVNC_DB_HOST_PORT:-33066}:3306"
+      - "${NODEHUB_DB_HOST_PORT:-33066}:3306"
     environment:
-      MARIADB_DATABASE: ${WEBVNC_DB_NAME:-webvnc}
-      MARIADB_USER: ${WEBVNC_DB_USER:-webvnc}
-      MARIADB_PASSWORD: ${WEBVNC_DB_PASSWORD:-webvnc-secret}
-      MARIADB_ROOT_PASSWORD: ${WEBVNC_DB_ROOT_PASSWORD:-root-secret}
+      MARIADB_DATABASE: ${NODEHUB_DB_NAME:-nodehub}
+      MARIADB_USER: ${NODEHUB_DB_USER:-nodehub}
+      MARIADB_PASSWORD: ${NODEHUB_DB_PASSWORD:-nodehub-secret}
+      MARIADB_ROOT_PASSWORD: ${NODEHUB_DB_ROOT_PASSWORD:-root-secret}
     volumes:
       - db-data:/var/lib/mysql
     healthcheck:
@@ -24,20 +24,20 @@ services:
       retries: 30
 
   app:
-    image: webvnc-portal
+    image: nodehub-portal
     build: .
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8000}:8000"
     environment: &app-environment
-      APP_ENV: ${WEBVNC_APP_ENV:-local}
-      APP_DEBUG: "${WEBVNC_APP_DEBUG:-true}"
-      APP_URL: ${WEBVNC_APP_URL:-http://localhost:8000}
+      APP_ENV: ${NODEHUB_APP_ENV:-local}
+      APP_DEBUG: "${NODEHUB_APP_DEBUG:-true}"
+      APP_URL: ${NODEHUB_APP_URL:-http://localhost:8000}
       DB_HOST: db
       DB_PORT: "3306"
-      DB_DATABASE: ${WEBVNC_DB_NAME:-webvnc}
-      DB_USERNAME: ${WEBVNC_DB_USER:-webvnc}
-      DB_PASSWORD: ${WEBVNC_DB_PASSWORD:-webvnc-secret}
+      DB_DATABASE: ${NODEHUB_DB_NAME:-nodehub}
+      DB_USERNAME: ${NODEHUB_DB_USER:-nodehub}
+      DB_PASSWORD: ${NODEHUB_DB_PASSWORD:-nodehub-secret}
       CACHE_STORE: database
       SESSION_DRIVER: database
       QUEUE_CONNECTION: database
@@ -47,12 +47,12 @@ services:
       # websockify runs in its own container, so the app container cannot
       # probe it via 127.0.0.1 — compose already restarts the bridge.
       VNC_BRIDGE_CHECK: "false"
-      VNC_WS_URL: ${WEBVNC_WS_URL:-}
-      VNC_TOKEN_TTL: ${WEBVNC_TOKEN_TTL:-120}
-      VNC_STATUS_TIMEOUT: ${WEBVNC_STATUS_TIMEOUT:-1}
-      ADMIN_EMAIL: ${WEBVNC_ADMIN_EMAIL:-admin@example.com}
-      ADMIN_NAME: ${WEBVNC_ADMIN_NAME:-Admin}
-      ADMIN_PASSWORD: ${WEBVNC_ADMIN_PASSWORD:-password}
+      VNC_WS_URL: ${NODEHUB_WS_URL:-}
+      VNC_TOKEN_TTL: ${NODEHUB_TOKEN_TTL:-120}
+      VNC_STATUS_TIMEOUT: ${NODEHUB_STATUS_TIMEOUT:-1}
+      ADMIN_EMAIL: ${NODEHUB_ADMIN_EMAIL:-admin@example.com}
+      ADMIN_NAME: ${NODEHUB_ADMIN_NAME:-Admin}
+      ADMIN_PASSWORD: ${NODEHUB_ADMIN_PASSWORD:-password}
     volumes:
       - .:/var/www/html
       - app-storage:/var/www/html/storage/app
@@ -62,7 +62,7 @@ services:
         condition: service_healthy
 
   bridge:
-    image: webvnc-portal
+    image: nodehub-portal
     restart: unless-stopped
     ports:
       - "${BRIDGE_PORT:-6080}:6080"
@@ -83,7 +83,7 @@ services:
       - app-storage:/var/www/html/storage/app
 
   scheduler:
-    image: webvnc-portal
+    image: nodehub-portal
     restart: unless-stopped
     environment: *app-environment
     command: ["php", "artisan", "schedule:work"]

@@ -7,7 +7,7 @@
 #
 set -euo pipefail
 
-SERVICE_NAME="webvnc-bridge"
+SERVICE_NAME="nodehub-bridge"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [[ $EUID -ne 0 ]]; then
@@ -55,7 +55,7 @@ UNIT="/etc/systemd/system/${SERVICE_NAME}.service"
 
 cat > "$UNIT" <<EOF
 [Unit]
-Description=WebVNC Portal - websockify bridge
+Description=NodeHub Portal - websockify bridge
 After=network-online.target
 Wants=network-online.target
 

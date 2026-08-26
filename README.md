@@ -1,6 +1,6 @@
-# WebVNC Portal - Panduan Instalasi & Deployment
+# NodeHub Portal - Panduan Instalasi & Deployment
 
-**WebVNC Portal** adalah aplikasi manajemen remote desktop VNC berbasis web yang modern dan responsif (dioptimalkan untuk tampilan Desktop & Mobile). Aplikasi ini mengintegrasikan Laravel, Alpine.js, TailwindCSS, MariaDB, dan Websockify Gateway.
+**NodeHub Portal** adalah aplikasi manajemen remote desktop VNC berbasis web yang modern dan responsif (dioptimalkan untuk tampilan Desktop & Mobile). Aplikasi ini mengintegrasikan Laravel, Alpine.js, TailwindCSS, MariaDB, dan Websockify Gateway.
 
 ---
 
@@ -37,14 +37,14 @@ Setelah proses build dan startup selesai, aplikasi dapat diakses di:
     - **Email:** `admin@example.com`
     - **Password:** `password`
 
-> **Catatan:** Database MariaDB Docker secara otomatis di-migrate dan di-seed admin saat pertama kali container di-boot. Data tersimpan secara permanen di Docker volume (`webvnc_db-data` & `webvnc_app-storage`).
+> **Catatan:** Database MariaDB Docker secara otomatis di-migrate dan di-seed admin saat pertama kali container di-boot. Data tersimpan secara permanen di Docker volume (`nodehub_db-data` & `nodehub_app-storage`).
 
 ### 3. Kustomisasi Port & Environment Docker
 
 Anda dapat mengubah port atau kredensial default tanpa perlu mengubah file konfigurasi:
 
 ```bash
-APP_PORT=9000 BRIDGE_PORT=6090 WEBVNC_ADMIN_PASSWORD=rahasia docker compose up -d
+APP_PORT=9000 BRIDGE_PORT=6090 NODEHUB_ADMIN_PASSWORD=rahasia docker compose up -d
 ```
 
 ### Perintah Penting Docker:
@@ -111,7 +111,7 @@ Buka file `.env` dan sesuaikan koneksi database MariaDB/MySQL Anda:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=webvnc
+DB_DATABASE=nodehub
 DB_USERNAME=root
 DB_PASSWORD=password_db_anda
 ```
@@ -145,13 +145,13 @@ Websockify bertindak sebagai bridge antara koneksi WebSocket dari browser ke tar
 sudo ./scripts/install-bridge-service.sh
 ```
 
-Service bernama `webvnc-bridge` akan otomatis dibuat dan berjalan tiap kali server di-boot.
+Service bernama `nodehub-bridge` akan otomatis dibuat dan berjalan tiap kali server di-boot.
 Perintah pengelolaan service:
 
 ```bash
-systemctl status webvnc-bridge
-sudo systemctl restart webvnc-bridge
-journalctl -u webvnc-bridge -e
+systemctl status nodehub-bridge
+sudo systemctl restart nodehub-bridge
+journalctl -u nodehub-bridge -e
 ```
 
 **Atau Jalankan Manual (Mode Development):**
@@ -182,7 +182,7 @@ php artisan serve
 | :---------------------- | :-------------------------------------------- | :--------------------------------- |
 | `DB_HOST`               | Host database MySQL/MariaDB                   | `db` (Docker) / `127.0.0.1` (Host) |
 | `DB_PORT`               | Port database MySQL/MariaDB                   | `3306`                             |
-| `DB_DATABASE`           | Nama database                                 | `webvnc`                           |
+| `DB_DATABASE`           | Nama database                                 | `nodehub`                          |
 | `VNC_WEBSOCKIFY_LISTEN` | Alamat listen service Websockify              | `0.0.0.0:6080`                     |
 | `VNC_WS_URL`            | URL WebSocket yang diakses oleh browser       | `ws://localhost:6080`              |
 | `VNC_TOKEN_TTL`         | Masa berlaku token sesi VNC (detik)           | `120`                              |
