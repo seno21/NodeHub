@@ -31,7 +31,7 @@ class StoreComputerRequest extends FormRequest
             'os_type' => ['required', Rule::in(Computer::OS_TYPES)],
             'location' => ['nullable', 'string', 'max:255'],
             'tags' => ['nullable', 'string', 'max:255'],
-            'tag_ids' => ['nullable', 'array'],
+            'tag_ids' => ['required_without:tags', 'array', 'min:1'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
             'description' => ['nullable', 'string', 'max:1000'],
             'vnc_password' => ['nullable', 'string', 'max:255'],
@@ -39,6 +39,21 @@ class StoreComputerRequest extends FormRequest
             'ssh_user' => ['nullable', 'string', 'max:100'],
             'ssh_password' => ['nullable', 'string', 'max:255'],
             'refresh_command' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'tag_ids.required' => __('Minimal harus memilih 1 tag untuk perangkat.'),
+            'tag_ids.required_without' => __('Minimal harus memilih 1 tag untuk perangkat.'),
+            'tag_ids.min' => __('Minimal harus memilih 1 tag untuk perangkat.'),
+            'tag_ids.*.exists' => __('Tag yang dipilih tidak valid.'),
         ];
     }
 

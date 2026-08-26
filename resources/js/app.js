@@ -32,10 +32,15 @@ Alpine.data('deviceBoard', () => ({
     /** @type {Record<string, boolean|undefined>} */
     statuses: {},
     connecting: false,
-    pending: false,
+    pendingId: null,
+    connectingId: null,
     targetName: '',
     boardError: '',
     term: { open: false, title: '', lines: [], running: false },
+
+    isButtonLoading(id) {
+        return this.pendingId === id || (this.connecting && this.connectingId === id);
+    },
 
     showBoardError(message) {
         this.boardError = message;
@@ -150,12 +155,13 @@ Alpine.data('deviceBoard', () => ({
         this.scrollTerm();
     },
 
-    async connect(event) {
+    async connect(event, id) {
         const form = event.target;
+        const targetId = id ?? (form.dataset.id ? parseInt(form.dataset.id, 10) : null);
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         this.targetName = form.dataset.name ?? '';
         this.boardError = '';
-        this.pending = true;
+        this.pendingId = targetId;
 
         try {
             const response = await fetch(form.action, {
@@ -169,6 +175,7 @@ Alpine.data('deviceBoard', () => ({
             const data = await response.json().catch(() => ({}));
 
             if (response.ok && data.redirect) {
+                this.connectingId = targetId;
                 this.connecting = true;
                 await sleep(800);
                 window.location.href = data.redirect;
@@ -180,7 +187,7 @@ Alpine.data('deviceBoard', () => ({
         } catch {
             this.showBoardError('Network error — please try again.');
         } finally {
-            this.pending = false;
+            this.pendingId = null;
         }
     },
 }));

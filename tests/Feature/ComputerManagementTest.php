@@ -45,6 +45,7 @@ class ComputerManagementTest extends TestCase
     public function test_user_can_create_a_device(): void
     {
         $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'Finance']);
 
         $response = $this->actingAs($user)->post('/computers', [
             'name' => 'Windows Accounting',
@@ -54,6 +55,7 @@ class ComputerManagementTest extends TestCase
             'location' => 'Ruang Server Lt 2',
             'description' => 'Server database utama unit IT',
             'vnc_password' => 'secret123',
+            'tag_ids' => [$tag->id],
         ]);
 
         $response->assertRedirect('/computers');
@@ -64,6 +66,21 @@ class ComputerManagementTest extends TestCase
         $this->assertSame('Ruang Server Lt 2', $computer->location);
         $this->assertSame('Server database utama unit IT', $computer->description);
         $this->assertSame('secret123', $computer->vnc_password);
+    }
+
+    public function test_device_creation_requires_at_least_one_tag(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/computers', [
+            'name' => 'Windows Accounting',
+            'ip_address' => '192.168.1.20',
+            'vnc_port' => '5900',
+            'os_type' => 'windows',
+        ]);
+
+        $response->assertSessionHasErrors(['tag_ids']);
+        $this->assertDatabaseCount('computers', 0);
     }
 
     public function test_device_creation_requires_valid_input(): void
@@ -84,6 +101,7 @@ class ComputerManagementTest extends TestCase
     public function test_user_can_update_a_device(): void
     {
         $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'Server']);
         $computer = Computer::factory()->create([
             'name' => 'Old Name',
             'vnc_password' => 'old-secret',
@@ -97,6 +115,7 @@ class ComputerManagementTest extends TestCase
             'location' => 'Lab B 101',
             'description' => 'Updated desc',
             'vnc_password' => '',
+            'tag_ids' => [$tag->id],
         ]);
 
         $response->assertRedirect('/computers');

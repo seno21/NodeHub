@@ -51,7 +51,10 @@
     {{-- Tag Picker from Tags Table --}}
     <div>
         <div class="flex items-center justify-between mb-2">
-            <x-input-label for="tag_ids" :value="__('Pilih Tag Perangkat (Dari Tabel Tag)')" />
+            <div class="flex items-center gap-1.5">
+                <x-input-label for="tag_ids" :value="__('Pilih Tag Perangkat')" />
+                <span class="text-xs font-bold text-red-500">* (Wajib)</span>
+            </div>
             <a href="{{ route('tags.index') }}" target="_blank"
                 class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
                 + Kelola Master Tag

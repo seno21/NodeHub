@@ -230,17 +230,17 @@
                             <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
                                 <form method="POST" action="{{ route('computers.connect', $computer) }}"
                                       data-name="{{ $computer->name }}"
-                                      x-on:submit.prevent="connect($event)"
+                                      x-on:submit.prevent="connect($event, {{ $computer->id }})"
                                       class="flex-1">
                                     @csrf
                                     <button type="submit"
                                             class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00828c] border border-transparent rounded-xl text-xs font-bold uppercase tracking-wider text-white hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none transition shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
-                                            x-bind:disabled="connecting || pending">
-                                        <svg class="h-3.5 w-3.5 animate-spin" x-show="pending || connecting" fill="none" viewBox="0 0 24 24">
+                                            x-bind:disabled="pendingId !== null || connecting">
+                                        <svg class="h-3.5 w-3.5 animate-spin" x-show="isButtonLoading({{ $computer->id }})" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                         </svg>
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" x-show="!pending && !connecting">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" x-show="!isButtonLoading({{ $computer->id }})">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                                         </svg>
                                         {{ __('Connect') }}
@@ -392,16 +392,19 @@
                                         <div class="flex items-center justify-end gap-1">
                                             <form method="POST" action="{{ route('computers.connect', $computer) }}"
                                                   data-name="{{ $computer->name }}"
-                                                  x-on:submit.prevent="connect($event)">
+                                                  x-on:submit.prevent="connect($event, {{ $computer->id }})">
                                                 @csrf
                                                 <button type="submit"
                                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#00828c] border border-transparent rounded-md text-[11px] font-semibold uppercase tracking-widest text-white hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
-                                                        x-bind:disabled="connecting || pending">
-                                                    <svg class="h-3 w-3 animate-spin" x-show="pending || connecting" fill="none"
+                                                        x-bind:disabled="pendingId !== null || connecting">
+                                                    <svg class="h-3 w-3 animate-spin" x-show="isButtonLoading({{ $computer->id }})" fill="none"
                                                          viewBox="0 0 24 24">
                                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                         <path class="opacity-75" fill="currentColor"
                                                               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                                    </svg>
+                                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" x-show="!isButtonLoading({{ $computer->id }})">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                                                     </svg>
                                                     {{ __('Connect') }}
                                                 </button>
