@@ -154,16 +154,16 @@
             </div>
             @if ($computer?->exists)
                 @if ($computer->ssh_password)
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-xs">
+                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z" />
                         </svg>
                         {{ __('SSH Terkonfigurasi') }}
                     </span>
                 @else
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                        <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z" />
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-800 border border-amber-500/30 shadow-xs">
+                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM10.29 3.86l-8.6 14.8A1.5 1.5 0 003 21h18a1.5 1.5 0 001.29-2.34l-8.6-14.8a1.5 1.5 0 00-2.58 0z" />
                         </svg>
                         {{ __('SSH Belum Konfigurasi') }}
                     </span>
@@ -205,14 +205,16 @@
                         {{ __('Password SSH sudah tersimpan. Biarkan kosong jika tidak ingin mengubah password.') }}
                     </p>
                 @else
-                    <div class="mt-2.5 p-3 rounded-xl bg-amber-50/90 border border-amber-200/80 text-amber-800 text-xs flex items-start gap-2.5">
-                        <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z" />
-                        </svg>
-                        <div>
-                            <span class="font-bold">{{ __('Password SSH Belum Diisi / Belum Konfigurasi') }}</span>
-                            <p class="mt-0.5 text-amber-700 leading-relaxed">
-                                {{ __('Password SSH untuk perangkat ini belum pernah diisi atau belum tersimpan. Silakan masukkan password SSH agar fitur Remote Action (eksekusi perintah remote) dapat digunakan.') }}
+                    <div class="mt-3 p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-50 to-amber-100/50 border border-amber-300/60 text-amber-900 shadow-xs flex items-start gap-3">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 border border-amber-200 text-amber-700">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM10.29 3.86l-8.6 14.8A1.5 1.5 0 003 21h18a1.5 1.5 0 001.29-2.34l-8.6-14.8a1.5 1.5 0 00-2.58 0z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">{{ __('Password SSH Belum Konfigurasi') }}</h4>
+                            <p class="mt-0.5 text-xs text-amber-800 leading-relaxed">
+                                {{ __('Password SSH untuk perangkat ini belum pernah diisi. Silakan masukkan password SSH agar fitur Remote Action (eksekusi perintah remote) dapat digunakan.') }}
                             </p>
                         </div>
                     </div>

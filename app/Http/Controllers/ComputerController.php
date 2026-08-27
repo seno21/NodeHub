@@ -91,6 +91,7 @@ class ComputerController extends Controller
                 'os_type' => $c->os_type,
                 'location' => $c->location,
                 'description' => $c->description,
+                'has_ssh' => !empty($c->ssh_password),
                 'tags' => array_values(array_unique($tagNames)),
                 'tags_relation' => $c->relationLoaded('tagsRelation')
                     ? $c->tagsRelation->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'color' => $t->color])->values()->all()

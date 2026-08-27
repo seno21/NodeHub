@@ -147,7 +147,7 @@
                                           x-text="statusLabel(comp.id)"></span>
                                 </span>
 
-                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider"
+                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider shrink-0"
                                       :class="comp.os_type === 'windows' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-orange-50 text-orange-700 border border-orange-100'">
                                     <svg class="h-3 w-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <template x-if="comp.os_type === 'windows'">
@@ -171,6 +171,25 @@
                                 <h3 class="font-bold text-base text-gray-900 leading-snug" x-text="comp.name"></h3>
                                 <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
                                     <span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700" x-text="comp.ip_address + ':' + comp.vnc_port"></span>
+                                    
+                                    <!-- SSH Badge in Address Section -->
+                                    <template x-if="comp.has_ssh">
+                                        <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold" title="SSH Terkonfigurasi">
+                                            <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                                            </svg>
+                                            SSH Ready
+                                        </span>
+                                    </template>
+                                    <template x-if="!comp.has_ssh">
+                                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-medium" title="SSH Belum Konfigurasi">
+                                            <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                            </svg>
+                                            No SSH
+                                        </span>
+                                    </template>
+
                                     <template x-if="comp.location">
                                         <span class="inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-slate-600">
                                             <svg class="w-3 h-3 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -312,9 +331,28 @@
                                         </template>
                                     </td>
 
-                                    {{-- Address --}}
+                                    {{-- Address & SSH Badge --}}
                                     <td class="px-5 py-3.5 whitespace-nowrap hidden md:table-cell">
-                                        <span class="font-mono text-xs text-gray-600" x-text="comp.ip_address + ':' + comp.vnc_port"></span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono text-xs text-gray-600" x-text="comp.ip_address + ':' + comp.vnc_port"></span>
+                                            <!-- SSH Badge -->
+                                            <template x-if="comp.has_ssh">
+                                                <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0" title="SSH Terkonfigurasi">
+                                                    <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                                                    </svg>
+                                                    SSH
+                                                </span>
+                                            </template>
+                                            <template x-if="!comp.has_ssh">
+                                                <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0" title="SSH Belum Konfigurasi">
+                                                    <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                    </svg>
+                                                    No SSH
+                                                </span>
+                                            </template>
+                                        </div>
                                     </td>
 
                                     {{-- OS --}}
