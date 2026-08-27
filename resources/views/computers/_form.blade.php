@@ -115,15 +115,22 @@
         <x-input-label for="vnc_password" :value="__('Password VNC (opsional, untuk auto-login)')" />
         <x-text-input id="vnc_password" name="vnc_password" type="password"
             class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-            placeholder="" autocomplete="new-password" />
+            placeholder="{{ $computer?->vnc_password ? '••••••••' : '' }}" autocomplete="new-password" />
         @if ($computer?->vnc_password)
-            <p class="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
+                <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {{ __('Password VNC sudah tersimpan. Biarkan kosong jika tidak ingin mengubahnya.') }}
+            </p>
+        @else
+            <p class="mt-1.5 text-xs text-slate-500 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+                {{ __('Belum ada password VNC tersimpan. Kosongkan jika server VNC target tidak menggunakan autentikasi.') }}
             </p>
         @endif
         <x-input-error :messages="$errors->get('vnc_password')" class="mt-2" />
@@ -131,18 +138,37 @@
 
     {{-- SSH Credentials --}}
     <div class="border-t border-gray-200 pt-6 mt-6">
-        <div class="flex items-center gap-2 mb-4">
-            <span class="p-2 rounded-lg bg-slate-100 text-slate-700">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6.75 7.5h10.5a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 14.25v-4.5A2.25 2.25 0 0 1 6.75 7.5Z" />
-                </svg>
-            </span>
-            <div>
-                <h3 class="text-sm font-bold text-gray-900">{{ __('Kredensial SSH (Untuk Remote Action)') }}</h3>
-                <p class="text-xs text-gray-500">{{ __('Diperlukan untuk eksekusi perintah SSH remote jarak jauh.') }}
-                </p>
+        <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="p-2 rounded-lg bg-slate-100 text-slate-700">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6.75 7.5h10.5a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 14.25v-4.5A2.25 2.25 0 0 1 6.75 7.5Z" />
+                    </svg>
+                </span>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900">{{ __('Kredensial SSH (Untuk Remote Action)') }}</h3>
+                    <p class="text-xs text-gray-500">{{ __('Diperlukan untuk eksekusi perintah SSH remote jarak jauh.') }}
+                    </p>
+                </div>
             </div>
+            @if ($computer?->exists)
+                @if ($computer->ssh_password)
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('SSH Terkonfigurasi') }}
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        {{ __('SSH Belum Konfigurasi') }}
+                    </span>
+                @endif
+            @endif
         </div>
 
         <div class="space-y-4 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
@@ -168,16 +194,28 @@
                 <x-input-label for="ssh_password" :value="__('Password SSH')" />
                 <x-text-input id="ssh_password" name="ssh_password" type="password"
                     class="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-                    placeholder="" autocomplete="new-password" />
+                    placeholder="{{ $computer?->ssh_password ? '••••••••' : '' }}" autocomplete="new-password" />
                 @if ($computer?->ssh_password)
-                    <p class="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24"
+                    <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
+                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {{ __('Password SSH tersimpan. Biarkan kosong jika tidak ingin mengubah.') }}
+                        {{ __('Password SSH sudah tersimpan. Biarkan kosong jika tidak ingin mengubah password.') }}
                     </p>
+                @else
+                    <div class="mt-2.5 p-3 rounded-xl bg-amber-50/90 border border-amber-200/80 text-amber-800 text-xs flex items-start gap-2.5">
+                        <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <div>
+                            <span class="font-bold">{{ __('Password SSH Belum Diisi / Belum Konfigurasi') }}</span>
+                            <p class="mt-0.5 text-amber-700 leading-relaxed">
+                                {{ __('Password SSH untuk perangkat ini belum pernah diisi atau belum tersimpan. Silakan masukkan password SSH agar fitur Remote Action (eksekusi perintah remote) dapat digunakan.') }}
+                            </p>
+                        </div>
+                    </div>
                 @endif
                 <x-input-error :messages="$errors->get('ssh_password')" class="mt-1" />
             </div>
