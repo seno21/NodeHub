@@ -1,157 +1,187 @@
-<div class="space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-            <x-input-label for="name" :value="__('Nama Perangkat (Device Name)')" />
-            <x-text-input id="name" name="name" type="text"
-                class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-                :value="old('name', $computer?->name)" required autofocus placeholder="{{ __('Kasir') }}" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
-
-        <div>
-            <x-input-label for="ip_address" :value="__('Alamat IP (IP Address)')" />
-            <x-text-input id="ip_address" name="ip_address" type="text"
-                class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm font-mono"
-                :value="old('ip_address', $computer?->ip_address)" required placeholder="192.168.1.100" />
-            <x-input-error :messages="$errors->get('ip_address')" class="mt-2" />
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-            <x-input-label for="vnc_port" :value="__('Port VNC')" />
-            <x-text-input id="vnc_port" name="vnc_port" type="number" min="1" max="65535"
-                class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm font-mono"
-                :value="old('vnc_port', $computer?->vnc_port ?? 5900)" required />
-            <x-input-error :messages="$errors->get('vnc_port')" class="mt-2" />
-        </div>
-
-        <div>
-            <x-input-label for="os_type" :value="__('Sistem Operasi (OS Type)')" />
-            <select id="os_type" name="os_type"
-                class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm">
-                @foreach (App\Models\Computer::OS_TYPES as $os)
-                    <option value="{{ $os }}" @selected(old('os_type', $computer?->os_type ?? 'linux') === $os)>
-                        {{ ucfirst($os) }}
-                    </option>
-                @endforeach
-            </select>
-            <x-input-error :messages="$errors->get('os_type')" class="mt-2" />
-        </div>
-
-        <div>
-            <x-input-label for="location" :value="__('Lokasi (Location)')" />
-            <x-text-input id="location" name="location" type="text"
-                class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-                :value="old('location', $computer?->location)" placeholder="{{ __('Lab B / Lantai 1') }}" />
-            <x-input-error :messages="$errors->get('location')" class="mt-2" />
-        </div>
-    </div>
-
-    {{-- Tag Picker from Tags Table --}}
-    <div>
-        <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-1.5">
-                <x-input-label for="tag_ids" :value="__('Pilih Tag Perangkat')" />
-                <span class="text-xs font-bold text-red-500">* (Wajib)</span>
-            </div>
-            <a href="{{ route('tags.index') }}" target="_blank"
-                class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
-                + Kelola Master Tag
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+<div class="space-y-8">
+    {{-- Section 1: Informasi Utama Perangkat --}}
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
+            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 font-bold border border-blue-100">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
                 </svg>
-            </a>
+            </span>
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">Informasi Utama Perangkat</h3>
+                <p class="text-xs text-slate-500">Nama, alamat IP, sistem operasi, lokasi, dan master tag.</p>
+            </div>
         </div>
 
-        @php
-            $tagsList = Illuminate\Support\Facades\Schema::hasTable('tags')
-                ? $allTags ?? App\Models\Tag::query()->orderBy('name')->get()
-                : collect();
-            $selectedTagIds = old(
-                'tag_ids',
-                $computer && Illuminate\Support\Facades\Schema::hasTable('tags')
-                    ? $computer->tagsRelation->pluck('id')->all()
-                    : [],
-            );
-        @endphp
-
-        @if ($tagsList->count() > 0)
-            <div
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 bg-slate-50/80 p-4 rounded-2xl border border-slate-200">
-                @foreach ($tagsList as $tagItem)
-                    <label
-                        class="inline-flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 bg-white hover:border-[#00828c]/50 transition cursor-pointer group shadow-2xs">
-                        <input type="checkbox" name="tag_ids[]" value="{{ $tagItem->id }}" @checked(in_array($tagItem->id, $selectedTagIds))
-                            class="rounded border-gray-300 text-[#00828c] focus:ring-[#00828c]">
-                        <span class="h-2.5 w-2.5 rounded-full shrink-0"
-                            style="background-color: {{ $tagItem->color ?: '#00828c' }}"></span>
-                        <span
-                            class="text-xs font-semibold text-gray-700 group-hover:text-gray-900">#{{ $tagItem->name }}</span>
-                    </label>
-                @endforeach
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <x-input-label for="name" :value="__('Nama Perangkat (Device Name)')" />
+                <x-text-input id="name" name="name" type="text"
+                    class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
+                    :value="old('name', $computer?->name)" required autofocus placeholder="{{ __('Kasir') }}" />
+                <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
-        @else
-            <div
-                class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center justify-between">
-                <span>Belum ada Master Tag di database.</span>
-                <a href="{{ route('tags.index') }}" class="font-bold text-[#00828c] hover:underline">+ Buat Tag
-                    Pertama</a>
+
+            <div>
+                <x-input-label for="ip_address" :value="__('Alamat IP (IP Address)')" />
+                <x-text-input id="ip_address" name="ip_address" type="text"
+                    class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm font-mono"
+                    :value="old('ip_address', $computer?->ip_address)" required placeholder="192.168.1.100" />
+                <x-input-error :messages="$errors->get('ip_address')" class="mt-2" />
             </div>
-        @endif
-        <x-input-error :messages="$errors->get('tag_ids')" class="mt-2" />
-    </div>
+        </div>
 
-    <div>
-        <x-input-label for="description" :value="__('Deskripsi / Catatan (Description)')" />
-        <textarea id="description" name="description" rows="3"
-            class="mt-1.5 block w-full border-gray-200 focus:border-[#00828c] focus:ring-[#00828c] rounded-xl shadow-sm text-sm placeholder-gray-400"
-            placeholder="{{ __('Catatan spesifikasi, keperluan, atau informasi tambahan perangkat...') }}">{{ old('description', $computer?->description) }}</textarea>
-        <x-input-error :messages="$errors->get('description')" class="mt-2" />
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <x-input-label for="os_type" :value="__('Sistem Operasi (OS Type)')" />
+                <select id="os_type" name="os_type"
+                    class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm">
+                    @foreach (App\Models\Computer::OS_TYPES as $os)
+                        <option value="{{ $os }}" @selected(old('os_type', $computer?->os_type ?? 'linux') === $os)>
+                            {{ ucfirst($os) }}
+                        </option>
+                    @endforeach
+                </select>
+                <x-input-error :messages="$errors->get('os_type')" class="mt-2" />
+            </div>
 
-    <div>
-        <x-input-label for="vnc_password" :value="__('Password VNC (opsional, untuk auto-login)')" />
-        <x-text-input id="vnc_password" name="vnc_password" type="password"
-            class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-            placeholder="{{ $computer?->vnc_password ? '••••••••' : '' }}" autocomplete="new-password" />
-        @if ($computer?->vnc_password)
-            <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
-                <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ __('Password VNC sudah tersimpan. Biarkan kosong jika tidak ingin mengubahnya.') }}
-            </p>
-        @else
-            <p class="mt-1.5 text-xs text-slate-500 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                </svg>
-                {{ __('Belum ada password VNC tersimpan. Kosongkan jika server VNC target tidak menggunakan autentikasi.') }}
-            </p>
-        @endif
-        <x-input-error :messages="$errors->get('vnc_password')" class="mt-2" />
-    </div>
+            <div>
+                <x-input-label for="location" :value="__('Lokasi (Location)')" />
+                <x-text-input id="location" name="location" type="text"
+                    class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
+                    :value="old('location', $computer?->location)" placeholder="{{ __('Lab B / Lantai 1') }}" />
+                <x-input-error :messages="$errors->get('location')" class="mt-2" />
+            </div>
+        </div>
 
-    {{-- SSH Credentials --}}
-    <div class="border-t border-gray-200 pt-6 mt-6">
-        <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
-            <div class="flex items-center gap-2">
-                <span class="p-2 rounded-lg bg-slate-100 text-slate-700">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        {{-- Tag Picker --}}
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <x-input-label for="tag_ids" :value="__('Pilih Tag Perangkat')" />
+                    <span class="text-xs font-bold text-red-500">* (Wajib)</span>
+                </div>
+                <a href="{{ route('tags.index') }}" target="_blank"
+                    class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
+                    + Kelola Master Tag
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M6.75 7.5h10.5a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 14.25v-4.5A2.25 2.25 0 0 1 6.75 7.5Z" />
+                            d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                </a>
+            </div>
+
+            @php
+                $tagsList = Illuminate\Support\Facades\Schema::hasTable('tags')
+                    ? $allTags ?? App\Models\Tag::query()->orderBy('name')->get()
+                    : collect();
+                $selectedTagIds = old(
+                    'tag_ids',
+                    $computer && Illuminate\Support\Facades\Schema::hasTable('tags')
+                        ? $computer->tagsRelation->pluck('id')->all()
+                        : [],
+                );
+            @endphp
+
+            @if ($tagsList->count() > 0)
+                <div
+                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 bg-slate-50/80 p-4 rounded-2xl border border-slate-200">
+                    @foreach ($tagsList as $tagItem)
+                        <label
+                            class="inline-flex items-center gap-2 p-2.5 rounded-xl border border-gray-200 bg-white hover:border-[#00828c]/50 transition cursor-pointer group shadow-2xs">
+                            <input type="checkbox" name="tag_ids[]" value="{{ $tagItem->id }}" @checked(in_array($tagItem->id, $selectedTagIds))
+                                class="rounded border-gray-300 text-[#00828c] focus:ring-[#00828c]">
+                            <span class="h-2.5 w-2.5 rounded-full shrink-0"
+                                style="background-color: {{ $tagItem->color ?: '#00828c' }}"></span>
+                            <span
+                                class="text-xs font-semibold text-gray-700 group-hover:text-gray-900">#{{ $tagItem->name }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            @else
+                <div
+                    class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center justify-between">
+                    <span>Belum ada Master Tag di database.</span>
+                    <a href="{{ route('tags.index') }}" class="font-bold text-[#00828c] hover:underline">+ Buat Tag Pertama</a>
+                </div>
+            @endif
+            <x-input-error :messages="$errors->get('tag_ids')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="description" :value="__('Deskripsi / Catatan (Description)')" />
+            <textarea id="description" name="description" rows="3"
+                class="mt-1.5 block w-full border-gray-200 focus:border-[#00828c] focus:ring-[#00828c] rounded-xl shadow-sm text-sm placeholder-gray-400"
+                placeholder="{{ __('Catatan spesifikasi, keperluan, atau informasi tambahan perangkat...') }}">{{ old('description', $computer?->description) }}</textarea>
+            <x-input-error :messages="$errors->get('description')" class="mt-2" />
+        </div>
+    </div>
+
+    {{-- SECTION 1 CREDENTIALS: VNC Credentials & Settings --}}
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
+            <div class="flex items-center gap-2.5">
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-50 text-teal-700 font-bold border border-teal-100">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                     </svg>
                 </span>
                 <div>
-                    <h3 class="text-sm font-bold text-gray-900">{{ __('Kredensial SSH (Untuk Remote Action)') }}</h3>
-                    <p class="text-xs text-gray-500">{{ __('Diperlukan untuk eksekusi perintah SSH remote jarak jauh.') }}
-                    </p>
+                    <h3 class="text-sm font-bold text-slate-900">1. Kredensial & Pengaturan VNC (Remote Desktop)</h3>
+                    <p class="text-xs text-slate-500">Digunakan untuk koneksi visual Remote Desktop noVNC.</p>
                 </div>
             </div>
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                VNC Section
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+                <x-input-label for="vnc_port" :value="__('Port VNC')" />
+                <x-text-input id="vnc_port" name="vnc_port" type="number" min="1" max="65535"
+                    class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm font-mono"
+                    :value="old('vnc_port', $computer?->vnc_port ?? 5900)" required />
+                <x-input-error :messages="$errors->get('vnc_port')" class="mt-2" />
+            </div>
+
+            <div>
+                <x-input-label for="vnc_password" :value="__('Password VNC (Opsional)')" />
+                <x-text-input id="vnc_password" name="vnc_password" type="password"
+                    class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
+                    placeholder="{{ $computer?->vnc_password ? '••••••••' : '' }}" autocomplete="new-password" />
+                @if ($computer?->vnc_password)
+                    <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
+                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('Password VNC tersimpan.') }}
+                    </p>
+                @else
+                    <p class="mt-1.5 text-xs text-slate-500">
+                        {{ __('Kosongkan jika server VNC target tidak memakai autentikasi.') }}
+                    </p>
+                @endif
+                <x-input-error :messages="$errors->get('vnc_password')" class="mt-2" />
+            </div>
+        </div>
+    </div>
+
+    {{-- SECTION 2 CREDENTIALS: SSH Credentials & Settings --}}
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3.5 flex-wrap gap-2">
+            <div class="flex items-center gap-2.5">
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-800 font-bold border border-slate-200">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5h10.5a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 14.25v-4.5A2.25 2.25 0 0 1 6.75 7.5Z" />
+                    </svg>
+                </span>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">2. Kredensial & Pengaturan SSH (Remote Action)</h3>
+                    <p class="text-xs text-slate-500">Digunakan untuk eksekusi script/perintah remote jarak jauh.</p>
+                </div>
+            </div>
+
             @if ($computer?->exists)
                 @if ($computer->ssh_password)
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-xs">
@@ -171,7 +201,7 @@
             @endif
         </div>
 
-        <div class="space-y-4 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
+        <div class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <x-input-label for="ssh_user" :value="__('SSH Username')" />
@@ -214,7 +244,7 @@
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">{{ __('Password SSH Belum Konfigurasi') }}</h4>
                             <p class="mt-0.5 text-xs text-amber-800 leading-relaxed">
-                                {{ __('Password SSH untuk perangkat ini belum pernah diisi. Silakan masukkan password SSH agar fitur Remote Action (eksekusi perintah remote) dapat digunakan.') }}
+                                {{ __('Password SSH untuk perangkat ini belum diisi. Masukkan password SSH agar fitur Remote Action dapat digunakan.') }}
                             </p>
                         </div>
                     </div>

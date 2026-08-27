@@ -83,15 +83,26 @@ class ComputerController extends Controller
                 $tagNames = array_values(array_filter(array_map('trim', explode(',', $c->tags))));
             }
 
+            $sshPort = (int) ($c->ssh_port ?: 22);
+            $sshSocket = @fsockopen($c->ip_address, $sshPort, $errno, $errstr, 1);
+            $sshOpen = is_resource($sshSocket);
+            if ($sshOpen) {
+                fclose($sshSocket);
+            }
+
             return [
                 'id' => $c->id,
                 'name' => $c->name,
                 'ip_address' => $c->ip_address,
                 'vnc_port' => $c->vnc_port,
+                'ssh_user' => $c->ssh_user ?: 'xubuntu',
+                'ssh_port' => $c->ssh_port ?: 22,
                 'os_type' => $c->os_type,
                 'location' => $c->location,
                 'description' => $c->description,
                 'has_ssh' => !empty($c->ssh_password),
+                'ssh_open' => $sshOpen,
+                'created_at' => $c->created_at?->format('d M Y, H:i') ?? '-',
                 'tags' => array_values(array_unique($tagNames)),
                 'tags_relation' => $c->relationLoaded('tagsRelation')
                     ? $c->tagsRelation->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'color' => $t->color])->values()->all()
@@ -107,14 +118,28 @@ class ComputerController extends Controller
     }
 
     /**
-     * Check TCP reachability of the VNC port for all devices.
+     * Check TCP reachability of VNC and SSH ports for all devices.
      */
     public function status(): JsonResponse
     {
-        $statuses = Computer::query()->get(['id', 'ip_address', 'vnc_port'])
-            ->mapWithKeys(fn (Computer $computer) => [
-                $computer->id => $this->sessions->isReachable($computer),
-            ]);
+        $statuses = Computer::query()->get(['id', 'ip_address', 'vnc_port', 'ssh_port'])
+            ->mapWithKeys(function (Computer $computer) {
+                $vncOk = $this->sessions->isReachable($computer);
+
+                $sshPort = (int) ($computer->ssh_port ?: 22);
+                $sshSocket = @fsockopen($computer->ip_address, $sshPort, $errno, $errstr, 1);
+                $sshOk = is_resource($sshSocket);
+                if ($sshOk) {
+                    fclose($sshSocket);
+                }
+
+                return [
+                    $computer->id => [
+                        'vnc' => $vncOk,
+                        'ssh' => $sshOk,
+                    ],
+                ];
+            });
 
         return response()->json($statuses);
     }

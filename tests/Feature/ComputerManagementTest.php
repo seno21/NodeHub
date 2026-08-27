@@ -147,7 +147,7 @@ class ComputerManagementTest extends TestCase
         $response = $this->actingAs($user)->getJson('/computers/status');
 
         $response->assertOk()
-            ->assertJsonPath((string) $computer->id, false);
+            ->assertJsonPath((string) $computer->id . '.vnc', false);
     }
 
     public function test_ping_reports_single_device_status(): void

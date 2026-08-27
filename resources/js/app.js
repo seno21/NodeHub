@@ -17,7 +17,7 @@ Alpine.data('deviceStats', (statusUrl) => ({
 
             if (response.ok) {
                 const statuses = Object.values(await response.json());
-                this.online = statuses.filter(Boolean).length;
+                this.online = statuses.filter(s => (typeof s === 'object' ? s.vnc : Boolean(s))).length;
                 this.offline = statuses.length - this.online;
             }
         } catch {
@@ -86,6 +86,19 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     boardError: '',
     term: { open: false, title: '', lines: [], running: false },
 
+    detailModalOpen: false,
+    selectedDevice: null,
+
+    openDetailModal(comp) {
+        this.selectedDevice = comp;
+        this.detailModalOpen = true;
+    },
+
+    closeDetailModal() {
+        this.detailModalOpen = false;
+        this.selectedDevice = null;
+    },
+
     isButtonLoading(id) {
         return this.pendingId === id || (this.connecting && this.connectingId === id);
     },
@@ -98,23 +111,34 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     },
 
     statusClass(id) {
-        const status = this.statuses[id];
+        const statusObj = this.statuses[id];
 
-        if (status === undefined) {
+        if (statusObj === undefined) {
             return 'bg-gray-300';
         }
 
-        return status ? 'bg-green-500' : 'bg-red-500';
+        const vncOk = typeof statusObj === 'object' ? statusObj.vnc : statusObj;
+        return vncOk ? 'bg-green-500' : 'bg-red-500';
     },
 
     statusLabel(id) {
-        const status = this.statuses[id];
+        const statusObj = this.statuses[id];
 
-        if (status === undefined) {
+        if (statusObj === undefined) {
             return '—';
         }
 
-        return status ? 'Online' : 'Offline';
+        const vncOk = typeof statusObj === 'object' ? statusObj.vnc : statusObj;
+        return vncOk ? 'Online' : 'Offline';
+    },
+
+    isSshOpen(comp) {
+        if (!comp) return false;
+        const statusObj = this.statuses[comp.id];
+        if (statusObj && typeof statusObj === 'object' && statusObj.ssh !== undefined) {
+            return Boolean(statusObj.ssh);
+        }
+        return Boolean(comp.ssh_open);
     },
 
     closeTerminal() {

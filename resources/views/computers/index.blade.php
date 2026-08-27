@@ -236,6 +236,15 @@
 
                                 <div class="flex items-center gap-1 shrink-0">
                                     <button type="button"
+                                            title="Detail Perangkat & Informasional"
+                                            class="rounded-xl p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 bg-slate-100 transition"
+                                            x-on:click.prevent="openDetailModal(comp)">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                        </svg>
+                                    </button>
+
+                                    <button type="button"
                                             title="Cek Diagnosa Ping & Port"
                                             class="rounded-xl p-2.5 text-gray-500 hover:text-[#00828c] hover:bg-[#00828c]/10 bg-slate-100 transition"
                                             x-on:click.prevent="ping(comp.id, comp.ip_address, comp.vnc_port, '/computers/' + comp.id + '/ping')">
@@ -336,7 +345,7 @@
                                         <div class="flex items-center gap-2">
                                             <span class="font-mono text-xs text-gray-600" x-text="comp.ip_address + ':' + comp.vnc_port"></span>
                                             <!-- SSH Badge -->
-                                            <template x-if="comp.has_ssh">
+                                            <template x-if="isSshOpen(comp)">
                                                 <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0" title="SSH Terkonfigurasi">
                                                     <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
@@ -344,7 +353,7 @@
                                                     SSH
                                                 </span>
                                             </template>
-                                            <template x-if="!comp.has_ssh">
+                                            <template x-if="!isSshOpen(comp)">
                                                 <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0" title="SSH Belum Konfigurasi">
                                                     <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -389,6 +398,15 @@
                                     {{-- Actions --}}
                                     <td class="px-5 py-3.5 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-1">
+                                            <button type="button"
+                                                    title="Detail Perangkat & Informasional"
+                                                    class="rounded-md p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                                                    x-on:click.prevent="openDetailModal(comp)">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                                </svg>
+                                            </button>
+
                                             <form :action="'/computers/' + comp.id + '/connect'"
                                                   method="POST"
                                                   :data-name="comp.name"
@@ -511,6 +529,169 @@
                 <p class="text-sm font-semibold text-white">Connecting to <span x-text="targetName"></span>...</p>
                 <p class="mt-1 text-xs text-blue-200/70">Establishing secure remote session</p>
             </div>
+        </div>
+
+        {{-- Device Detail Modal --}}
+        <div x-show="detailModalOpen" x-cloak
+             class="fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+             x-on:keydown.escape.window="closeDetailModal()"
+             x-transition.opacity.duration.200ms>
+            <template x-if="selectedDevice">
+                <div class="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
+                     x-transition.scale.origin.center.duration.200ms
+                     x-on:click.outside="closeDetailModal()">
+                    
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c] border border-[#00828c]/20">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <h3 class="font-bold text-base text-slate-900 leading-tight" x-text="selectedDevice.name"></h3>
+                                <p class="text-xs text-slate-500">Detail Spesifikasi & Informasi Perangkat</p>
+                            </div>
+                        </div>
+                        <button type="button" x-on:click="closeDetailModal()" class="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                        <!-- OS & Status Summary -->
+                        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2.5 w-2.5 rounded-full" :class="statusClass(selectedDevice.id)"></span>
+                                <span class="text-xs font-semibold text-slate-700" x-text="statusLabel(selectedDevice.id)"></span>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+                                  :class="selectedDevice.os_type === 'windows' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-orange-50 text-orange-700 border border-orange-100'">
+                                <span x-text="selectedDevice.os_type.toUpperCase()"></span>
+                            </span>
+                        </div>
+
+                        <!-- Technical Info Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">IP Address</span>
+                                <p class="font-mono text-xs font-semibold text-slate-800 mt-0.5" x-text="selectedDevice.ip_address"></p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Port VNC</span>
+                                <p class="font-mono text-xs font-semibold text-slate-800 mt-0.5" x-text="selectedDevice.vnc_port"></p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Port SSH</span>
+                                <p class="font-mono text-xs font-semibold text-slate-800 mt-0.5" x-text="selectedDevice.ssh_port || 22"></p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">User SSH</span>
+                                <p class="font-mono text-xs font-semibold text-slate-800 mt-0.5" x-text="selectedDevice.ssh_user || 'xubuntu'"></p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Lokasi</span>
+                                <p class="text-xs font-semibold text-slate-800 mt-0.5 truncate" x-text="selectedDevice.location || '-'"></p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Dibuat Pada</span>
+                                <p class="text-xs font-semibold text-slate-800 mt-0.5" x-text="selectedDevice.created_at || '-'"></p>
+                            </div>
+                        </div>
+
+                        <!-- SSH Port & Password Status Cards -->
+                        <div class="space-y-3">
+                            <!-- Port SSH Listen Status -->
+                            <template x-if="isSshOpen(selectedDevice)">
+                                <div class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-900 flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 font-bold text-xs">✓</span>
+                                        <div>
+                                            <h4 class="font-bold text-xs text-emerald-900">Port SSH <span x-text="selectedDevice.ssh_port || 22"></span> Open & Listening</h4>
+                                            <p class="text-[11px] text-emerald-700">Port SSH aktif dan menerima koneksi jaringan TCP.</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-200/60 text-emerald-800 uppercase">Port Open</span>
+                                </div>
+                            </template>
+
+                            <template x-if="!isSshOpen(selectedDevice)">
+                                <div class="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-slate-600 font-bold text-xs">✕</span>
+                                        <div>
+                                            <h4 class="font-bold text-xs text-slate-800">Port SSH <span x-text="selectedDevice.ssh_port || 22"></span> Closed / Unreachable</h4>
+                                            <p class="text-[11px] text-slate-500">Port SSH tidak merespon atau layanan SSH pada target mati.</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600 uppercase">Port Closed</span>
+                                </div>
+                            </template>
+
+                            <!-- Password SSH Configuration Alert Card -->
+                            <template x-if="!selectedDevice.has_ssh">
+                                <div class="p-4 rounded-xl bg-amber-50/90 border border-amber-300/80 text-amber-900 flex items-start gap-3 shadow-xs">
+                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 border border-amber-200 text-amber-700">
+                                        <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM10.29 3.86l-8.6 14.8A1.5 1.5 0 003 21h18a1.5 1.5 0 001.29-2.34l-8.6-14.8a1.5 1.5 0 00-2.58 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">Password SSH Belum Konfigurasi</h4>
+                                        <p class="mt-0.5 text-xs text-amber-800 leading-relaxed">
+                                            Password SSH belum diisi untuk perangkat ini. Fitur Remote Action (eksekusi perintah/script remote) memerlukan password SSH.
+                                        </p>
+                                        <a :href="'/computers/' + selectedDevice.id + '/edit'"
+                                           class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                            </svg>
+                                            Konfigurasi SSH Sekarang
+                                        </a>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Description & Tags -->
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Deskripsi / Catatan</span>
+                            <p class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 whitespace-pre-line"
+                               x-text="selectedDevice.description || 'Tidak ada deskripsi.'"></p>
+                        </div>
+
+                        <div x-show="selectedDevice.tags_relation && selectedDevice.tags_relation.length > 0">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Tags</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <template x-for="tagItem in selectedDevice.tags_relation" :key="tagItem.id">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold"
+                                          :style="'background-color: ' + (tagItem.color ? tagItem.color + '20' : '#e2e8f0') + '; color: ' + (tagItem.color || '#475569') + '; border: 1px solid ' + (tagItem.color ? tagItem.color + '40' : '#cbd5e1')"
+                                          x-text="tagItem.name"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/80 px-6 py-3.5">
+                        <button type="button" x-on:click="closeDetailModal()"
+                                class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
+                            Tutup
+                        </button>
+                        <a :href="'/computers/' + selectedDevice.id + '/edit'"
+                           class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs transition">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                            </svg>
+                            Edit Device
+                        </a>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 
