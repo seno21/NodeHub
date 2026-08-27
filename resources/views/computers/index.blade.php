@@ -54,18 +54,32 @@
 
             <!-- Search & Tag Filter Bar -->
             <div class="mb-6 bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
-                <form method="GET" action="{{ route('computers.index') }}" class="flex flex-col sm:flex-row items-center gap-3">
+                <form id="search-form" method="GET" action="{{ route('computers.index') }}"
+                      x-data="{
+                          isSearching: false,
+                          submitForm() {
+                              this.isSearching = true;
+                              this.$el.submit();
+                          }
+                      }"
+                      class="flex flex-col sm:flex-row items-center gap-3">
                     <!-- Search Input -->
                     <div class="relative flex-1 w-full">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg x-show="!isSearching" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                            <svg x-show="isSearching" x-cloak class="h-4 w-4 animate-spin text-[#00828c]" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
                         </div>
                         <input type="text"
                                name="search"
                                value="{{ request('search') }}"
                                placeholder="{{ __('Cari device, lokasi, IP address, deskripsi...') }}"
+                               x-on:input.debounce.400ms="submitForm()"
+                               x-init="if ($el.value) { $el.focus(); $el.setSelectionRange($el.value.length, $el.value.length); }"
                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
                     </div>
 
@@ -73,6 +87,7 @@
                     @if (isset($allTags) && $allTags->isNotEmpty())
                         <div class="w-full sm:w-48 shrink-0">
                             <select name="tag"
+                                    x-on:change="submitForm()"
                                     class="w-full py-2.5 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
                                 <option value="">{{ __('Semua Tag') }}</option>
                                 @foreach ($allTags as $tagItem)
@@ -87,6 +102,7 @@
                     <!-- OS Filter Dropdown -->
                     <div class="w-full sm:w-40 shrink-0">
                         <select name="os"
+                                x-on:change="submitForm()"
                                 class="w-full py-2.5 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
                             <option value="">{{ __('Semua OS') }}</option>
                             <option value="windows" {{ request('os') === 'windows' ? 'selected' : '' }}>Windows</option>
@@ -94,17 +110,9 @@
                         </select>
                     </div>
 
-                    <!-- Buttons: Submit Search & Reset -->
-                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                        <button type="submit"
-                                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wider hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-xs">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                            </svg>
-                            {{ __('Cari') }}
-                        </button>
-
-                        @if (request('search') || request('tag') || request('os'))
+                    <!-- Reset Button -->
+                    @if (request('search') || request('tag') || request('os'))
+                        <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
                             <a href="{{ route('computers.index') }}"
                                class="inline-flex items-center justify-center gap-1 px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition"
                                title="{{ __('Reset Filter') }}">
@@ -113,8 +121,8 @@
                                 </svg>
                                 <span>{{ __('Reset') }}</span>
                             </a>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 </form>
             </div>
 
