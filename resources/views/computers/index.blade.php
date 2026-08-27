@@ -173,16 +173,16 @@
                                     <span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700" x-text="comp.ip_address + ':' + comp.vnc_port"></span>
                                     
                                     <!-- SSH Badge in Address Section -->
-                                    <template x-if="comp.has_ssh">
-                                        <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold" title="SSH Terkonfigurasi">
+                                    <template x-if="isSshOpen(comp)">
+                                        <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold" title="SSH Open & Port Listen">
                                             <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                                             </svg>
-                                            SSH Ready
+                                            SSH
                                         </span>
                                     </template>
-                                    <template x-if="!comp.has_ssh">
-                                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-medium" title="SSH Belum Konfigurasi">
+                                    <template x-if="!isSshOpen(comp)">
+                                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-medium" title="SSH Closed / Unreachable">
                                             <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
@@ -533,18 +533,18 @@
 
         {{-- Device Detail Modal --}}
         <div x-show="detailModalOpen" x-cloak
-             class="fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+             class="fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
              x-on:keydown.escape.window="closeDetailModal()"
              x-transition.opacity.duration.200ms>
             <template x-if="selectedDevice">
-                <div class="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
+                <div class="w-full max-w-xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col my-auto overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
                      x-transition.scale.origin.center.duration.200ms
                      x-on:click.outside="closeDetailModal()">
                     
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-6 py-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
                         <div class="flex items-center gap-3">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c] border border-[#00828c]/20">
+                            <span class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c] border border-[#00828c]/20 shrink-0">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/>
                                 </svg>
@@ -562,7 +562,7 @@
                     </div>
 
                     <!-- Modal Body -->
-                    <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                    <div class="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1 min-h-0">
                         <!-- OS & Status Summary -->
                         <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
                             <div class="flex items-center gap-2">
@@ -677,7 +677,7 @@
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/80 px-6 py-3.5">
+                    <div class="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-3.5 shrink-0">
                         <button type="button" x-on:click="closeDetailModal()"
                                 class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
                             Tutup
