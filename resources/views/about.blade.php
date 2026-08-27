@@ -9,7 +9,7 @@
             </span>
             <div>
                 <h2 class="font-bold text-xl text-gray-900 leading-tight">
-                    {{ __('Tentang NodeHub (Centralized Infrastructure Control)') }}
+                    {{ __('NodeHub (Centralized Infrastructure Control)') }}
                 </h2>
                 <p class="text-xs text-gray-500 mt-0.5">
                     {{ __('Sistem Manajemen Remote Desktop Portal') }}

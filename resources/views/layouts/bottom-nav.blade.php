@@ -8,7 +8,7 @@
                 <span class="absolute top-0 w-8 h-1 bg-[#00828c] rounded-b-full"></span>
             @endif
             <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="{{ request()->routeIs('dashboard') ? '2.2' : '1.8' }}">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 8.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
             </svg>
             <span class="text-[10px] tracking-tight truncate">{{ __('Home') }}</span>
         </a>
@@ -44,7 +44,8 @@
                 <span class="absolute top-0 w-8 h-1 bg-[#00828c] rounded-b-full"></span>
             @endif
             <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="{{ request()->routeIs('tags.*') ? '2.2' : '1.8' }}">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3.15c.677-.07 1.354-.07 2.032 0A12.753 12.753 0 0 1 20.85 12.33a12.753 12.753 0 0 1-9.25 9.25c-.678.07-1.355.07-2.033 0a12.753 12.753 0 0 1-9.25-9.25c-.07-.678-.07-1.355 0-2.033a12.753 12.753 0 0 1 9.25-9.25Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3.15l8.98 8.98a2.25 2.25 0 0 1 0 3.182l-5.172 5.172a2.25 2.25 0 0 1-3.182 0l-8.98-8.98A2.25 2.25 0 0 1 0.5 9.818V4.5A2.25 2.25 0 0 1 2.75 2.25h5.318c.597 0 1.17.237 1.591.659z" />
+                <circle cx="5" cy="5" r="1" fill="currentColor" />
             </svg>
             <span class="text-[10px] tracking-tight truncate">{{ __('Tags') }}</span>
         </a>
