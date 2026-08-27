@@ -18,19 +18,19 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6 sm:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             {{-- App Banner Card --}}
             <div
-                class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 rounded-2xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden">
                 <div class="relative z-10 max-w-2xl">
                     <span
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold uppercase tracking-wider mb-3">
                         NodeHub Portal v1.1.0
                     </span>
-                    <h3 class="text-2xl font-extrabold tracking-tight">NodeHub - Centralized Infrastructure Control</h3>
-                    <p class="mt-2 text-sm text-slate-300 leading-relaxed">
+                    <h3 class="text-xl sm:text-2xl font-extrabold tracking-tight">NodeHub - Centralized Infrastructure Control</h3>
+                    <p class="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
                         Aplikasi manajemen terpusat untuk mengendalikan perangkat display VNC secara langsung melalui
                         browser HTML5 tanpa instalasi software tambahan.
                     </p>
@@ -38,7 +38,7 @@
             </div>
 
             {{-- Technology Stack Grid --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                 <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs">
                     <div
                         class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-sm mb-3">
@@ -72,7 +72,7 @@
 
             {{-- Developer Credit Card --}}
             <div
-                class="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                class="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span
                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 font-bold text-lg">
@@ -85,7 +85,7 @@
                 </div>
 
                 <a href="https://seno21.github.io/" target="_blank" rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-sm">
+                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-sm w-full sm:w-auto">
                     <span>seno21.github.io</span>
                     <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"

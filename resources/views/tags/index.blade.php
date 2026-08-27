@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-                <span class="p-2 rounded-xl bg-[#00828c]/10 text-[#00828c]">
+                <span class="p-2 rounded-xl bg-[#00828c]/10 text-[#00828c] shrink-0">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M9.568 3.15c.677-.07 1.354-.07 2.032 0A12.753 12.753 0 0 1 20.85 12.33a12.753 12.753 0 0 1-9.25 9.25c-.678.07-1.355.07-2.033 0a12.753 12.753 0 0 1-9.25-9.25c-.07-.678-.07-1.355 0-2.033a12.753 12.753 0 0 1 9.25-9.25ZM9.568 3.15l-1.026 3.078M12.33 20.85l1.026-3.078M20.85 12.33l-3.078 1.026M3.15 9.568l3.078-1.026" />
@@ -19,7 +19,7 @@
             </div>
 
             <button type="button" x-data x-on:click="$dispatch('open-create-tag-modal')"
-                class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#006e76] active:bg-[#00585f] transition shadow-xs">
+                class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#006e76] active:bg-[#00585f] transition shadow-xs w-full sm:w-auto">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -28,8 +28,8 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="tagDashboard()" x-on:open-create-tag-modal.window="openCreateModal()">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6 sm:py-8" x-data="tagDashboard()" x-on:open-create-tag-modal.window="openCreateModal()">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             {{-- Flash status --}}
             @if (session('status'))
@@ -44,15 +44,55 @@
                 </div>
             @endif
 
-            {{-- Tags Table --}}
+            {{-- Tags Container --}}
             <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">
                         {{ __('Daftar Tag Perangkat') }} ({{ $tags->count() }})
                     </h3>
                 </div>
 
-                <div class="overflow-x-auto">
+                {{-- Mobile Card View (< md) --}}
+                <div class="p-4 space-y-3 md:hidden">
+                    @forelse ($tags as $tagItem)
+                        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="h-3 w-3 rounded-full shrink-0 shadow-xs"
+                                        style="background-color: {{ $tagItem->color ?: '#00828c' }}"></span>
+                                    <span class="font-bold text-sm text-gray-900">#{{ $tagItem->name }}</span>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700 font-bold text-[11px]">
+                                    {{ $tagItem->computers_count }} Perangkat
+                                </span>
+                            </div>
+
+                            @if ($tagItem->description)
+                                <p class="text-xs text-gray-600 leading-relaxed">{{ $tagItem->description }}</p>
+                            @endif
+
+                            <div class="pt-2 border-t border-slate-200/60 flex items-center justify-end gap-2">
+                                <button type="button"
+                                    x-on:click="openEditModal({{ json_encode($tagItem) }})"
+                                    class="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl text-xs hover:bg-slate-100 transition">
+                                    Edit
+                                </button>
+                                <button type="button"
+                                    x-on:click="confirmDeleteTag({{ json_encode($tagItem) }})"
+                                    class="px-3.5 py-1.5 bg-rose-50 border border-rose-100 text-rose-600 font-semibold rounded-xl text-xs hover:bg-rose-100 transition">
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-gray-400 text-xs italic">
+                            Belum ada tag yang dibuat. Klik tombol "+ Create Tag" di atas untuk menambahkan tag baru.
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- Desktop Table View (>= md) --}}
+                <div class="hidden md:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-xs">
                         <thead>
                             <tr
@@ -172,13 +212,13 @@
                             placeholder="Perangkat pada area kasir utama..." />
                     </div>
 
-                    <div class="pt-5 mt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <div class="pt-5 mt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
                         <button type="button" x-on:click="closeFormModal()"
-                            class="px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
+                            class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
                             Batal
                         </button>
                         <button type="submit"
-                            class="px-6 py-2.5 bg-[#00828c] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#006e76] transition shadow-md shadow-[#00828c]/20">
+                            class="w-full sm:w-auto px-6 py-2.5 bg-[#00828c] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#006e76] transition shadow-md shadow-[#00828c]/20">
                             <span x-text="isEditing ? 'Update Tag' : 'Simpan Tag'"></span>
                         </button>
                     </div>

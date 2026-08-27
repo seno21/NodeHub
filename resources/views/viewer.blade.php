@@ -71,7 +71,7 @@
 
             <!-- Hidden Menu Panel (Appears on click) -->
             <div id="toolbar-menu"
-                class="hidden mt-2 flex items-center gap-0.5 rounded-2xl border border-white/15 bg-zinc-900/95 px-2 py-1.5 backdrop-blur-md shadow-2xl">
+                class="hidden mt-2 flex items-center gap-0.5 rounded-2xl border border-white/15 bg-zinc-900/95 px-2 py-1.5 backdrop-blur-md shadow-2xl flex-wrap max-w-[calc(100vw-24px)]">
 
                 <a href="{{ route('computers.index') }}" id="btn-back" title="{{ __('Kembali ke Daftar Devices') }}"
                     class="toolbar-btn">
@@ -99,7 +99,7 @@
                     </button>
 
                     <div id="quick-keys-panel"
-                        class="hidden absolute left-0 top-10 z-50 w-52 rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-2 shadow-2xl">
+                        class="hidden absolute left-0 top-10 z-50 w-48 sm:w-52 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-2 shadow-2xl">
                         <p class="px-2 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Quick Control Keys') }}
                         </p>
@@ -143,7 +143,7 @@
                     </button>
 
                     <div id="clipboard-panel"
-                        class="hidden absolute left-0 top-10 z-50 w-72 rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
+                        class="hidden absolute left-0 top-10 z-50 w-64 sm:w-72 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
                         <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Kirim Teks / Clipboard ke Remote') }}
                         </p>
@@ -210,7 +210,7 @@
                     </button>
 
                     <div id="settings-panel"
-                        class="hidden absolute left-0 top-10 z-50 w-56 rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
+                        class="hidden absolute left-0 top-10 z-50 w-52 sm:w-56 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
                         <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Display Settings') }}
                         </p>
@@ -235,7 +235,7 @@
         <input type="text" id="mobile-keyboard-input" class="fixed -top-96 left-0 opacity-0 pointer-events-none lg:hidden" autocomplete="off" capitalize="off" spellcheck="false" />
 
         <!-- Floating Mobile Dock Bar (Mobile Only) -->
-        <div id="mobile-dock" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden lg:hidden items-center gap-1.5 rounded-2xl border border-white/20 bg-zinc-900/95 px-3 py-2 backdrop-blur-md shadow-2xl transition-all duration-200">
+        <div id="mobile-dock" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden lg:hidden items-center gap-1.5 rounded-2xl border border-white/20 bg-zinc-900/95 px-2.5 sm:px-3 py-2 backdrop-blur-md shadow-2xl transition-all duration-200 max-w-[calc(100vw-20px)] flex-wrap justify-center">
             <!-- Left Click -->
             <button type="button" id="mb-left-click" title="Klik Kiri" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white text-xs font-bold active:scale-95 transition shadow-lg shadow-[#00828c]/30">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

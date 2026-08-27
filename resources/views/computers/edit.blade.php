@@ -17,9 +17,9 @@
         </div>
     </x-slot>
 
-    <div class="py-10">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl shadow-slate-200/50 sm:rounded-2xl border border-slate-200/80 p-8">
+    <div class="py-6 sm:py-10">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl shadow-slate-200/50 rounded-2xl border border-slate-200/80 p-5 sm:p-8">
                 <div class="mb-6 pb-5 border-b border-slate-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-[#00828c]/10 text-[#00828c] flex items-center justify-center font-bold">

@@ -43,9 +43,9 @@
         $selectedIdsJson = $action->computers->pluck('id')->all();
     @endphp
 
-    <div class="py-8" x-data="editActionForm({{ json_encode($computersJson) }}, {{ json_encode($selectedIdsJson) }})">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xs p-8">
+    <div class="py-6 sm:py-8" x-data="editActionForm({{ json_encode($computersJson) }}, {{ json_encode($selectedIdsJson) }})">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xs p-5 sm:p-8">
 
                 <form method="POST" action="{{ route('actions.update', $action) }}" class="space-y-6">
                     @csrf
@@ -190,14 +190,14 @@
                     </div>
 
                     {{-- Form Footer --}}
-                    <div class="pt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <div class="pt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
                         <a href="{{ route('actions.index') }}"
-                            class="px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition text-center">
                             {{ __('Batal') }}
                         </a>
 
                         <button type="submit"
-                            class="px-6 py-2.5 bg-[#00828c] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#006e76] transition shadow-md shadow-[#00828c]/20 disabled:opacity-50"
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 bg-[#00828c] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#006e76] transition shadow-md shadow-[#00828c]/20 disabled:opacity-50"
                             x-bind:disabled="selectedIds.length === 0">
                             {{ __('Update Action') }}
                         </button>

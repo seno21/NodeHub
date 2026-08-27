@@ -10,11 +10,11 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+    <div class="py-6 sm:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
 
             {{-- User Profile Hero Banner Card --}}
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 sm:p-8 text-white shadow-xl shadow-slate-900/20 border border-slate-800">
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-5 sm:p-8 text-white shadow-xl shadow-slate-900/20 border border-slate-800">
                 {{-- Decorative gradient blob --}}
                 <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"></div>
                 <div class="absolute -left-16 -bottom-16 h-64 w-64 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
@@ -66,11 +66,11 @@
                     </div>
 
                     {{-- Quick Lock Session Button --}}
-                    <div class="shrink-0 mt-4 sm:mt-0">
+                    <div class="shrink-0 mt-4 sm:mt-0 w-full sm:w-auto">
                         <form method="POST" action="{{ route('lock.store') }}">
                             @csrf
                             <button type="submit"
-                                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm">
+                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm">
                                 <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                 </svg>
@@ -82,20 +82,20 @@
             </div>
 
             {{-- Grid Section Cards --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                 {{-- Profile Info Card --}}
-                <div class="p-6 sm:p-8 bg-white/90 backdrop-blur-md shadow-xl shadow-slate-200/50 sm:rounded-2xl border border-slate-200/80">
+                <div class="p-5 sm:p-8 bg-white/90 backdrop-blur-md shadow-xl shadow-slate-200/50 rounded-2xl border border-slate-200/80">
                     @include('profile.partials.update-profile-information-form')
                 </div>
 
                 {{-- Password Change Card --}}
-                <div class="p-6 sm:p-8 bg-white/90 backdrop-blur-md shadow-xl shadow-slate-200/50 sm:rounded-2xl border border-slate-200/80">
+                <div class="p-5 sm:p-8 bg-white/90 backdrop-blur-md shadow-xl shadow-slate-200/50 rounded-2xl border border-slate-200/80">
                     @include('profile.partials.update-password-form')
                 </div>
             </div>
 
             {{-- Danger Zone Card --}}
-            <div class="p-6 sm:p-8 bg-rose-50/50 backdrop-blur-md shadow-lg shadow-rose-100/50 sm:rounded-2xl border border-rose-200/80">
+            <div class="p-5 sm:p-8 bg-rose-50/50 backdrop-blur-md shadow-lg shadow-rose-100/50 rounded-2xl border border-rose-200/80">
                 @include('profile.partials.delete-user-form')
             </div>
 

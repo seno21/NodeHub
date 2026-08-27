@@ -286,13 +286,13 @@
         </div>
     </div>
 
-    <div class="flex items-center justify-end gap-3 pt-2">
+    <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
         <a href="{{ route('computers.index') }}"
-            class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl font-semibold text-xs text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-sm">
+            class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl font-semibold text-xs text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-sm text-center">
             {{ __('Batal') }}
         </a>
 
-        <x-primary-button class="py-2.5 px-6 rounded-xl bg-[#00828c] hover:bg-[#006e76]">
+        <x-primary-button class="w-full sm:w-auto justify-center py-2.5 px-6 rounded-xl bg-[#00828c] hover:bg-[#006e76]">
             {{ $submitText ?? __('Simpan Perangkat') }}
         </x-primary-button>
     </div>
