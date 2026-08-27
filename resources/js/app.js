@@ -28,7 +28,55 @@ Alpine.data('deviceStats', (statusUrl) => ({
     },
 }));
 
-Alpine.data('deviceBoard', () => ({
+Alpine.data('deviceBoard', (initialDevices = []) => ({
+    allDevices: Array.isArray(initialDevices) ? initialDevices : [],
+    searchQuery: '',
+    selectedTag: '',
+    selectedOs: '',
+    csrfToken: document.querySelector('meta[name="csrf-token"]')?.content || '',
+
+    get availableTags() {
+        const tagsSet = new Set();
+        this.allDevices.forEach(d => {
+            if (Array.isArray(d.tags)) {
+                d.tags.forEach(t => {
+                    if (t) tagsSet.add(t);
+                });
+            }
+        });
+        return Array.from(tagsSet).sort();
+    },
+
+    get filteredDevices() {
+        return this.allDevices.filter(c => {
+            if (this.selectedOs && c.os_type !== this.selectedOs) {
+                return false;
+            }
+            if (this.selectedTag) {
+                const tagMatch = (c.tags_relation && c.tags_relation.some(t => String(t.id) === String(this.selectedTag) || t.name === this.selectedTag))
+                              || (c.tags && c.tags.some(t => String(t) === String(this.selectedTag)));
+                if (!tagMatch) return false;
+            }
+            if (this.searchQuery && this.searchQuery.trim()) {
+                const q = this.searchQuery.toLowerCase().trim();
+                const matchName = c.name && c.name.toLowerCase().includes(q);
+                const matchIp = c.ip_address && c.ip_address.toLowerCase().includes(q);
+                const matchPort = String(c.vnc_port || '').includes(q);
+                const matchLoc = c.location && c.location.toLowerCase().includes(q);
+                const matchDesc = c.description && c.description.toLowerCase().includes(q);
+                const matchTags = c.tags && c.tags.some(t => t.toLowerCase().includes(q));
+                return matchName || matchIp || matchPort || matchLoc || matchDesc || matchTags;
+            }
+            return true;
+        });
+    },
+
+    resetFilters() {
+        this.searchQuery = '';
+        this.selectedTag = '';
+        this.selectedOs = '';
+    },
+
     /** @type {Record<string, boolean|undefined>} */
     statuses: {},
     connecting: false,

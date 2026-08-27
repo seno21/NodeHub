@@ -73,9 +73,34 @@ class ComputerController extends Controller
         }
 
         $allTags = Schema::hasTable('tags') ? Tag::query()->orderBy('name')->get() : collect();
+        $computers = (clone $query)->latest()->paginate(15)->withQueryString();
+
+        $allDevices = (clone $query)->latest()->get()->map(function ($c) {
+            $tagNames = [];
+            if ($c->relationLoaded('tagsRelation') && $c->tagsRelation->isNotEmpty()) {
+                $tagNames = $c->tagsRelation->pluck('name')->all();
+            } elseif ($c->tags) {
+                $tagNames = array_values(array_filter(array_map('trim', explode(',', $c->tags))));
+            }
+
+            return [
+                'id' => $c->id,
+                'name' => $c->name,
+                'ip_address' => $c->ip_address,
+                'vnc_port' => $c->vnc_port,
+                'os_type' => $c->os_type,
+                'location' => $c->location,
+                'description' => $c->description,
+                'tags' => array_values(array_unique($tagNames)),
+                'tags_relation' => $c->relationLoaded('tagsRelation')
+                    ? $c->tagsRelation->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'color' => $t->color])->values()->all()
+                    : [],
+            ];
+        })->values()->all();
 
         return view('computers.index', [
-            'computers' => $query->latest()->paginate(15)->withQueryString(),
+            'computers' => $computers,
+            'allDevices' => $allDevices,
             'allTags' => $allTags,
         ]);
     }
