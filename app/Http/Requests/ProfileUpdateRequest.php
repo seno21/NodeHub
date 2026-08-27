@@ -33,6 +33,7 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'auto_lock_timeout' => ['nullable', 'integer', 'in:5,10,15,20,30,60'],
         ];
     }
 }

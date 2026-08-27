@@ -58,6 +58,22 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="auto_lock_timeout" :value="__('Durasi Auto-Lock Sesi (Inaktivitas)')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <select id="auto_lock_timeout" name="auto_lock_timeout" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
+                <option value="5" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 5)>5 {{ __('Menit') }}</option>
+                <option value="10" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 10)>10 {{ __('Menit') }}</option>
+                <option value="15" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 15)>15 {{ __('Menit') }}</option>
+                <option value="20" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 20)>20 {{ __('Menit (Default)') }}</option>
+                <option value="30" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 30)>30 {{ __('Menit') }}</option>
+                <option value="60" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 60)>60 {{ __('Menit (1 Jam)') }}</option>
+            </select>
+            <p class="mt-1 text-[11px] text-slate-500">
+                {{ __('Sesi aplikasi akan otomatis dikunci jika tidak ada aktivitas pengguna sesuai durasi yang dipilih.') }}
+            </p>
+            <x-input-error class="mt-2 text-xs text-rose-500" :messages="$errors->get('auto_lock_timeout')" />
+        </div>
+
         <div class="flex items-center gap-4 pt-2">
             <button type="submit"
                     class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wider hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition shadow-md shadow-blue-500/20">

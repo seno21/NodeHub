@@ -240,4 +240,44 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     },
 }));
 
+// Dynamic Client-Side Inactivity Auto-Lock (from user preference meta tag)
+const timeoutMeta = document.querySelector('meta[name="auto-lock-timeout"]')?.content;
+const timeoutMinutes = parseInt(timeoutMeta || '20', 10);
+const INACTIVITY_LIMIT_MS = (isNaN(timeoutMinutes) || timeoutMinutes <= 0 ? 20 : timeoutMinutes) * 60 * 1000;
+let inactivityTimerId = null;
+
+function handleInactivityLock() {
+    if (window.location.pathname.endsWith('/lock') || window.location.pathname.endsWith('/login')) {
+        return;
+    }
+
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (csrf) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/lock-session';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = '_token';
+        input.value = csrf;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    } else {
+        window.location.href = '/lock';
+    }
+}
+
+function resetInactivityTimer() {
+    if (inactivityTimerId) clearTimeout(inactivityTimerId);
+    inactivityTimerId = setTimeout(handleInactivityLock, INACTIVITY_LIMIT_MS);
+}
+
+if (!window.location.pathname.endsWith('/lock') && !window.location.pathname.endsWith('/login')) {
+    ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click'].forEach((evt) => {
+        window.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+    resetInactivityTimer();
+}
+
 Alpine.start();

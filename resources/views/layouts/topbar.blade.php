@@ -59,7 +59,7 @@
                 <p class="text-[11px] text-gray-500 truncate">{{ Auth::user()->email }}</p>
             </div>
 
-            <div class="py-1">
+            <div class="py-1 space-y-0.5">
                 <a href="{{ route('profile.edit') }}"
                    class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-[#00828c]/10 hover:text-[#00828c] transition">
                     <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -67,6 +67,17 @@
                     </svg>
                     {{ __('Profile') }}
                 </a>
+
+                <form method="POST" action="{{ route('lock.store') }}">
+                    @csrf
+                    <button type="submit"
+                            class="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-amber-800 hover:bg-amber-50 transition">
+                        <svg class="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                        </svg>
+                        {{ __('Lock Session') }}
+                    </button>
+                </form>
             </div>
 
             <div class="border-t border-gray-100 pt-1">
