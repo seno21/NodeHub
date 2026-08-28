@@ -695,16 +695,19 @@ function bindToolbar() {
 
     document.addEventListener('click', (event) => {
         if (!el.toolbar?.contains(event.target)) {
-            el.toolbarMenu?.classList.add('hidden');
             el.quickKeysPanel?.classList.add('hidden');
             el.clipboardPanel?.classList.add('hidden');
             el.settingsPanel?.classList.add('hidden');
-        } else if (!el.quickKeysPanel?.contains(event.target) && event.target !== el.btnQuickKeys) {
-            el.quickKeysPanel?.classList.add('hidden');
-        } else if (!el.clipboardPanel?.contains(event.target) && event.target !== el.btnClipboard) {
-            el.clipboardPanel?.classList.add('hidden');
-        } else if (!el.settingsPanel?.contains(event.target) && event.target !== el.btnSettings) {
-            el.settingsPanel?.classList.add('hidden');
+        } else {
+            if (!el.quickKeysPanel?.contains(event.target) && event.target !== el.btnQuickKeys) {
+                el.quickKeysPanel?.classList.add('hidden');
+            }
+            if (!el.clipboardPanel?.contains(event.target) && event.target !== el.btnClipboard) {
+                el.clipboardPanel?.classList.add('hidden');
+            }
+            if (!el.settingsPanel?.contains(event.target) && event.target !== el.btnSettings) {
+                el.settingsPanel?.classList.add('hidden');
+            }
         }
     });
 
@@ -830,6 +833,18 @@ function bindToolbar() {
         el.settingsPanel?.classList.toggle('hidden');
     });
 
+    el.btnToggleBar?.addEventListener('click', () => {
+        el.toolbar?.classList.add('lg:hidden');
+        el.floatingShowBar?.classList.remove('hidden');
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    });
+
+    el.floatingShowBar?.addEventListener('click', () => {
+        el.toolbar?.classList.remove('lg:hidden');
+        el.floatingShowBar?.classList.add('hidden');
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    });
+
     el.chkScale?.addEventListener('change', () => applyScaling(el.chkScale.checked));
     el.chkCursor?.addEventListener('change', () => applyLocalCursor(el.chkCursor.checked));
 
@@ -941,6 +956,8 @@ async function init() {
     el.settingsPanel = qs('settings-panel');
     el.chkScale = qs('chk-scale');
     el.chkCursor = qs('chk-cursor');
+    el.btnToggleBar = qs('btn-toggle-bar');
+    el.floatingShowBar = qs('floating-show-bar');
 
     // Mobile Virtual Pointer & Floating Dock Elements
     el.virtualCursor = qs('virtual-cursor');

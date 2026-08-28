@@ -38,54 +38,41 @@
 
 <body class="font-sans antialiased">
     <div id="viewer-root" data-token="{{ $token }}" data-ticket-url="{{ route('viewer.ticket', $token) }}"
-        class="fixed inset-0 bg-black">
+        class="fixed inset-0 bg-black flex flex-col overflow-hidden">
 
-        <!-- Remote Screen Container & Bounded Virtual Cursor -->
-        <div id="screen-container" class="relative w-full h-full overflow-hidden bg-black">
-            <!-- Remote screen canvas -->
-            <div id="screen" class="absolute inset-0 w-full h-full"></div>
+        <!-- Outer Control Bar Header (Situated completely outside remote screen canvas) -->
+        <header id="toolbar"
+            class="z-40 w-full bg-zinc-900/95 border-b border-white/10 px-2 sm:px-4 py-1.5 backdrop-blur-md shadow-xl flex items-center justify-between flex-none transition-all duration-200">
 
-            <!-- Virtual Mobile Pointer Cursor (Bounded strictly inside screen container) -->
-            <div id="virtual-cursor" class="pointer-events-none absolute z-[60] hidden lg:hidden transition-opacity duration-75 transform -translate-x-1 -translate-y-1">
-                <svg class="h-6 w-6 text-cyan-400 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 3l7 18 3-7 7-3L3 3z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
-                </svg>
-                <span class="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                </span>
-            </div>
-        </div>
-
-        <!-- Floating Collapsible Control Menu Container -->
-        <div id="toolbar" class="absolute top-3 left-3 z-50">
-            <!-- Floating Menu Toggle Trigger Button -->
-            <button type="button" id="btn-toggle-menu" title="{{ __('Toggle VNC Menu') }}"
-                class="flex items-center justify-center p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-gray-300 hover:text-white backdrop-blur-md transition group">
-                <svg class="h-4 w-4 text-[#00828c] group-hover:rotate-45 transition-transform" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0m-9.75 0h9.75" />
-                </svg>
-            </button>
-
-            <!-- Hidden Menu Panel (Appears on click) -->
-            <div id="toolbar-menu"
-                class="hidden mt-2 flex items-center gap-0.5 rounded-2xl border border-white/15 bg-zinc-900/95 px-2 py-1.5 backdrop-blur-md shadow-2xl flex-wrap max-w-[calc(100vw-24px)]">
-
+            <!-- Left Section: Back Button & Device Status -->
+            <div class="flex items-center gap-2 sm:gap-3">
                 <a href="{{ route('computers.index') }}" id="btn-back" title="{{ __('Kembali ke Daftar Devices') }}"
-                    class="toolbar-btn">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    class="toolbar-btn flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition text-gray-200 hover:text-white">
+                    <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>
+                    <span class="hidden sm:inline">{{ __('Kembali') }}</span>
                 </a>
 
-                <span class="mx-1 h-5 w-px bg-white/15"></span>
+                <span class="h-4 w-px bg-white/15"></span>
 
-                {{-- Quick keys --}}
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="hidden md:inline text-xs font-bold text-gray-200 tracking-wide">NodeHub Remote</span>
+                </div>
+
+                <span id="conn-status" class="ms-1 me-1 select-none text-xs font-medium text-slate-300 truncate max-w-[150px] sm:max-w-xs"></span>
+            </div>
+
+            <!-- Right Section: Always Visible Remote Controller Actions -->
+            <div class="flex items-center gap-1 sm:gap-1.5">
+                {{-- Quick control keys --}}
                 <div class="relative">
                     <button type="button" id="btn-quick-keys" title="{{ __('Quick Control Keys') }}"
-                        class="flex h-8 items-center gap-1 rounded-lg px-2 text-gray-300 transition hover:bg-white/10 hover:text-white text-xs font-semibold">
+                        class="flex h-8 items-center gap-1 rounded-lg px-2 text-gray-300 transition hover:bg-white/10 hover:text-white text-xs font-semibold border border-white/5 bg-white/5">
                         <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -99,7 +86,7 @@
                     </button>
 
                     <div id="quick-keys-panel"
-                        class="hidden absolute left-0 top-10 z-50 w-48 sm:w-52 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-2 shadow-2xl">
+                        class="hidden absolute right-0 top-10 z-50 w-48 sm:w-52 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-2 shadow-2xl">
                         <p class="px-2 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Quick Control Keys') }}
                         </p>
@@ -132,7 +119,7 @@
                     </div>
                 </div>
 
-                <span class="mx-1 h-5 w-px bg-white/15"></span>
+                <span class="h-5 w-px bg-white/15"></span>
 
                 {{-- Clipboard / Send Text --}}
                 <div class="relative">
@@ -143,7 +130,7 @@
                     </button>
 
                     <div id="clipboard-panel"
-                        class="hidden absolute left-0 top-10 z-50 w-64 sm:w-72 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
+                        class="hidden absolute right-0 top-10 z-50 w-64 sm:w-72 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
                         <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Kirim Teks / Clipboard ke Remote') }}
                         </p>
@@ -164,9 +151,10 @@
                     </div>
                 </div>
 
-                <span class="mx-1 h-5 w-px bg-white/15"></span>
+                <span class="h-5 w-px bg-white/15"></span>
 
-                <button type="button" id="btn-view-only" title="{{ __('Toggle View-Only') }}" class="toolbar-btn">
+                {{-- View-Only Toggle --}}
+                <button type="button" id="btn-view-only" title="{{ __('Toggle View-Only Mode') }}" class="toolbar-btn">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -176,7 +164,8 @@
                     </svg>
                 </button>
 
-                <button type="button" id="btn-screenshot" title="{{ __('Screenshot') }}" class="toolbar-btn">
+                {{-- Screenshot --}}
+                <button type="button" id="btn-screenshot" title="{{ __('Take Screenshot') }}" class="toolbar-btn">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -186,7 +175,8 @@
                     </svg>
                 </button>
 
-                <button type="button" id="btn-fullscreen" title="{{ __('Toggle Fullscreen') }}"
+                {{-- Fullscreen --}}
+                <button type="button" id="btn-fullscreen" title="{{ __('Toggle Fullscreen Mode') }}"
                     class="toolbar-btn">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="1.8">
@@ -195,9 +185,9 @@
                     </svg>
                 </button>
 
-                <span class="mx-1 h-5 w-px bg-white/15"></span>
+                <span class="h-5 w-px bg-white/15"></span>
 
-                {{-- Settings --}}
+                {{-- Display Settings --}}
                 <div class="relative">
                     <button type="button" id="btn-settings" title="{{ __('Settings') }}" class="toolbar-btn">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -210,7 +200,7 @@
                     </button>
 
                     <div id="settings-panel"
-                        class="hidden absolute left-0 top-10 z-50 w-52 sm:w-56 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
+                        class="hidden absolute right-0 top-10 z-50 w-52 sm:w-56 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
                         <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Display Settings') }}
                         </p>
@@ -227,7 +217,37 @@
                     </div>
                 </div>
 
-                <span id="conn-status" class="ms-2 me-1 select-none text-xs font-medium text-slate-300"></span>
+                {{-- Toggle Bar Collapse --}}
+                <button type="button" id="btn-toggle-bar" title="{{ __('Sembunyikan Bar Kontrol') }}" class="toolbar-btn">
+                    <svg class="h-4 w-4 text-slate-400 hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Floating Restore Top Bar Button (Shown when bar is collapsed) -->
+        <button type="button" id="floating-show-bar" title="{{ __('Tampilkan Bar Kontrol') }}"
+            class="hidden fixed top-2 right-3 z-50 p-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-gray-300 hover:text-white backdrop-blur-md border border-white/10 shadow-lg transition">
+            <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+        </button>
+
+        <!-- Remote Screen Container -->
+        <div id="screen-container" class="relative flex-1 w-full overflow-hidden bg-black">
+            <!-- Remote screen canvas -->
+            <div id="screen" class="absolute inset-0 w-full h-full"></div>
+
+            <!-- Virtual Mobile Pointer Cursor -->
+            <div id="virtual-cursor" class="pointer-events-none absolute z-[60] hidden lg:hidden transition-opacity duration-75 transform -translate-x-1 -translate-y-1">
+                <svg class="h-6 w-6 text-cyan-400 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3l7 18 3-7 7-3L3 3z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                <span class="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
             </div>
         </div>
 
