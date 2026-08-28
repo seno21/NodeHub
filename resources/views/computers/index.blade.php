@@ -6,17 +6,6 @@
             </h2>
 
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
-                <button type="button" x-data="{ loading: false }"
-                    x-on:click="loading = true; window.dispatchEvent(new CustomEvent('trigger-check-all-connections')); setTimeout(() => loading = false, 3000)"
-                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 bg-emerald-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700 active:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-xs w-full sm:w-auto">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21M6.75 6.75h10.5a2.25 2.25 0 0 1 2.25 2.25v6.525a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
-                    </svg>
-                    <span
-                        x-text="loading ? '{{ __('Memeriksa...') }}' : '{{ __('Ping All') }}'">{{ __('Ping All') }}</span>
-                </button>
-
                 <a href="{{ route('computers.create') }}"
                     class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition ease-in-out duration-150 shadow-xs w-full sm:w-auto">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -104,8 +93,7 @@
 
                     <div
                         class="flex items-center gap-2.5 w-full sm:w-auto justify-end border-t sm:border-t-0 border-emerald-200/60 pt-2 sm:pt-0 shrink-0">
-                        <button type="button"
-                            x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
+                        <button type="button" x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
                             class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200/70 bg-white/60 transition">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                 stroke-width="2">
