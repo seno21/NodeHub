@@ -85,9 +85,98 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     targetName: '',
     boardError: '',
     term: { open: false, title: '', lines: [], running: false },
+    checkingAll: false,
+    batchSummary: null,
 
     detailModalOpen: false,
     selectedDevice: null,
+
+    async checkAllConnections(statusUrl = '/computers/status', openTerminal = false) {
+        if (this.checkingAll) return;
+        this.checkingAll = true;
+
+        if (openTerminal) {
+            this.term.open = true;
+            this.term.title = `Diagnosa Batch — Cek Semua Perangkat (${this.allDevices.length})`;
+            this.term.lines = [];
+            this.term.running = true;
+            await this.typeLine(`$ nodehub ping --all --count=${this.allDevices.length}`, 'text-emerald-400 font-bold');
+            await this.typeLine(`→ Memulai pemindaian koneksi ke ${this.allDevices.length} perangkat...`, 'text-cyan-400');
+        }
+
+        let data = null;
+        try {
+            const response = await fetch(statusUrl, {
+                headers: { Accept: 'application/json' },
+            });
+            if (response.ok) {
+                data = await response.json();
+            }
+        } catch {
+            data = null;
+        }
+
+        if (!data) {
+            this.showBoardError('Gagal melakukan pengecekan status koneksi massal.');
+            if (openTerminal) {
+                await this.typeLine(`→ ERROR: Gagal menghubungi server portal`, 'text-red-400');
+                this.term.running = false;
+            }
+            this.checkingAll = false;
+            return;
+        }
+
+        this.statuses = { ...this.statuses, ...data };
+
+        let onlineCount = 0;
+        let offlineCount = 0;
+
+        for (const device of this.allDevices) {
+            const st = data[device.id];
+            const isVncOk = typeof st === 'object' ? Boolean(st.vnc) : Boolean(st);
+            const isSshOk = typeof st === 'object' ? Boolean(st.ssh) : false;
+
+            if (isVncOk) {
+                onlineCount++;
+                if (openTerminal) {
+                    await this.typeLine(`✔ [ONLINE]  ${device.name} (${device.ip_address}:${device.vnc_port})`, 'text-emerald-400');
+                }
+            } else if (isSshOk) {
+                offlineCount++;
+                if (openTerminal) {
+                    await this.typeLine(`⚠ [PORT OFF] ${device.name} (${device.ip_address}:${device.vnc_port}) — SSH Ok, VNC Off`, 'text-amber-400');
+                }
+            } else {
+                offlineCount++;
+                if (openTerminal) {
+                    await this.typeLine(`✘ [OFFLINE] ${device.name} (${device.ip_address}:${device.vnc_port})`, 'text-red-400');
+                }
+            }
+        }
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        this.batchSummary = {
+            total: this.allDevices.length,
+            online: onlineCount,
+            offline: offlineCount,
+            time: timeStr,
+        };
+
+        if (openTerminal) {
+            await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+            await this.typeLine(`✔ Pengecekan Selesai: ${onlineCount} Online, ${offlineCount} Offline.`, onlineCount > 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold');
+            this.term.running = false;
+            this.scrollTerm();
+        }
+
+        this.checkingAll = false;
+    },
+
+    dismissBatchSummary() {
+        this.batchSummary = null;
+    },
 
     openDetailModal(comp) {
         this.selectedDevice = comp;
