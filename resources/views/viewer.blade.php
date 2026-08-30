@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
@@ -27,6 +27,11 @@
             height: 100%;
             background: #000;
             overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        #screen-container, #screen, #screen canvas {
+            touch-action: pan-x pan-y pinch-zoom;
         }
 
         body.local-cursor-active #screen canvas,
@@ -251,36 +256,40 @@
             </div>
         </div>
 
-        <!-- Hidden input for mobile keyboard -->
-        <input type="text" id="mobile-keyboard-input" class="fixed -top-96 left-0 opacity-0 pointer-events-none lg:hidden" autocomplete="off" capitalize="off" spellcheck="false" />
+        <!-- Native Android keyboard trigger input -->
+        <input type="text" id="mobile-keyboard-input" class="fixed bottom-0 left-0 w-px h-px opacity-0 z-0 lg:hidden" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
 
-        <!-- Floating Mobile Dock Bar (Mobile Only) -->
-        <div id="mobile-dock" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden lg:hidden items-center gap-1.5 rounded-2xl border border-white/20 bg-zinc-900/95 px-2.5 sm:px-3 py-2 backdrop-blur-md shadow-2xl transition-all duration-200 max-w-[calc(100vw-20px)] flex-wrap justify-center">
+        <!-- Floating Mobile Dock Bar (Mobile Only - Icon Only Layout) -->
+        <div id="mobile-dock" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden lg:hidden items-center gap-2 rounded-2xl border border-white/20 bg-zinc-900/90 px-3 py-2 backdrop-blur-md shadow-2xl transition-all duration-200">
             <!-- Left Click -->
-            <button type="button" id="mb-left-click" title="Klik Kiri" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white text-xs font-bold active:scale-95 transition shadow-lg shadow-[#00828c]/30">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button type="button" id="mb-left-click" title="Klik Kiri" class="flex items-center justify-center p-2 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white active:scale-95 transition shadow-lg shadow-[#00828c]/30">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286.678z" />
                 </svg>
-                <span>Klik</span>
             </button>
 
             <!-- Double Click -->
-            <button type="button" id="mb-double-click" title="Klik 2x (Buka File/Folder)" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-100 text-xs font-bold active:scale-95 transition border border-white/10">
-                <span class="text-xs font-black text-cyan-400">2x</span>
-                <span>Klik 2x</span>
+            <button type="button" id="mb-double-click" title="Klik 2x (Buka File/Folder)" class="flex items-center justify-center px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-400 font-black text-xs active:scale-95 transition border border-white/10">
+                2x
             </button>
 
             <!-- Right Click -->
-            <button type="button" id="mb-right-click" title="Klik Kanan" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold active:scale-95 transition">
-                <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button type="button" id="mb-right-click" title="Klik Kanan" class="flex items-center justify-center p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 active:scale-95 transition">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 00-6 6v3" />
                 </svg>
-                <span>Kanan</span>
             </button>
 
-            <!-- Toggle Keyboard -->
-            <button type="button" id="mb-keyboard" title="Papan Ketik HP" class="flex items-center justify-center p-2 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-400 active:scale-95 transition border border-white/10">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <!-- Zoom Toggle Button -->
+            <button type="button" id="mb-zoom" title="Perbesar Layar / Zoom (1x / 1.5x / 2x)" class="flex items-center justify-center p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 border border-sky-500/40 active:scale-95 transition">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+                </svg>
+            </button>
+
+            <!-- Keyboard Toggle & Exit Button -->
+            <button type="button" id="mb-keyboard" title="Buka / Tutup Keyboard Android" class="flex items-center justify-center p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 active:scale-95 transition">
+                <svg id="mb-keyboard-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </button>

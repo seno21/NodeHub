@@ -56,6 +56,38 @@ let trackpadState = {
     lastTapTime: 0,
 };
 
+let mobileZoomLevel = 1.0;
+
+function setMobileZoom(level) {
+    mobileZoomLevel = Math.max(1.0, Math.min(3.0, parseFloat(level.toFixed(2))));
+
+    if (el.mbZoomText) {
+        el.mbZoomText.textContent = mobileZoomLevel === 1.0 ? 'Zoom 1x' : `Zoom ${mobileZoomLevel}x`;
+    }
+
+    if (el.screen) {
+        if (mobileZoomLevel === 1.0) {
+            el.screen.style.width = '100%';
+            el.screen.style.height = '100%';
+            el.screen.style.transform = 'none';
+            if (el.screenContainer) {
+                el.screenContainer.style.overflow = 'hidden';
+                el.screenContainer.scrollLeft = 0;
+                el.screenContainer.scrollTop = 0;
+            }
+        } else {
+            el.screen.style.width = `${mobileZoomLevel * 100}%`;
+            el.screen.style.height = `${mobileZoomLevel * 100}%`;
+            el.screen.style.transform = 'none';
+            if (el.screenContainer) {
+                el.screenContainer.style.overflow = 'auto';
+            }
+        }
+    }
+
+    updateMobileCursorUI();
+}
+
 function updateMobileCursorUI() {
     if (!isMobileMode() || !state?.rfb || !state.rfb._fbWidth) {
         el.virtualCursor?.classList.add('hidden');
@@ -96,6 +128,26 @@ function updateMobileCursorUI() {
     el.virtualCursor.style.left = `${cursorLeft}px`;
     el.virtualCursor.style.top = `${cursorTop}px`;
     el.virtualCursor.classList.remove('hidden');
+
+    // Auto-scroll screen container if cursor moves near viewport boundaries in zoom mode
+    if (mobileZoomLevel > 1.0 && el.screenContainer) {
+        const cursorLeftPx = (trackpadState.cursorX / fbW) * canvasRect.width;
+        const cursorTopPx = (trackpadState.cursorY / fbH) * canvasRect.height;
+        const viewWidth = el.screenContainer.clientWidth;
+        const viewHeight = el.screenContainer.clientHeight;
+
+        if (cursorLeftPx < el.screenContainer.scrollLeft + 40) {
+            el.screenContainer.scrollLeft = Math.max(0, cursorLeftPx - 40);
+        } else if (cursorLeftPx > el.screenContainer.scrollLeft + viewWidth - 40) {
+            el.screenContainer.scrollLeft = cursorLeftPx - viewWidth + 40;
+        }
+
+        if (cursorTopPx < el.screenContainer.scrollTop + 40) {
+            el.screenContainer.scrollTop = Math.max(0, cursorTopPx - 40);
+        } else if (cursorTopPx > el.screenContainer.scrollTop + viewHeight - 40) {
+            el.screenContainer.scrollTop = cursorTopPx - viewHeight + 40;
+        }
+    }
 }
 
 function getCanvasElementCoordinates() {
@@ -169,6 +221,15 @@ function triggerMouseClick(type = 'left') {
     }
 }
 
+let initialPinchDistance = 0;
+let initialZoomOnPinch = 1.0;
+
+function getPinchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+}
+
 function bindMobileTrackpad() {
     if (!el.screen) return;
 
@@ -177,6 +238,16 @@ function bindMobileTrackpad() {
     // Capture phase touch event listeners (active ONLY in mobile mode)
     el.screen.addEventListener('touchstart', (e) => {
         if (!isMobileMode() || !state?.rfb) return;
+
+        if (e.touches.length === 2) {
+            initialPinchDistance = getPinchDistance(e.touches);
+            initialZoomOnPinch = mobileZoomLevel;
+            return;
+        }
+
+        if (e.touches.length > 1) {
+            return;
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -194,6 +265,20 @@ function bindMobileTrackpad() {
 
     el.screen.addEventListener('touchmove', (e) => {
         if (!isMobileMode() || !state?.rfb) return;
+
+        if (e.touches.length === 2) {
+            const currentDistance = getPinchDistance(e.touches);
+            if (initialPinchDistance > 0 && currentDistance > 0) {
+                const scale = currentDistance / initialPinchDistance;
+                const newZoom = initialZoomOnPinch * scale;
+                setMobileZoom(newZoom);
+            }
+            return;
+        }
+
+        if (e.touches.length > 1) {
+            return;
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -227,6 +312,10 @@ function bindMobileTrackpad() {
 
     el.screen.addEventListener('touchend', (e) => {
         if (!isMobileMode() || !state?.rfb) return;
+
+        if (e.touches.length > 0) {
+            return;
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -870,41 +959,95 @@ function bindToolbar() {
         setStatus('Klik Kanan');
     });
 
+    el.mbZoom?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        let nextZoom = 1.0;
+        if (mobileZoomLevel < 1.4) nextZoom = 1.5;
+        else if (mobileZoomLevel < 1.9) nextZoom = 2.0;
+        else nextZoom = 1.0;
+        setMobileZoom(nextZoom);
+        setStatus(`Zoom ${nextZoom === 1.0 ? '1x (Fit)' : nextZoom + 'x'}`);
+    });
+
+    function updateKeyboardDockState(active) {
+        if (!el.mbKeyboard) return;
+        const iconEl = qs('mb-keyboard-icon');
+        if (active) {
+            el.mbKeyboard.classList.remove('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
+            el.mbKeyboard.classList.add('bg-rose-500/30', 'text-rose-300', 'border-rose-500/50');
+            el.mbKeyboard.title = 'Tutup Keyboard (Exit Ketik)';
+            if (iconEl) {
+                iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />';
+            }
+        } else {
+            el.mbKeyboard.classList.remove('bg-rose-500/30', 'text-rose-300', 'border-rose-500/50');
+            el.mbKeyboard.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
+            el.mbKeyboard.title = 'Buka Keyboard Android';
+            if (iconEl) {
+                iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />';
+            }
+        }
+    }
+
     el.mbKeyboard?.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (el.mobileKeyboardInput) {
+        if (!el.mobileKeyboardInput) return;
+
+        if (document.activeElement === el.mobileKeyboardInput) {
+            el.mobileKeyboardInput.blur();
+            updateKeyboardDockState(false);
+            setStatus('Keyboard Ditutup');
+        } else {
             el.mobileKeyboardInput.focus();
-            setStatus('Papan Ketik HP');
+            updateKeyboardDockState(true);
+            setStatus('Papan Ketik Android Aktif (Klik X untuk Tutup)');
         }
     });
 
-    el.mobileKeyboardInput?.addEventListener('input', (e) => {
-        if (!state?.rfb || state.viewOnly) return;
-        const val = el.mobileKeyboardInput.value;
-        if (val) {
-            for (let i = 0; i < val.length; i++) {
-                const char = val.charAt(i);
-                const code = char.charCodeAt(0);
-                try {
-                    state.rfb.sendKey(code, null, true);
-                    state.rfb.sendKey(code, null, false);
-                } catch (err) {
-                    console.error('sendKey char error:', err);
-                }
-            }
+    if (el.mobileKeyboardInput) {
+        el.mobileKeyboardInput.addEventListener('focus', () => updateKeyboardDockState(true));
+        el.mobileKeyboardInput.addEventListener('blur', () => {
             el.mobileKeyboardInput.value = '';
-        }
-    });
+            updateKeyboardDockState(false);
+        });
 
-    el.mobileKeyboardInput?.addEventListener('keydown', (e) => {
-        if (!state?.rfb || state.viewOnly) return;
-        if (e.key === 'Backspace') {
-            sendKeySequence([[KEY.BACKSPACE, true], [KEY.BACKSPACE, false]]);
-        } else if (e.key === 'Enter') {
-            sendKeySequence([[KEY.ENTER, true], [KEY.ENTER, false]]);
-        }
-    });
+        el.mobileKeyboardInput.addEventListener('beforeinput', (e) => {
+            if (!state?.rfb || state.viewOnly) return;
+            if (e.inputType === 'deleteContentBackward') {
+                sendKeySequence([[KEY.BACKSPACE, true], [KEY.BACKSPACE, false]]);
+            }
+        });
+
+        el.mobileKeyboardInput.addEventListener('input', (e) => {
+            if (!state?.rfb || state.viewOnly) return;
+            const val = el.mobileKeyboardInput.value;
+            if (val) {
+                for (let i = 0; i < val.length; i++) {
+                    const char = val.charAt(i);
+                    let code = char.charCodeAt(0);
+                    if (char === '\n' || char === '\r') code = KEY.ENTER;
+                    try {
+                        state.rfb.sendKey(code, null, true);
+                        state.rfb.sendKey(code, null, false);
+                    } catch (err) {
+                        console.error('sendKey char error:', err);
+                    }
+                }
+                el.mobileKeyboardInput.value = '';
+            }
+        });
+
+        el.mobileKeyboardInput.addEventListener('keydown', (e) => {
+            if (!state?.rfb || state.viewOnly) return;
+            if (e.key === 'Backspace') {
+                sendKeySequence([[KEY.BACKSPACE, true], [KEY.BACKSPACE, false]]);
+            } else if (e.key === 'Enter') {
+                sendKeySequence([[KEY.ENTER, true], [KEY.ENTER, false]]);
+            }
+        });
+    }
 
     bindMobileTrackpad();
 }
@@ -965,6 +1108,8 @@ async function init() {
     el.mbLeftClick = qs('mb-left-click');
     el.mbDoubleClick = qs('mb-double-click');
     el.mbRightClick = qs('mb-right-click');
+    el.mbZoom = qs('mb-zoom');
+    el.mbZoomText = qs('mb-zoom-text');
     el.mbKeyboard = qs('mb-keyboard');
     el.mobileKeyboardInput = qs('mobile-keyboard-input');
 
