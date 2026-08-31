@@ -319,9 +319,6 @@
                                             x-text="tagItem.name"></span>
                                     </template>
                                 </div>
-                                <template x-if="comp.description">
-                                    <p class="mt-2 text-xs text-gray-600 line-clamp-2" x-text="comp.description"></p>
-                                </template>
                             </div>
 
                             <!-- Actions Footer -->
@@ -409,8 +406,6 @@
                                 <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Location') }}</th>
                                 <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Address') }}</th>
                                 <th scope="col" class="px-5 py-3 hidden lg:table-cell">{{ __('OS') }}</th>
-                                <th scope="col" class="px-5 py-3 hidden lg:table-cell">{{ __('Description') }}
-                                </th>
                                 <th scope="col" class="px-5 py-3 text-right">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
@@ -537,17 +532,6 @@
                                             <span
                                                 x-text="comp.os_type.charAt(0).toUpperCase() + comp.os_type.slice(1)"></span>
                                         </span>
-                                    </td>
-
-                                    {{-- Description --}}
-                                    <td class="px-5 py-3.5 hidden lg:table-cell">
-                                        <template x-if="comp.description">
-                                            <span class="text-xs text-gray-600 line-clamp-2 max-w-xs"
-                                                :title="comp.description" x-text="comp.description"></span>
-                                        </template>
-                                        <template x-if="!comp.description">
-                                            <span class="text-xs text-gray-400 font-normal">-</span>
-                                        </template>
                                     </td>
 
                                     {{-- Actions --}}

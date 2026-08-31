@@ -95,9 +95,6 @@
                             @endforeach
                         </div>
                     @endif
-                    @if ($computer->description)
-                        <p class="mt-2 text-xs text-gray-600 line-clamp-2">{{ $computer->description }}</p>
-                    @endif
                 </div>
 
                 <!-- Actions Footer -->
@@ -163,7 +160,6 @@
                     <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Location') }}</th>
                     <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Address') }}</th>
                     <th scope="col" class="px-5 py-3 hidden lg:table-cell">{{ __('OS') }}</th>
-                    <th scope="col" class="px-5 py-3 hidden lg:table-cell">{{ __('Description') }}</th>
                     <th scope="col" class="px-5 py-3 text-right">{{ __('Actions') }}</th>
                 </tr>
             </thead>
@@ -250,15 +246,6 @@
                                 </svg>
                                 {{ ucfirst($computer->os_type) }}
                             </span>
-                        </td>
-
-                        {{-- Description --}}
-                        <td class="px-5 py-3.5 hidden lg:table-cell">
-                            @if ($computer->description)
-                                <span class="text-xs text-gray-600 line-clamp-2 max-w-xs" title="{{ $computer->description }}">{{ $computer->description }}</span>
-                            @else
-                                <span class="text-xs text-gray-400 font-normal">-</span>
-                            @endif
                         </td>
 
                         {{-- Actions --}}
