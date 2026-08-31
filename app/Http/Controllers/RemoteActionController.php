@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Computer;
 use App\Models\RemoteAction;
+use App\Services\AuditLogger;
 use App\Services\RemoteActionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -72,6 +73,13 @@ class RemoteActionController extends Controller
 
         $action->computers()->sync($validated['computer_ids']);
 
+        AuditLogger::log('action.create', "Membuat aksi remote baru: {$action->name}", [
+            'action_id' => $action->id,
+            'name' => $action->name,
+            'command' => $action->command,
+            'target_count' => count($validated['computer_ids']),
+        ]);
+
         return redirect()->route('actions.index')
             ->with('status', __('Aksi Remote baru berhasil dibuat!'));
     }
@@ -134,6 +142,12 @@ class RemoteActionController extends Controller
 
         $action->computers()->sync($validated['computer_ids']);
 
+        AuditLogger::log('action.update', "Memperbarui aksi remote: {$action->name}", [
+            'action_id' => $action->id,
+            'name' => $action->name,
+            'command' => $action->command,
+        ]);
+
         return redirect()->route('actions.index')
             ->with('status', __('Aksi Remote berhasil diperbarui!'));
     }
@@ -143,7 +157,12 @@ class RemoteActionController extends Controller
      */
     public function destroy(RemoteAction $action): RedirectResponse
     {
+        $name = $action->name;
         $action->delete();
+
+        AuditLogger::log('action.delete', "Menghapus aksi remote: {$name}", [
+            'name' => $name,
+        ]);
 
         return redirect()->route('actions.index')
             ->with('status', __('Aksi Remote berhasil dihapus.'));
@@ -159,6 +178,15 @@ class RemoteActionController extends Controller
 
         $successCount = collect($results)->where('success', true)->count();
         $failCount = count($results) - $successCount;
+
+        AuditLogger::log('action.execute', "Mengeksekusi aksi remote '{$action->name}' pada " . count($results) . " perangkat", [
+            'action_id' => $action->id,
+            'action_name' => $action->name,
+            'command' => $action->command,
+            'total_targets' => count($results),
+            'success_count' => $successCount,
+            'fail_count' => $failCount,
+        ]);
 
         return response()->json([
             'status' => 'completed',

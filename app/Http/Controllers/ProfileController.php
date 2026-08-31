@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,11 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        AuditLogger::log('profile.update', "Memperbarui informasi profil pengguna", [
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
+        ]);
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

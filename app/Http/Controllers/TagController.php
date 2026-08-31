@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tag;
+use App\Services\AuditLogger;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,13 @@ class TagController extends Controller
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
-        Tag::query()->create($validated);
+        $tag = Tag::query()->create($validated);
+
+        AuditLogger::log('tag.create', "Membuat tag baru: {$tag->name}", [
+            'tag_id' => $tag->id,
+            'name' => $tag->name,
+            'color' => $tag->color,
+        ]);
 
         return redirect()->route('tags.index')
             ->with('status', __('Tag baru berhasil dibuat!'));
@@ -52,6 +59,12 @@ class TagController extends Controller
 
         $tag->update($validated);
 
+        AuditLogger::log('tag.update', "Memperbarui tag: {$tag->name}", [
+            'tag_id' => $tag->id,
+            'name' => $tag->name,
+            'color' => $tag->color,
+        ]);
+
         return redirect()->route('tags.index')
             ->with('status', __('Tag berhasil diperbarui!'));
     }
@@ -61,7 +74,12 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag): RedirectResponse
     {
+        $name = $tag->name;
         $tag->delete();
+
+        AuditLogger::log('tag.delete', "Menghapus tag: {$name}", [
+            'name' => $name,
+        ]);
 
         return redirect()->route('tags.index')
             ->with('status', __('Tag berhasil dihapus.'));

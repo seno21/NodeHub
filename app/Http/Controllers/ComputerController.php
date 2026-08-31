@@ -6,13 +6,13 @@ use App\Http\Requests\StoreComputerRequest;
 use App\Http\Requests\UpdateComputerRequest;
 use App\Models\Computer;
 use App\Models\Tag;
+use App\Services\AuditLogger;
 use App\Services\VncSessionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Schema;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ComputerController extends Controller
 {
@@ -181,6 +181,14 @@ class ComputerController extends Controller
             $computer->update(['tags' => $tagNames]);
         }
 
+        AuditLogger::log('computer.create', "Menambahkan perangkat baru: {$computer->name} ({$computer->ip_address}:{$computer->vnc_port})", [
+            'computer_id' => $computer->id,
+            'name' => $computer->name,
+            'ip_address' => $computer->ip_address,
+            'vnc_port' => $computer->vnc_port,
+            'os_type' => $computer->os_type,
+        ]);
+
         return redirect()
             ->route('computers.index')
             ->with('status', __('Device created successfully.'));
@@ -224,6 +232,12 @@ class ComputerController extends Controller
 
         $computer->update($data);
 
+        AuditLogger::log('computer.update', "Perbarui informasi perangkat: {$computer->name}", [
+            'computer_id' => $computer->id,
+            'name' => $computer->name,
+            'ip_address' => $computer->ip_address,
+        ]);
+
         return redirect()
             ->route('computers.index')
             ->with('status', __('Device updated successfully.'));
@@ -234,7 +248,15 @@ class ComputerController extends Controller
      */
     public function destroy(Computer $computer): RedirectResponse
     {
+        $details = [
+            'computer_id' => $computer->id,
+            'name' => $computer->name,
+            'ip_address' => $computer->ip_address,
+        ];
+
         $computer->delete();
+
+        AuditLogger::log('computer.delete', "Menghapus perangkat: {$details['name']} ({$details['ip_address']})", $details);
 
         return redirect()
             ->route('computers.index')

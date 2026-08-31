@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Computer;
+use App\Services\AuditLogger;
 use App\Services\VncSessionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -44,6 +45,14 @@ class VncSessionController extends Controller
         }
 
         $token = $this->sessions->createSession($computer);
+
+        AuditLogger::log('vnc.connect', "Membuka koneksi VNC Remote Desktop ke {$computer->name} ({$computer->ip_address}:{$computer->vnc_port})", [
+            'computer_id' => $computer->id,
+            'computer_name' => $computer->name,
+            'ip_address' => $computer->ip_address,
+            'vnc_port' => $computer->vnc_port,
+            'session_token' => substr($token, 0, 10) . '...',
+        ]);
 
         if ($request->expectsJson()) {
             return response()->json([

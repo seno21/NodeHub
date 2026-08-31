@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ComputerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RemoteActionController;
@@ -28,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::post('actions/{action}/execute', [RemoteActionController::class, 'execute'])->name('actions.execute');
 
     Route::resource('tags', TagController::class)->except(['show', 'create', 'edit']);
+
+    Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    Route::post('audit-logs/prune', [AuditLogController::class, 'prune'])->name('audit-logs.prune');
 
     Route::view('about', 'about')->name('about');
 

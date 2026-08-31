@@ -9,3 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('vnc:prune-tokens')->everyMinute();
+
+// Prune audit logs older than the retention period (default 30 days) daily
+Schedule::command('audit:prune')->daily();
