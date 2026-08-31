@@ -33,7 +33,16 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     searchQuery: '',
     selectedTag: '',
     selectedOs: '',
+    currentPage: 1,
+    perPage: 10,
     csrfToken: document.querySelector('meta[name="csrf-token"]')?.content || '',
+
+    init() {
+        this.$watch('searchQuery', () => { this.currentPage = 1; });
+        this.$watch('selectedTag', () => { this.currentPage = 1; });
+        this.$watch('selectedOs', () => { this.currentPage = 1; });
+        this.$watch('perPage', () => { this.currentPage = 1; });
+    },
 
     get availableTags() {
         const tagsSet = new Set();
@@ -64,17 +73,79 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
                 const matchPort = String(c.vnc_port || '').includes(q);
                 const matchLoc = c.location && c.location.toLowerCase().includes(q);
                 const matchDesc = c.description && c.description.toLowerCase().includes(q);
-                const matchTags = c.tags && c.tags.some(t => t.toLowerCase().includes(q));
-                return matchName || matchIp || matchPort || matchLoc || matchDesc || matchTags;
+                return matchName || matchIp || matchPort || matchLoc || matchDesc;
             }
             return true;
         });
+    },
+
+    get totalPages() {
+        return Math.ceil(this.filteredDevices.length / this.perPage) || 1;
+    },
+
+    get paginatedDevices() {
+        const total = this.totalPages;
+        if (this.currentPage > total) {
+            this.currentPage = total;
+        }
+        const start = (this.currentPage - 1) * this.perPage;
+        return this.filteredDevices.slice(start, start + this.perPage);
+    },
+
+    get showingStart() {
+        if (this.filteredDevices.length === 0) return 0;
+        return (this.currentPage - 1) * this.perPage + 1;
+    },
+
+    get showingEnd() {
+        return Math.min(this.currentPage * this.perPage, this.filteredDevices.length);
+    },
+
+    get paginationPages() {
+        const total = this.totalPages;
+        const current = this.currentPage;
+        const pages = [];
+        
+        let start = Math.max(1, current - 2);
+        let end = Math.min(total, current + 2);
+
+        if (current <= 3) {
+            end = Math.min(total, 5);
+        }
+        if (current >= total - 2) {
+            start = Math.max(1, total - 4);
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+        return pages;
+    },
+
+    nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.currentPage++;
+        }
+    },
+
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+        }
+    },
+
+    goToPage(page) {
+        const p = parseInt(page, 10);
+        if (p >= 1 && p <= this.totalPages) {
+            this.currentPage = p;
+        }
     },
 
     resetFilters() {
         this.searchQuery = '';
         this.selectedTag = '';
         this.selectedOs = '';
+        this.currentPage = 1;
     },
 
     /** @type {Record<string, boolean|undefined>} */

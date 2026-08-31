@@ -225,7 +225,7 @@
             <div x-show="filteredDevices.length > 0">
                 {{-- Mobile card list (visible on screens < md) --}}
                 <div class="space-y-3.5 md:hidden">
-                    <template x-for="comp in filteredDevices" :key="comp.id">
+                    <template x-for="comp in paginatedDevices" :key="comp.id">
                         <div
                             class="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 space-y-3 transition hover:shadow-md hover:border-[#00828c]/40">
                             <!-- Header: Status & OS -->
@@ -269,11 +269,23 @@
                                         x-text="comp.ip_address + ':' + comp.vnc_port"></span>
 
                                     <!-- SSH Badge in Address Section -->
-                                    <template x-if="isSshOpen(comp)">
+                                    <template x-if="isSshOpen(comp) && comp.has_ssh">
                                         <span
                                             class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                            title="SSH Open & Port Listen">
+                                            title="SSH Open & Password Terkonfigurasi">
                                             <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                                            </svg>
+                                            SSH
+                                        </span>
+                                    </template>
+                                    <template x-if="isSshOpen(comp) && !comp.has_ssh">
+                                        <span
+                                            class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                            title="Port SSH Open (Password Belum Konfigurasi)">
+                                            <svg class="w-3 h-3 text-amber-600 shrink-0" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
@@ -410,7 +422,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <template x-for="comp in filteredDevices" :key="comp.id">
+                            <template x-for="comp in paginatedDevices" :key="comp.id">
                                 <tr class="group transition hover:bg-blue-50/40">
                                     {{-- Status --}}
                                     <td class="px-5 py-3.5 whitespace-nowrap">
@@ -480,11 +492,23 @@
                                             <span class="font-mono text-xs text-gray-600"
                                                 x-text="comp.ip_address + ':' + comp.vnc_port"></span>
                                             <!-- SSH Badge -->
-                                            <template x-if="isSshOpen(comp)">
+                                            <template x-if="isSshOpen(comp) && comp.has_ssh">
                                                 <span
                                                     class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0"
-                                                    title="SSH Terkonfigurasi">
+                                                    title="SSH Open & Password Terkonfigurasi">
                                                     <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                                                    </svg>
+                                                    SSH
+                                                </span>
+                                            </template>
+                                            <template x-if="isSshOpen(comp) && !comp.has_ssh">
+                                                <span
+                                                    class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0"
+                                                    title="Port SSH Open (Password Belum Konfigurasi)">
+                                                    <svg class="w-3 h-3 text-amber-600 shrink-0" fill="none"
                                                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
@@ -495,7 +519,7 @@
                                             <template x-if="!isSshOpen(comp)">
                                                 <span
                                                     class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0"
-                                                    title="SSH Belum Konfigurasi">
+                                                    title="SSH Closed / Unreachable">
                                                     <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none"
                                                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -607,6 +631,74 @@
                             </template>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination Component Bar -->
+                <div x-show="filteredDevices.length > 0"
+                    class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-200/80 shadow-xs">
+                    <!-- Info & Per-Page Selector -->
+                    <div
+                        class="flex items-center gap-3 text-xs text-gray-600 w-full sm:w-auto justify-between sm:justify-start">
+                        <span>
+                            {{ __('Menampilkan') }}
+                            <span class="font-bold text-gray-900" x-text="showingStart"></span>
+                            –
+                            <span class="font-bold text-gray-900" x-text="showingEnd"></span>
+                            {{ __('dari') }}
+                            <span class="font-bold text-gray-900" x-text="filteredDevices.length"></span>
+                            {{ __('perangkat') }}
+                        </span>
+
+                        <div class="flex items-center gap-1.5 ml-2">
+                            <span class="text-gray-300 hidden sm:inline">|</span>
+                            <span class="text-gray-500 hidden sm:inline">{{ __('Per Halaman:') }}</span>
+                            <select x-model.number="perPage"
+                                class="py-1 pl-2 pr-7 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:border-transparent transition">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Controls -->
+                    <div class="flex items-center gap-1.5" x-show="totalPages > 1">
+                        <!-- Prev Button -->
+                        <button type="button" x-on:click="prevPage()" :disabled="currentPage === 1"
+                            class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition text-xs font-semibold shadow-xs"
+                            title="{{ __('Halaman Sebelumnya') }}">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
+                            <span class="hidden sm:inline">{{ __('Sebelumnya') }}</span>
+                        </button>
+
+                        <!-- Page Numbers -->
+                        <div class="flex items-center gap-1">
+                            <template x-for="p in paginationPages" :key="p">
+                                <button type="button" x-on:click="goToPage(p)"
+                                    class="h-8 min-w-[32px] px-2 rounded-xl text-xs font-bold transition flex items-center justify-center"
+                                    :class="currentPage === p ?
+                                        'bg-[#00828c] text-white shadow-xs' :
+                                        'bg-white border border-slate-200 text-gray-700 hover:bg-slate-100'"
+                                    x-text="p">
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Next Button -->
+                        <button type="button" x-on:click="nextPage()" :disabled="currentPage === totalPages"
+                            class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition text-xs font-semibold shadow-xs"
+                            title="{{ __('Halaman Selanjutnya') }}">
+                            <span class="hidden sm:inline">{{ __('Selanjutnya') }}</span>
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -897,7 +989,7 @@
         </div>
     </div>
 
-    @foreach ($computers as $computer)
+    @foreach ($allDevices as $computer)
         <x-modal name="confirm-computer-deletion-{{ is_array($computer) ? $computer['id'] : $computer->id }}"
             maxWidth="md" :show="false" focusable>
             <form method="post"
