@@ -162,6 +162,51 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     detailModalOpen: false,
     selectedDevice: null,
 
+    duplicateModalOpen: false,
+    duplicateDevice: null,
+    duplicateForm: {
+        duplicate_from_id: null,
+        name: '',
+        ip_address: '',
+        os_type: 'linux',
+        location: '',
+        vnc_port: 5900,
+        ssh_port: 22,
+        ssh_user: 'xubuntu',
+        description: '',
+        tag_ids: [],
+        copy_vnc_password: true,
+        copy_ssh_password: true,
+    },
+
+    openDuplicateModal(comp) {
+        this.duplicateDevice = comp;
+        let tagIds = [];
+        if (comp.tags_relation && Array.isArray(comp.tags_relation)) {
+            tagIds = comp.tags_relation.map(t => t.id);
+        }
+        this.duplicateForm = {
+            duplicate_from_id: comp.id,
+            name: comp.name ? `${comp.name} (Copy)` : '',
+            ip_address: comp.ip_address || '',
+            os_type: comp.os_type || 'linux',
+            location: comp.location || '',
+            vnc_port: comp.vnc_port || 5900,
+            ssh_port: comp.ssh_port || 22,
+            ssh_user: comp.ssh_user || 'xubuntu',
+            description: comp.description || '',
+            tag_ids: tagIds,
+            copy_vnc_password: true,
+            copy_ssh_password: true,
+        };
+        this.duplicateModalOpen = true;
+    },
+
+    closeDuplicateModal() {
+        this.duplicateModalOpen = false;
+        this.duplicateDevice = null;
+    },
+
     async checkAllConnections(statusUrl = '/computers/status', openTerminal = false) {
         if (this.checkingAll) return;
         this.checkingAll = true;

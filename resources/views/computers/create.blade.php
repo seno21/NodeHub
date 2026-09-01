@@ -3,9 +3,11 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="font-bold text-2xl text-slate-900 tracking-tight">
-                    {{ __('Tambah Perangkat Baru') }}
+                    {{ isset($duplicateFrom) ? __('Duplicate Perangkat') : __('Tambah Perangkat Baru') }}
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">{{ __('Daftarkan komputer atau server remote untuk pemantauan dan kontrol VNC') }}</p>
+                <p class="text-xs text-slate-500 mt-1">
+                    {{ isset($duplicateFrom) ? __('Menyalin konfigurasi dari: ') . $duplicateFrom->name . ' (' . $duplicateFrom->ip_address . ')' : __('Daftarkan komputer atau server remote untuk pemantauan dan kontrol VNC') }}
+                </p>
             </div>
             <a href="{{ route('computers.index') }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
@@ -27,14 +29,17 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-800">{{ __('Formulir Tambah Device') }}</h3>
-                        <p class="text-xs text-slate-500">{{ __('Isi detail perangkat di bawah ini dengan benar.') }}</p>
+                        <h3 class="text-base font-bold text-slate-800">{{ isset($duplicateFrom) ? __('Formulir Duplicate Device') : __('Formulir Tambah Device') }}</h3>
+                        <p class="text-xs text-slate-500">{{ isset($duplicateFrom) ? __('Silakan sesuaikan nama dan IP address untuk perangkat hasil duplikasi.') : __('Isi detail perangkat di bawah ini dengan benar.') }}</p>
                     </div>
                 </div>
 
                 <form method="POST" action="{{ route('computers.store') }}">
                     @csrf
-                    @include('computers._form', ['computer' => null, 'allTags' => $allTags ?? []])
+                    @if(isset($duplicateFrom))
+                        <input type="hidden" name="duplicate_from_id" value="{{ $duplicateFrom->id }}">
+                    @endif
+                    @include('computers._form', ['computer' => $computer ?? null, 'duplicateFrom' => $duplicateFrom ?? null, 'allTags' => $allTags ?? []])
                 </form>
             </div>
         </div>

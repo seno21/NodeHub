@@ -162,7 +162,16 @@
                 <x-text-input id="vnc_password" name="vnc_password" type="password"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
                     placeholder="{{ $computer?->vnc_password ? '••••••••' : '' }}" autocomplete="new-password" />
-                @if ($computer?->vnc_password)
+                @if (isset($duplicateFrom) && $duplicateFrom->vnc_password)
+                    <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
+                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('Password VNC akan disalin dari perangkat asal jika dikosongkan.') }}
+                    </p>
+                @elseif ($computer?->vnc_password)
                     <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
                         <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">
@@ -252,7 +261,16 @@
                 <x-text-input id="ssh_password" name="ssh_password" type="password"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
                     placeholder="{{ $computer?->ssh_password ? '••••••••' : '' }}" autocomplete="new-password" />
-                @if ($computer?->ssh_password)
+                @if (isset($duplicateFrom) && $duplicateFrom->ssh_password)
+                    <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
+                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('Password SSH akan disalin dari perangkat asal jika dikosongkan.') }}
+                    </p>
+                @elseif ($computer?->ssh_password)
                     <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
                         <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2">

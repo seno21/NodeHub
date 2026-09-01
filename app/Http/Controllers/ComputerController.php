@@ -157,9 +157,38 @@ class ComputerController extends Controller
     /**
      * Show the form for creating a new device.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $duplicateFrom = null;
+        $computer = null;
+
+        if ($request->filled('duplicate_from')) {
+            $query = Computer::query();
+            if (Schema::hasTable('tags')) {
+                $query->with('tagsRelation');
+            }
+            $duplicateFrom = $query->find($request->input('duplicate_from'));
+
+            if ($duplicateFrom) {
+                $computer = new Computer([
+                    'name' => $duplicateFrom->name . ' (Copy)',
+                    'ip_address' => $duplicateFrom->ip_address,
+                    'os_type' => $duplicateFrom->os_type,
+                    'location' => $duplicateFrom->location,
+                    'vnc_port' => $duplicateFrom->vnc_port,
+                    'ssh_user' => $duplicateFrom->ssh_user,
+                    'ssh_port' => $duplicateFrom->ssh_port,
+                    'description' => $duplicateFrom->description,
+                ]);
+                if ($duplicateFrom->relationLoaded('tagsRelation')) {
+                    $computer->setRelation('tagsRelation', $duplicateFrom->tagsRelation);
+                }
+            }
+        }
+
         return view('computers.create', [
+            'computer' => $computer,
+            'duplicateFrom' => $duplicateFrom,
             'allTags' => Schema::hasTable('tags') ? Tag::query()->orderBy('name')->get() : collect(),
         ]);
     }
@@ -171,6 +200,18 @@ class ComputerController extends Controller
     {
         $validated = $request->validated();
         $tagIds = $request->input('tag_ids', []);
+
+        if ($request->filled('duplicate_from_id')) {
+            $source = Computer::query()->find($request->input('duplicate_from_id'));
+            if ($source) {
+                if (empty($validated['vnc_password']) && $request->boolean('copy_vnc_password', true)) {
+                    $validated['vnc_password'] = $source->vnc_password;
+                }
+                if (empty($validated['ssh_password']) && $request->boolean('copy_ssh_password', true)) {
+                    $validated['ssh_password'] = $source->ssh_password;
+                }
+            }
+        }
 
         /** @var Computer $computer */
         $computer = Computer::query()->create($validated);
@@ -187,11 +228,12 @@ class ComputerController extends Controller
             'ip_address' => $computer->ip_address,
             'vnc_port' => $computer->vnc_port,
             'os_type' => $computer->os_type,
+            'duplicated_from' => $request->input('duplicate_from_id'),
         ]);
 
         return redirect()
             ->route('computers.index')
-            ->with('status', __('Device created successfully.'));
+            ->with('status', $request->filled('duplicate_from_id') ? __('Perangkat berhasil diduplikasi.') : __('Device created successfully.'));
     }
 
     /**

@@ -39,6 +39,9 @@ class StoreComputerRequest extends FormRequest
             'ssh_user' => ['nullable', 'string', 'max:100'],
             'ssh_password' => ['nullable', 'string', 'max:255'],
             'refresh_command' => ['nullable', 'string', 'max:500'],
+            'duplicate_from_id' => ['nullable', 'integer', 'exists:computers,id'],
+            'copy_vnc_password' => ['nullable', 'boolean'],
+            'copy_ssh_password' => ['nullable', 'boolean'],
         ];
     }
 

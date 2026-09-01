@@ -253,6 +253,59 @@ class ComputerManagementTest extends TestCase
         $response->assertDontSee('Win Server');
     }
 
+    public function test_user_can_access_create_page_with_prefilled_duplicate_data(): void
+    {
+        $user = User::factory()->create();
+        $original = Computer::factory()->create([
+            'name' => 'POS Utama',
+            'ip_address' => '192.168.1.50',
+            'os_type' => 'linux',
+            'location' => 'Kasir 1',
+        ]);
+
+        $response = $this->actingAs($user)->get("/computers/create?duplicate_from={$original->id}");
+
+        $response->assertOk();
+        $response->assertSee('POS Utama (Copy)');
+        $response->assertSee('Duplicate Perangkat');
+    }
+
+    public function test_user_can_duplicate_a_device_with_copied_credentials(): void
+    {
+        $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'Retail']);
+        $original = Computer::factory()->create([
+            'name' => 'Kasir 1',
+            'ip_address' => '192.168.1.10',
+            'vnc_port' => 5900,
+            'vnc_password' => 'secret_vnc_pass',
+            'ssh_password' => 'secret_ssh_pass',
+            'os_type' => 'linux',
+            'location' => 'Lantai 1',
+        ]);
+        $original->tagsRelation()->attach($tag->id);
+
+        $response = $this->actingAs($user)->post('/computers', [
+            'duplicate_from_id' => $original->id,
+            'name' => 'Kasir 2',
+            'ip_address' => '192.168.1.11',
+            'vnc_port' => 5900,
+            'os_type' => 'linux',
+            'location' => 'Lantai 1',
+            'tag_ids' => [$tag->id],
+            'copy_vnc_password' => 1,
+            'copy_ssh_password' => 1,
+        ]);
+
+        $response->assertRedirect('/computers');
+        $response->assertSessionHas('status');
+
+        $duplicated = Computer::query()->where('ip_address', '192.168.1.11')->firstOrFail();
+        $this->assertSame('Kasir 2', $duplicated->name);
+        $this->assertSame('secret_vnc_pass', $duplicated->vnc_password);
+        $this->assertSame('secret_ssh_pass', $duplicated->ssh_password);
+    }
+
     /**
      * Open a temporary TCP listener simulating a reachable VNC target.
      *
