@@ -31,17 +31,24 @@ class VncSessionController extends Controller
             return back()->withErrors(['connect' => $bridgeMessage]);
         }
 
-        $unreachableMessage = __(
-            '":name" is unreachable on :ip::port — remote session was not started.',
-            ['name' => $computer->name, 'ip' => $computer->ip_address, 'port' => $computer->vnc_port],
-        );
+        $vncSocket = @fsockopen($computer->ip_address, (int) $computer->vnc_port, $vncErrno, $vncErrstr, 2.0);
+        if (!is_resource($vncSocket)) {
+            $errLower = strtolower($vncErrstr ?: '');
+            if ($vncErrno === 111 || str_contains($errLower, 'refused')) {
+                $unreachableMessage = "PORT VNC TERTUTUP: Service VNC pada \"{$computer->name}\" ({$computer->ip_address}:{$computer->vnc_port}) tertutup / ditolak (Connection Refused). Pastikan server VNC aktif di target.";
+            } elseif ($vncErrno === 110 || str_contains($errLower, 'timed out')) {
+                $unreachableMessage = "KONEKSI TIMEOUT: \"{$computer->name}\" ({$computer->ip_address}:{$computer->vnc_port}) tidak merespons. Periksa jaringan / IP address target.";
+            } else {
+                $unreachableMessage = "\"{$computer->name}\" tidak dapat dijangkau pada {$computer->ip_address}:{$computer->vnc_port} — " . ($vncErrstr ?: 'Remote session gagal dibuka.');
+            }
 
-        if (! $this->sessions->isReachable($computer)) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => $unreachableMessage], 503);
             }
 
             return back()->withErrors(['connect' => $unreachableMessage]);
+        } else {
+            fclose($vncSocket);
         }
 
         $token = $this->sessions->createSession($computer);

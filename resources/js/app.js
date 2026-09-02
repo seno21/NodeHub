@@ -346,6 +346,25 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         return Boolean(comp.ssh_open);
     },
 
+    exportModalOpen: false,
+    importModalOpen: false,
+
+    openExportModal() {
+        this.exportModalOpen = true;
+    },
+
+    closeExportModal() {
+        this.exportModalOpen = false;
+    },
+
+    openImportModal() {
+        this.importModalOpen = true;
+    },
+
+    closeImportModal() {
+        this.importModalOpen = false;
+    },
+
     closeTerminal() {
         this.term.open = false;
     },
@@ -404,28 +423,44 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
 
         // VNC Port Result
         if (data.vnc_ok) {
-            await this.typeLine(`→ VNC Service Port [${port}] ... CONNECTED (${data.vnc_latency ?? 0} ms)`, 'text-emerald-400');
+            await this.typeLine(`→ VNC Service Port [${port}] ... TERHUBUNG (${data.vnc_latency ?? 0} ms)`, 'text-emerald-400 font-bold');
             this.statuses = { ...this.statuses, [id]: true };
         } else {
-            await this.typeLine(`→ VNC Service Port [${port}] ... CLOSED / NOT LISTENING`, 'text-amber-400');
+            const vncMsg = data.vnc_error_message || 'Port Tertutup / Not Listening';
+            await this.typeLine(`→ VNC Service Port [${port}] ... GAGAL: ${vncMsg}`, 'text-rose-400');
         }
 
-        // SSH Port Result
-        if (data.ssh_ok) {
-            await this.typeLine(`→ SSH Service Port [22] ... CONNECTED (${data.ssh_latency ?? 0} ms)`, 'text-emerald-400');
+        // SSH Port & Auth Result
+        if (data.ssh_auth_ok) {
+            await this.typeLine(`→ SSH Service & Auth [22] ... TERHUBUNG & PASSWORD VALID (${data.ssh_latency ?? 0} ms)`, 'text-emerald-400 font-bold');
+        } else if (data.ssh_error_type === 'wrong_password') {
+            await this.typeLine(`→ SSH Auth [22] ... 🔴 SALAH PASSWORD / USERNAME: Kredensial SSH tidak cocok!`, 'text-rose-400 font-bold');
+        } else if (data.ssh_error_type === 'port_closed') {
+            await this.typeLine(`→ SSH Port [22] ... 🟠 PORT TERTUTUP: Service SSH mati atau diblokir firewall (Connection Refused)`, 'text-amber-400');
+        } else if (data.ssh_error_type === 'timeout') {
+            await this.typeLine(`→ SSH Port [22] ... 🟡 KONEKSI TIMEOUT: IP Address tidak merespons dalam 2 detik`, 'text-amber-400');
+        } else if (data.ssh_error_type === 'password_missing') {
+            await this.typeLine(`→ SSH Config ... ⚪ PASSWORD BELUM DISERTAKAN: Password SSH belum diatur pada perangkat`, 'text-slate-400');
         } else {
-            await this.typeLine(`→ SSH Service Port [22] ... CLOSED`, 'text-slate-400');
+            const sshMsg = data.ssh_error_message || 'Tidak Aktif';
+            await this.typeLine(`→ SSH Service Port [22] ... GAGAL: ${sshMsg}`, 'text-slate-400');
         }
 
         await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
 
-        if (data.vnc_ok) {
-            await this.typeLine('✔ HASIL: Layanan VNC Siap — Perangkat dapat langsung diremote!', 'text-emerald-400 font-bold');
-        } else if (data.icmp_ok || data.ssh_ok) {
-            await this.typeLine('ℹ HASIL: Jaringan/SSH Aktif, namun Service VNC (port ' + port + ') belum berjalan di komputer target.', 'text-amber-400 font-bold');
+        if (data.vnc_ok && data.ssh_auth_ok) {
+            await this.typeLine('✔ HASIL: VNC Remote & SSH Kredensial 100% Siap & Berhasil Terverifikasi!', 'text-emerald-400 font-bold');
+        } else if (data.ssh_error_type === 'wrong_password') {
+            await this.typeLine('🔴 HASIL DIAGNOSA: SALAH PASSWORD SSH! Port SSH terbuka tetapi username/password SSH tidak valid.', 'text-rose-400 font-bold');
+        } else if (data.vnc_error_type === 'port_closed' || data.ssh_error_type === 'port_closed') {
+            await this.typeLine('🟠 HASIL DIAGNOSA: PORT TERTUTUP! Port VNC/SSH ditolak (Connection Refused). Service belum jalan.', 'text-amber-400 font-bold');
+        } else if (data.vnc_error_type === 'timeout' || data.ssh_error_type === 'timeout') {
+            await this.typeLine('🟡 HASIL DIAGNOSA: KONEKSI TIMEOUT! IP target tidak merespons (Offline / Firewall).', 'text-amber-400 font-bold');
+        } else if (data.vnc_ok) {
+            await this.typeLine('✔ HASIL: VNC Remote Siap, tetapi periksa konfigurasi SSH.', 'text-emerald-400 font-bold');
         } else {
             this.statuses = { ...this.statuses, [id]: false };
-            await this.typeLine('✘ HASIL: Perangkat sama sekali tidak dapat dijangkau di jaringan.', 'text-red-400 font-bold');
+            await this.typeLine('✘ HASIL: Perangkat tidak dapat terhubung. Cek koneksi fisik / IP target.', 'text-red-400 font-bold');
         }
 
         this.term.running = false;

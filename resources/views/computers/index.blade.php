@@ -5,9 +5,25 @@
                 {{ __('Devices') }}
             </h2>
 
-            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <button type="button" x-on:click="$dispatch('trigger-open-import-modal')"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-xs text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] transition shadow-xs">
+                    <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span>Import / Restore</span>
+                </button>
+
+                <button type="button" x-on:click="$dispatch('trigger-open-export-modal')"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-xs text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] transition shadow-xs">
+                    <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    <span>Export / Backup</span>
+                </button>
+
                 <a href="{{ route('computers.create') }}"
-                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition ease-in-out duration-150 shadow-xs w-full sm:w-auto">
+                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-xs">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -18,6 +34,8 @@
     </x-slot>
 
     <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }})"
+        x-on:trigger-open-export-modal.window="openExportModal()"
+        x-on:trigger-open-import-modal.window="openImportModal()"
         x-on:trigger-check-all-connections.window="checkAllConnections('{{ route('computers.status') }}', false)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -1200,6 +1218,175 @@
                     </form>
                 </div>
             </template>
+        </div>
+
+        {{-- Export / Backup Devices Modal --}}
+        <div x-show="exportModalOpen" x-cloak
+            class="fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
+            x-on:keydown.escape.window="closeExportModal()" x-transition.opacity.duration.200ms>
+            <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
+                x-transition.scale.origin.center.duration.200ms x-on:click.outside="closeExportModal()">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3.5 sm:px-6 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-bold shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900 leading-tight">Export & Backup List Device</h3>
+                            <p class="text-xs text-slate-500">Download data perangkat untuk backup / migrasi portal</p>
+                        </div>
+                    </div>
+                    <button type="button" x-on:click="closeExportModal()"
+                        class="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="GET" action="{{ route('computers.export') }}" x-on:submit="closeExportModal()" class="p-4 sm:p-6 space-y-4">
+                    <div class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 text-xs flex items-start gap-2.5">
+                        <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
+                        <div>
+                            <span class="font-bold">Info Backup:</span> File backup (JSON/CSV) ini berisi seluruh daftar perangkat, IP, port, lokasi, deskripsi, tag, dan kredensial VNC/SSH.
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Format File</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
+                                <input type="radio" name="format" value="json" checked class="sr-only peer">
+                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">JSON Backup (.json)</span>
+                                <span class="text-[11px] text-slate-500 mt-1">Sangat Direkomendasikan untuk Migrasi Portal NodeHub</span>
+                            </label>
+                            <label class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
+                                <input type="radio" name="format" value="csv" class="sr-only peer">
+                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">CSV Spreadsheet (.csv)</span>
+                                <span class="text-[11px] text-slate-500 mt-1">Untuk dibuka di Microsoft Excel atau Google Sheets</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <label class="inline-flex items-center gap-2.5 cursor-pointer">
+                            <input type="checkbox" name="include_passwords" value="1" checked
+                                class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
+                            <span class="text-xs font-semibold text-slate-800">Sertakan Password VNC & SSH dalam Backup</span>
+                        </label>
+                        <p class="text-[11px] text-slate-500 mt-1 ml-6">
+                            Jika dicentang, password VNC/SSH akan ikut disimpan di file backup agar migrasi ke server baru bisa langsung terhubung tanpa memasukkan password kembali.
+                        </p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button type="button" x-on:click="closeExportModal()"
+                            class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Download Backup File
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Import / Restore Devices Modal --}}
+        <div x-show="importModalOpen" x-cloak
+            class="fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
+            x-on:keydown.escape.window="closeImportModal()" x-transition.opacity.duration.200ms>
+            <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
+                x-transition.scale.origin.center.duration.200ms x-on:click.outside="closeImportModal()">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3.5 sm:px-6 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c] border border-[#00828c]/20 font-bold shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900 leading-tight">Restore & Import List Device</h3>
+                            <p class="text-xs text-slate-500">Upload file backup JSON/CSV untuk import masal</p>
+                        </div>
+                    </div>
+                    <button type="button" x-on:click="closeImportModal()"
+                        class="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="POST" action="{{ route('computers.import') }}" enctype="multipart/form-data" class="p-4 sm:p-6 space-y-4">
+                    @csrf
+
+                    <div>
+                        <label for="backup_file_input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Pilih File Backup (.json / .csv) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="file" id="backup_file_input" name="backup_file" required accept=".json,.csv,.txt"
+                            class="w-full text-xs text-slate-700 border border-slate-300 rounded-xl cursor-pointer bg-slate-50 p-2 focus:outline-none focus:border-[#00828c]">
+                        <p class="text-[11px] text-slate-500 mt-1">
+                            Mendukung file JSON backup hasil export NodeHub atau file spreadsheet CSV.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Penanganan Duplikat (Berdasarkan IP Address)</label>
+                        <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <label class="flex items-start gap-2.5 cursor-pointer">
+                                <input type="radio" name="duplicate_action" value="skip" checked
+                                    class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800">Lewati Duplikat (Recommended)</span>
+                                    <p class="text-[11px] text-slate-500">Jika IP Address sudah terdaftar, perangkat tersebut tidak akan diubah.</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 cursor-pointer">
+                                <input type="radio" name="duplicate_action" value="update"
+                                    class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800">Perbarui Data Perangkat Ada</span>
+                                    <p class="text-[11px] text-slate-500">Jika IP Address cocok, perbarui nama, port, lokasi, dan password dari file backup.</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 cursor-pointer">
+                                <input type="radio" name="duplicate_action" value="add"
+                                    class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800">Tambahkan Semua Sebagai Baru</span>
+                                    <p class="text-[11px] text-slate-500">Import semua perangkat tanpa mengecek IP duplikat.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button type="button" x-on:click="closeImportModal()"
+                            class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white font-bold text-xs shadow-xs transition">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                            Mulai Restore / Import
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

@@ -1,4 +1,4 @@
-import RFB from '@novnc/novnc';
+import RFB from "@novnc/novnc";
 
 // X11 keysyms used by noVNC
 const KEY = {
@@ -25,9 +25,9 @@ function setStatus(text, persistent = false) {
     el.connStatus.textContent = text;
     clearTimeout(setStatus._timer);
 
-    if (!persistent && text !== '') {
+    if (!persistent && text !== "") {
         setStatus._timer = setTimeout(() => {
-            el.connStatus.textContent = '';
+            el.connStatus.textContent = "";
         }, 2000);
     }
 }
@@ -35,7 +35,14 @@ function setStatus(text, persistent = false) {
 let state = null;
 
 function createSessionState() {
-    return { rfb: null, connected: false, viewOnly: false, authTried: false, authOk: false, userNavigating: false };
+    return {
+        rfb: null,
+        connected: false,
+        viewOnly: false,
+        authTried: false,
+        authOk: false,
+        userNavigating: false,
+    };
 }
 
 /* ------------------------------------------------------------------ */
@@ -43,7 +50,9 @@ function createSessionState() {
 /* ------------------------------------------------------------------ */
 
 // Active exclusively on mobile screens (< 1024px with touch capability)
-const isMobileMode = () => window.innerWidth < 1024 && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0));
+const isMobileMode = () =>
+    window.innerWidth < 1024 &&
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
 let trackpadState = {
     cursorX: 500,
@@ -59,28 +68,32 @@ let trackpadState = {
 let mobileZoomLevel = 1.0;
 
 function setMobileZoom(level) {
-    mobileZoomLevel = Math.max(1.0, Math.min(3.0, parseFloat(level.toFixed(2))));
+    mobileZoomLevel = Math.max(
+        1.0,
+        Math.min(3.0, parseFloat(level.toFixed(2))),
+    );
 
     if (el.mbZoomText) {
-        el.mbZoomText.textContent = mobileZoomLevel === 1.0 ? 'Zoom 1x' : `Zoom ${mobileZoomLevel}x`;
+        el.mbZoomText.textContent =
+            mobileZoomLevel === 1.0 ? "Zoom 1x" : `Zoom ${mobileZoomLevel}x`;
     }
 
     if (el.screen) {
         if (mobileZoomLevel === 1.0) {
-            el.screen.style.width = '100%';
-            el.screen.style.height = '100%';
-            el.screen.style.transform = 'none';
+            el.screen.style.width = "100%";
+            el.screen.style.height = "100%";
+            el.screen.style.transform = "none";
             if (el.screenContainer) {
-                el.screenContainer.style.overflow = 'hidden';
+                el.screenContainer.style.overflow = "hidden";
                 el.screenContainer.scrollLeft = 0;
                 el.screenContainer.scrollTop = 0;
             }
         } else {
             el.screen.style.width = `${mobileZoomLevel * 100}%`;
             el.screen.style.height = `${mobileZoomLevel * 100}%`;
-            el.screen.style.transform = 'none';
+            el.screen.style.transform = "none";
             if (el.screenContainer) {
-                el.screenContainer.style.overflow = 'auto';
+                el.screenContainer.style.overflow = "auto";
             }
         }
     }
@@ -90,27 +103,35 @@ function setMobileZoom(level) {
 
 function updateMobileCursorUI() {
     if (!isMobileMode() || !state?.rfb || !state.rfb._fbWidth) {
-        el.virtualCursor?.classList.add('hidden');
-        el.mobileDock?.classList.add('hidden');
-        el.mobileDock?.classList.remove('flex');
+        el.virtualCursor?.classList.add("hidden");
+        el.mobileDock?.classList.add("hidden");
+        el.mobileDock?.classList.remove("flex");
         return;
     }
 
-    el.mobileDock?.classList.remove('hidden');
-    el.mobileDock?.classList.add('flex');
+    el.mobileDock?.classList.remove("hidden");
+    el.mobileDock?.classList.add("flex");
 
     if (!el.virtualCursor) return;
 
-    const canvas = el.screen?.querySelector('canvas') || state.rfb._canvas || el.screen;
+    const canvas =
+        el.screen?.querySelector("canvas") || state.rfb._canvas || el.screen;
     if (!canvas) return;
 
     const canvasRect = canvas.getBoundingClientRect();
-    const containerRect = (el.screenContainer || el.screen).getBoundingClientRect();
+    const containerRect = (
+        el.screenContainer || el.screen
+    ).getBoundingClientRect();
 
     const fbW = state.rfb._fbWidth;
     const fbH = state.rfb._fbHeight;
 
-    if (fbW <= 0 || fbH <= 0 || canvasRect.width <= 0 || canvasRect.height <= 0) {
+    if (
+        fbW <= 0 ||
+        fbH <= 0 ||
+        canvasRect.width <= 0 ||
+        canvasRect.height <= 0
+    ) {
         return;
     }
 
@@ -122,12 +143,14 @@ function updateMobileCursorUI() {
     const canvasOffsetX = canvasRect.left - containerRect.left;
     const canvasOffsetY = canvasRect.top - containerRect.top;
 
-    const cursorLeft = canvasOffsetX + (trackpadState.cursorX / fbW) * canvasRect.width;
-    const cursorTop = canvasOffsetY + (trackpadState.cursorY / fbH) * canvasRect.height;
+    const cursorLeft =
+        canvasOffsetX + (trackpadState.cursorX / fbW) * canvasRect.width;
+    const cursorTop =
+        canvasOffsetY + (trackpadState.cursorY / fbH) * canvasRect.height;
 
     el.virtualCursor.style.left = `${cursorLeft}px`;
     el.virtualCursor.style.top = `${cursorTop}px`;
-    el.virtualCursor.classList.remove('hidden');
+    el.virtualCursor.classList.remove("hidden");
 
     // Auto-scroll screen container if cursor moves near viewport boundaries in zoom mode
     if (mobileZoomLevel > 1.0 && el.screenContainer) {
@@ -138,13 +161,19 @@ function updateMobileCursorUI() {
 
         if (cursorLeftPx < el.screenContainer.scrollLeft + 40) {
             el.screenContainer.scrollLeft = Math.max(0, cursorLeftPx - 40);
-        } else if (cursorLeftPx > el.screenContainer.scrollLeft + viewWidth - 40) {
+        } else if (
+            cursorLeftPx >
+            el.screenContainer.scrollLeft + viewWidth - 40
+        ) {
             el.screenContainer.scrollLeft = cursorLeftPx - viewWidth + 40;
         }
 
         if (cursorTopPx < el.screenContainer.scrollTop + 40) {
             el.screenContainer.scrollTop = Math.max(0, cursorTopPx - 40);
-        } else if (cursorTopPx > el.screenContainer.scrollTop + viewHeight - 40) {
+        } else if (
+            cursorTopPx >
+            el.screenContainer.scrollTop + viewHeight - 40
+        ) {
             el.screenContainer.scrollTop = cursorTopPx - viewHeight + 40;
         }
     }
@@ -153,14 +182,16 @@ function updateMobileCursorUI() {
 function getCanvasElementCoordinates() {
     if (!state?.rfb) return { elementX: 0, elementY: 0 };
 
-    const canvas = el.screen?.querySelector('canvas') || state.rfb._canvas || el.screen;
+    const canvas =
+        el.screen?.querySelector("canvas") || state.rfb._canvas || el.screen;
     if (!canvas) return { elementX: 0, elementY: 0 };
 
     const canvasRect = canvas.getBoundingClientRect();
     const fbW = state.rfb._fbWidth || 1024;
     const fbH = state.rfb._fbHeight || 768;
 
-    if (canvasRect.width <= 0 || canvasRect.height <= 0) return { elementX: 0, elementY: 0 };
+    if (canvasRect.width <= 0 || canvasRect.height <= 0)
+        return { elementX: 0, elementY: 0 };
 
     const elementX = (trackpadState.cursorX / fbW) * canvasRect.width;
     const elementY = (trackpadState.cursorY / fbH) * canvasRect.height;
@@ -173,21 +204,21 @@ function sendMousePointer(buttonMask) {
 
     const { elementX, elementY } = getCanvasElementCoordinates();
 
-    if (typeof state.rfb._sendMouse === 'function') {
+    if (typeof state.rfb._sendMouse === "function") {
         try {
             state.rfb._sendMouse(elementX, elementY, buttonMask);
         } catch (e) {
-            console.error('_sendMouse error:', e);
+            console.error("_sendMouse error:", e);
         }
     }
 }
 
-function triggerMouseClick(type = 'left') {
+function triggerMouseClick(type = "left") {
     if (!state?.rfb) return;
 
-    const buttonMask = type === 'right' ? 4 : (type === 'middle' ? 2 : 1);
+    const buttonMask = type === "right" ? 4 : type === "middle" ? 2 : 1;
 
-    if (type === 'double') {
+    if (type === "double") {
         // Double Click sequence
         sendMousePointer(0);
         setTimeout(() => {
@@ -214,9 +245,9 @@ function triggerMouseClick(type = 'left') {
     }
 
     if (el.virtualCursor && isMobileMode()) {
-        el.virtualCursor.classList.add('scale-150');
+        el.virtualCursor.classList.add("scale-150");
         setTimeout(() => {
-            el.virtualCursor?.classList.remove('scale-150');
+            el.virtualCursor?.classList.remove("scale-150");
         }, 200);
     }
 }
@@ -236,107 +267,129 @@ function bindMobileTrackpad() {
     let touchStartTime = 0;
 
     // Capture phase touch event listeners (active ONLY in mobile mode)
-    el.screen.addEventListener('touchstart', (e) => {
-        if (!isMobileMode() || !state?.rfb) return;
+    el.screen.addEventListener(
+        "touchstart",
+        (e) => {
+            if (!isMobileMode() || !state?.rfb) return;
 
-        if (e.touches.length === 2) {
-            initialPinchDistance = getPinchDistance(e.touches);
-            initialZoomOnPinch = mobileZoomLevel;
-            return;
-        }
-
-        if (e.touches.length > 1) {
-            return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (e.touches.length === 1) {
-            const touch = e.touches[0];
-            trackpadState.touchStartX = touch.clientX;
-            trackpadState.touchStartY = touch.clientY;
-            trackpadState.cursorStartX = trackpadState.cursorX;
-            trackpadState.cursorStartY = trackpadState.cursorY;
-            touchStartTime = Date.now();
-            trackpadState.isDragging = false;
-        }
-    }, { capture: true, passive: false });
-
-    el.screen.addEventListener('touchmove', (e) => {
-        if (!isMobileMode() || !state?.rfb) return;
-
-        if (e.touches.length === 2) {
-            const currentDistance = getPinchDistance(e.touches);
-            if (initialPinchDistance > 0 && currentDistance > 0) {
-                const scale = currentDistance / initialPinchDistance;
-                const newZoom = initialZoomOnPinch * scale;
-                setMobileZoom(newZoom);
-            }
-            return;
-        }
-
-        if (e.touches.length > 1) {
-            return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (e.touches.length === 1) {
-            const touch = e.touches[0];
-            const dx = touch.clientX - trackpadState.touchStartX;
-            const dy = touch.clientY - trackpadState.touchStartY;
-
-            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-                trackpadState.isDragging = true;
+            if (e.touches.length === 2) {
+                initialPinchDistance = getPinchDistance(e.touches);
+                initialZoomOnPinch = mobileZoomLevel;
+                return;
             }
 
-            const canvas = el.screen.querySelector('canvas') || state.rfb._canvas || el.screen;
-            const canvasRect = canvas.getBoundingClientRect();
-            const fbW = state.rfb._fbWidth || 1024;
-            const fbH = state.rfb._fbHeight || 768;
-
-            if (canvasRect.width > 0 && canvasRect.height > 0) {
-                const remoteDx = (dx / canvasRect.width) * fbW * 1.2;
-                const remoteDy = (dy / canvasRect.height) * fbH * 1.2;
-
-                trackpadState.cursorX = Math.max(0, Math.min(fbW, trackpadState.cursorStartX + remoteDx));
-                trackpadState.cursorY = Math.max(0, Math.min(fbH, trackpadState.cursorStartY + remoteDy));
-
-                sendMousePointer(0);
-                updateMobileCursorUI();
+            if (e.touches.length > 1) {
+                return;
             }
-        }
-    }, { capture: true, passive: false });
 
-    el.screen.addEventListener('touchend', (e) => {
-        if (!isMobileMode() || !state?.rfb) return;
+            e.preventDefault();
+            e.stopPropagation();
 
-        if (e.touches.length > 0) {
-            return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const duration = Date.now() - touchStartTime;
-
-        if (!trackpadState.isDragging && duration < 300) {
-            const now = Date.now();
-            const timeSinceLastTap = now - trackpadState.lastTapTime;
-            trackpadState.lastTapTime = now;
-
-            if (timeSinceLastTap > 50 && timeSinceLastTap < 300) {
-                triggerMouseClick('double');
-            } else {
-                const clickType = (e.changedTouches.length > 1) ? 'right' : 'left';
-                triggerMouseClick(clickType);
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                trackpadState.touchStartX = touch.clientX;
+                trackpadState.touchStartY = touch.clientY;
+                trackpadState.cursorStartX = trackpadState.cursorX;
+                trackpadState.cursorStartY = trackpadState.cursorY;
+                touchStartTime = Date.now();
+                trackpadState.isDragging = false;
             }
-        }
-    }, { capture: true, passive: false });
+        },
+        { capture: true, passive: false },
+    );
 
-    window.addEventListener('resize', updateMobileCursorUI);
+    el.screen.addEventListener(
+        "touchmove",
+        (e) => {
+            if (!isMobileMode() || !state?.rfb) return;
+
+            if (e.touches.length === 2) {
+                const currentDistance = getPinchDistance(e.touches);
+                if (initialPinchDistance > 0 && currentDistance > 0) {
+                    const scale = currentDistance / initialPinchDistance;
+                    const newZoom = initialZoomOnPinch * scale;
+                    setMobileZoom(newZoom);
+                }
+                return;
+            }
+
+            if (e.touches.length > 1) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const dx = touch.clientX - trackpadState.touchStartX;
+                const dy = touch.clientY - trackpadState.touchStartY;
+
+                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+                    trackpadState.isDragging = true;
+                }
+
+                const canvas =
+                    el.screen.querySelector("canvas") ||
+                    state.rfb._canvas ||
+                    el.screen;
+                const canvasRect = canvas.getBoundingClientRect();
+                const fbW = state.rfb._fbWidth || 1024;
+                const fbH = state.rfb._fbHeight || 768;
+
+                if (canvasRect.width > 0 && canvasRect.height > 0) {
+                    const remoteDx = (dx / canvasRect.width) * fbW * 1.2;
+                    const remoteDy = (dy / canvasRect.height) * fbH * 1.2;
+
+                    trackpadState.cursorX = Math.max(
+                        0,
+                        Math.min(fbW, trackpadState.cursorStartX + remoteDx),
+                    );
+                    trackpadState.cursorY = Math.max(
+                        0,
+                        Math.min(fbH, trackpadState.cursorStartY + remoteDy),
+                    );
+
+                    sendMousePointer(0);
+                    updateMobileCursorUI();
+                }
+            }
+        },
+        { capture: true, passive: false },
+    );
+
+    el.screen.addEventListener(
+        "touchend",
+        (e) => {
+            if (!isMobileMode() || !state?.rfb) return;
+
+            if (e.touches.length > 0) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const duration = Date.now() - touchStartTime;
+
+            if (!trackpadState.isDragging && duration < 300) {
+                const now = Date.now();
+                const timeSinceLastTap = now - trackpadState.lastTapTime;
+                trackpadState.lastTapTime = now;
+
+                if (timeSinceLastTap > 50 && timeSinceLastTap < 300) {
+                    triggerMouseClick("double");
+                } else {
+                    const clickType =
+                        e.changedTouches.length > 1 ? "right" : "left";
+                    triggerMouseClick(clickType);
+                }
+            }
+        },
+        { capture: true, passive: false },
+    );
+
+    window.addEventListener("resize", updateMobileCursorUI);
 }
 
 /* ------------------------------------------------------------------ */
@@ -344,15 +397,15 @@ function bindMobileTrackpad() {
 /* ------------------------------------------------------------------ */
 
 function showConnecting() {
-    el.connecting.classList.remove('hidden');
-    el.connecting.classList.add('flex');
-    el.disconnected.classList.add('hidden');
-    el.disconnected.classList.remove('flex');
+    el.connecting.classList.remove("hidden");
+    el.connecting.classList.add("flex");
+    el.disconnected.classList.add("hidden");
+    el.disconnected.classList.remove("flex");
 
     const steps = [
-        'Fetching session ticket...',
-        'Opening WebSocket tunnel...',
-        'Negotiating VNC handshake...',
+        "Fetching session ticket...",
+        "Opening WebSocket tunnel...",
+        "Negotiating VNC handshake...",
     ];
 
     let index = 0;
@@ -368,10 +421,10 @@ function showConnecting() {
 
 function hideOverlays() {
     clearInterval(showConnecting._timer);
-    el.connecting.classList.add('hidden');
-    el.connecting.classList.remove('flex');
-    el.disconnected.classList.add('hidden');
-    el.disconnected.classList.remove('flex');
+    el.connecting.classList.add("hidden");
+    el.connecting.classList.remove("flex");
+    el.disconnected.classList.add("hidden");
+    el.disconnected.classList.remove("flex");
 }
 
 function showDisconnected(message, isAuthError = false) {
@@ -380,45 +433,45 @@ function showDisconnected(message, isAuthError = false) {
     }
 
     clearInterval(showConnecting._timer);
-    el.connecting.classList.add('hidden');
-    el.connecting.classList.remove('flex');
-    el.passwordOverlay.classList.add('hidden');
-    el.passwordOverlay.classList.remove('flex');
+    el.connecting.classList.add("hidden");
+    el.connecting.classList.remove("flex");
+    el.passwordOverlay.classList.add("hidden");
+    el.passwordOverlay.classList.remove("flex");
 
     el.discText.textContent = message;
     if (isAuthError && el.discBtn) {
-        el.discBtn.href = '/login';
+        el.discBtn.href = "/login";
         if (el.discBtnText) {
-            el.discBtnText.textContent = 'Login Ulang';
+            el.discBtnText.textContent = "Login Ulang";
         }
     } else if (el.discBtn) {
-        el.discBtn.href = '/computers';
+        el.discBtn.href = "/computers";
         if (el.discBtnText) {
-            el.discBtnText.textContent = 'Kembali ke Daftar Devices';
+            el.discBtnText.textContent = "Kembali ke Daftar Devices";
         }
     }
 
-    el.disconnected.classList.remove('hidden');
-    el.disconnected.classList.add('flex');
+    el.disconnected.classList.remove("hidden");
+    el.disconnected.classList.add("flex");
 }
 
-function showPasswordPrompt(error = '') {
-    el.connecting.classList.add('hidden');
-    el.connecting.classList.remove('flex');
-    el.disconnected.classList.add('hidden');
-    el.disconnected.classList.remove('flex');
+function showPasswordPrompt(error = "") {
+    el.connecting.classList.add("hidden");
+    el.connecting.classList.remove("flex");
+    el.disconnected.classList.add("hidden");
+    el.disconnected.classList.remove("flex");
 
     el.passwordError.textContent = error;
 
     if (error) {
-        el.passwordError.classList.remove('hidden');
+        el.passwordError.classList.remove("hidden");
     } else {
-        el.passwordError.classList.add('hidden');
+        el.passwordError.classList.add("hidden");
     }
 
-    el.passwordInput.value = '';
-    el.passwordOverlay.classList.remove('hidden');
-    el.passwordOverlay.classList.add('flex');
+    el.passwordInput.value = "";
+    el.passwordOverlay.classList.remove("hidden");
+    el.passwordOverlay.classList.add("flex");
     setTimeout(() => el.passwordInput.focus(), 50);
 }
 
@@ -428,15 +481,15 @@ function showPasswordPrompt(error = '') {
 
 async function fetchTicket() {
     const response = await fetch(el.root.dataset.ticketUrl, {
-        headers: { Accept: 'application/json' },
+        headers: { Accept: "application/json" },
     });
 
     if (response.status === 401 || response.status === 419) {
-        throw new Error('unauthenticated');
+        throw new Error("unauthenticated");
     }
 
     if (!response.ok) {
-        throw new Error('ticket_unavailable');
+        throw new Error("ticket_unavailable");
     }
 
     return response.json();
@@ -457,17 +510,17 @@ function applyLocalCursor(enabled) {
     }
 
     if (enabled) {
-        document.body.classList.add('local-cursor-active');
+        document.body.classList.add("local-cursor-active");
     } else {
-        document.body.classList.remove('local-cursor-active');
+        document.body.classList.remove("local-cursor-active");
     }
 
-    const canvas = el.screen?.querySelector('canvas');
+    const canvas = el.screen?.querySelector("canvas");
     if (canvas) {
         if (enabled) {
-            canvas.style.setProperty('cursor', 'default', 'important');
+            canvas.style.setProperty("cursor", "default", "important");
         } else {
-            canvas.style.removeProperty('cursor');
+            canvas.style.removeProperty("cursor");
         }
     }
 }
@@ -477,8 +530,8 @@ function applyViewOnly(enabled) {
         state.rfb.viewOnly = enabled;
     }
 
-    el.btnViewOnly?.classList.toggle('bg-[#00828c]', enabled);
-    el.btnViewOnly?.classList.toggle('text-white', enabled);
+    el.btnViewOnly?.classList.toggle("bg-[#00828c]", enabled);
+    el.btnViewOnly?.classList.toggle("text-white", enabled);
 }
 
 function disconnect(message) {
@@ -494,7 +547,8 @@ function disconnect(message) {
     }
 
     if (!state?.connected) {
-        message ??= 'Koneksi gagal. Pastikan komputer target aktif dan service websockify berjalan.';
+        message ??=
+            "Koneksi gagal. Pastikan komputer target aktif dan service websockify berjalan.";
     }
 
     if (state) {
@@ -505,32 +559,41 @@ function disconnect(message) {
         showDisconnected(message);
     }
 
-    setStatus('');
+    setStatus("");
 }
 
 function connect(ticket) {
+    if (state.rfb) {
+        try {
+            state.rfb.disconnect();
+        } catch (e) {}
+        state.rfb = null;
+    }
+
+    state.ticket = ticket;
     const options = { shared: true };
 
     if (ticket.password) {
         options.credentials = { password: ticket.password };
+        state.authTried = true;
     }
 
     state.rfb = new RFB(el.screen, ticket.ws_url, options);
-    state.deviceName = ticket.device_name || 'remote';
+    state.deviceName = ticket.device_name || "remote";
 
     state.rfb.scaleViewport = true; // auto-fit by default
-    
+
     // Automatically enable local cursor on desktop mode, keep default (false) for mobile mode
     const enableLocalCursor = !isMobileMode();
     applyLocalCursor(enableLocalCursor);
     if (el.chkCursor) {
         el.chkCursor.checked = enableLocalCursor;
     }
-    state.rfb.addEventListener('connect', () => {
+    state.rfb.addEventListener("connect", () => {
         state.connected = true;
         state.authOk = true;
-        el.passwordOverlay.classList.add('hidden');
-        el.passwordOverlay.classList.remove('flex');
+        el.passwordOverlay.classList.add("hidden");
+        el.passwordOverlay.classList.remove("flex");
         hideOverlays();
         setStatus(`Terhubung — ${state.deviceName}`);
 
@@ -544,7 +607,7 @@ function connect(ticket) {
         }
     });
 
-    state.rfb.addEventListener('disconnect', (event) => {
+    state.rfb.addEventListener("disconnect", (event) => {
         if (state?.userNavigating) {
             return;
         }
@@ -553,27 +616,30 @@ function connect(ticket) {
         const wasClean = event.detail?.clean === true;
 
         if (!wasClean && state.authTried && !state.authOk) {
-            showPasswordPrompt('Wrong VNC password — try again.');
+            showPasswordPrompt("Password VNC salah atau ditolak server remote");
             state.authTried = false;
             return;
         }
 
         disconnect(
             wasClean
-                ? 'Remote session ended.'
-                : 'Connection closed unexpectedly.',
+                ? "Sesi remote VNC diakhiri."
+                : "Koneksi VNC terputus (Cek server VNC / Port 5900 di target).",
         );
     });
 
-    state.rfb.addEventListener('credentialsrequired', () => {
-        showPasswordPrompt();
+    state.rfb.addEventListener("credentialsrequired", () => {
+        state.authTried = true;
+        showPasswordPrompt(
+            "Server VNC meminta password. Masukkan password VNC perangkat ini.",
+        );
     });
 
-    let lastHostClipboard = '';
-    let lastRemoteClipboard = '';
+    let lastHostClipboard = "";
+    let lastRemoteClipboard = "";
 
     // 1. REMOTE -> HOST: Copy on Remote Windows -> Paste on Host (Arch Linux)
-    state.rfb.addEventListener('clipboard', (event) => {
+    state.rfb.addEventListener("clipboard", (event) => {
         const text = event.detail?.text;
         if (!text || text === lastRemoteClipboard) return;
 
@@ -584,13 +650,22 @@ function connect(ticket) {
         }
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                setStatus('Clipboard dari Remote Windows disalin ke Host (Siap paste di Arch)!');
-            }).catch(() => {
-                setStatus('Teks dari Remote Windows diterima (Lihat menu Clipboard Toolbar)');
-            });
+            navigator.clipboard
+                .writeText(text)
+                .then(() => {
+                    setStatus(
+                        "Clipboard dari Remote Windows disalin ke Host (Siap paste di Arch)!",
+                    );
+                })
+                .catch(() => {
+                    setStatus(
+                        "Teks dari Remote Windows diterima (Lihat menu Clipboard Toolbar)",
+                    );
+                });
         } else {
-            setStatus('Teks dari Remote Windows diterima (Lihat menu Clipboard Toolbar)');
+            setStatus(
+                "Teks dari Remote Windows diterima (Lihat menu Clipboard Toolbar)",
+            );
         }
     });
 
@@ -607,7 +682,7 @@ function connect(ticket) {
                     if (el.clipboardTextInput) {
                         el.clipboardTextInput.value = text;
                     }
-                    setStatus('Clipboard Host disinkronkan ke Remote Windows');
+                    setStatus("Clipboard Host disinkronkan ke Remote Windows");
                 }
             }
         } catch (e) {
@@ -615,13 +690,13 @@ function connect(ticket) {
         }
     }
 
-    el.screen?.addEventListener('pointerdown', syncHostClipboardToRemote);
-    window.addEventListener('focus', syncHostClipboardToRemote);
+    el.screen?.addEventListener("pointerdown", syncHostClipboardToRemote);
+    window.addEventListener("focus", syncHostClipboardToRemote);
 
     // 3. HOST -> REMOTE: Paste event (Ctrl+V on Host)
-    window.addEventListener('paste', (event) => {
+    window.addEventListener("paste", (event) => {
         if (!state?.rfb || state.viewOnly) return;
-        const text = event.clipboardData?.getData('text');
+        const text = event.clipboardData?.getData("text");
         if (text) {
             lastHostClipboard = text;
             state.rfb.clipboardPasteFrom(text);
@@ -629,7 +704,7 @@ function connect(ticket) {
                 el.clipboardTextInput.value = text;
             }
             setTimeout(sendCtrlV, 100);
-            setStatus('Teks dipaste & dikirim ke Remote Windows');
+            setStatus("Teks dipaste & dikirim ke Remote Windows");
         }
     });
 }
@@ -654,7 +729,7 @@ function sendKeySequence(keys) {
                     try {
                         state.rfb.sendKey(keysym, down);
                     } catch (e) {
-                        console.error('sendKey failed:', e);
+                        console.error("sendKey failed:", e);
                     }
                 }
             }
@@ -678,11 +753,14 @@ const QUICK_KEYS = {
                 [0xffe5, false],
             ]);
         }
-        setStatus('Sent Ctrl + Alt + Del');
+        setStatus("Sent Ctrl + Alt + Del");
     },
     winKey: () => {
-        sendKeySequence([[KEY.SUPER, true], [KEY.SUPER, false]]);
-        setStatus('Sent Win / Super Key');
+        sendKeySequence([
+            [KEY.SUPER, true],
+            [KEY.SUPER, false],
+        ]);
+        setStatus("Sent Win / Super Key");
     },
     altTab: () => {
         sendKeySequence([
@@ -691,7 +769,7 @@ const QUICK_KEYS = {
             [KEY.TAB, false],
             [KEY.ALT, false],
         ]);
-        setStatus('Sent Alt + Tab');
+        setStatus("Sent Alt + Tab");
     },
     ctrlEsc: () => {
         sendKeySequence([
@@ -700,14 +778,14 @@ const QUICK_KEYS = {
             [KEY.ESC, false],
             [KEY.CTRL, false],
         ]);
-        setStatus('Sent Ctrl + Esc');
+        setStatus("Sent Ctrl + Esc");
     },
     f5: () => {
         sendKeySequence([
             [0xffc2, true], // F5
             [0xffc2, false],
         ]);
-        setStatus('Sent F5 (Refresh)');
+        setStatus("Sent F5 (Refresh)");
     },
     ctrlAltBackspace: () => {
         sendKeySequence([
@@ -718,7 +796,7 @@ const QUICK_KEYS = {
             [KEY.ALT, false],
             [KEY.CTRL, false],
         ]);
-        setStatus('Sent Ctrl + Alt + Backspace');
+        setStatus("Sent Ctrl + Alt + Backspace");
     },
 };
 
@@ -731,23 +809,23 @@ function screenshot() {
         return;
     }
 
-    const link = document.createElement('a');
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const link = document.createElement("a");
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
     link.href = state.rfb.toDataURL();
     link.download = `${state.deviceName}-${stamp}.png`;
     link.click();
 
-    setStatus('Screenshot saved');
+    setStatus("Screenshot saved");
 }
 
 function bindToolbar() {
-    el.btnToggleMenu?.addEventListener('click', (event) => {
+    el.btnToggleMenu?.addEventListener("click", (event) => {
         event.stopPropagation();
-        el.toolbarMenu?.classList.toggle('hidden');
+        el.toolbarMenu?.classList.toggle("hidden");
     });
 
-    el.btnBack?.addEventListener('click', (e) => {
+    el.btnBack?.addEventListener("click", (e) => {
         e.preventDefault();
         if (state) {
             state.userNavigating = true;
@@ -758,44 +836,55 @@ function bindToolbar() {
             } catch {}
             state.rfb = null;
         }
-        window.location.href = '/computers';
+        window.location.href = "/computers";
     });
 
-    el.passwordForm?.addEventListener('submit', (event) => {
+    el.passwordForm?.addEventListener("submit", (event) => {
         event.preventDefault();
 
         const password = el.passwordInput.value;
 
-        if (!password || !state?.rfb) {
+        if (!password || !state?.ticket) {
             return;
         }
 
-        state.authTried = true;
-        state.rfb.sendCredentials({ password });
-        el.passwordOverlay.classList.add('hidden');
-        el.passwordOverlay.classList.remove('flex');
-        setStatus('Authenticating…');
+        showConnecting();
+        el.passwordOverlay.classList.add("hidden");
+        el.passwordOverlay.classList.remove("flex");
+        setStatus("Mengautentikasi VNC...");
+
+        const updatedTicket = { ...state.ticket, password: password };
+        connect(updatedTicket);
     });
 
-    el.btnQuickKeys?.addEventListener('click', (event) => {
+    el.btnQuickKeys?.addEventListener("click", (event) => {
         event.stopPropagation();
-        el.quickKeysPanel?.classList.toggle('hidden');
+        el.quickKeysPanel?.classList.toggle("hidden");
     });
 
-    document.addEventListener('click', (event) => {
+    document.addEventListener("click", (event) => {
         if (!el.toolbar?.contains(event.target)) {
-            el.quickKeysPanel?.classList.add('hidden');
-            el.clipboardPanel?.classList.add('hidden');
-            el.settingsPanel?.classList.add('hidden');
+            el.quickKeysPanel?.classList.add("hidden");
+            el.clipboardPanel?.classList.add("hidden");
+            el.settingsPanel?.classList.add("hidden");
         } else {
-            if (!el.quickKeysPanel?.contains(event.target) && event.target !== el.btnQuickKeys) {
-                el.quickKeysPanel?.classList.add('hidden');
+            if (
+                !el.quickKeysPanel?.contains(event.target) &&
+                event.target !== el.btnQuickKeys
+            ) {
+                el.quickKeysPanel?.classList.add("hidden");
             }
-            if (!el.clipboardPanel?.contains(event.target) && event.target !== el.btnClipboard) {
-                el.clipboardPanel?.classList.add('hidden');
+            if (
+                !el.clipboardPanel?.contains(event.target) &&
+                event.target !== el.btnClipboard
+            ) {
+                el.clipboardPanel?.classList.add("hidden");
             }
-            if (!el.settingsPanel?.contains(event.target) && event.target !== el.btnSettings) {
-                el.settingsPanel?.classList.add('hidden');
+            if (
+                !el.settingsPanel?.contains(event.target) &&
+                event.target !== el.btnSettings
+            ) {
+                el.settingsPanel?.classList.add("hidden");
             }
         }
     });
@@ -803,21 +892,21 @@ function bindToolbar() {
     function sendCtrlV() {
         if (!state?.rfb || state.viewOnly) return;
         const CTRL_KEY = 0xffe3; // Control_L
-        const V_KEY = 0x0076;    // v
+        const V_KEY = 0x0076; // v
 
         try {
-            state.rfb.sendKey(CTRL_KEY, 'ControlLeft', true);
+            state.rfb.sendKey(CTRL_KEY, "ControlLeft", true);
             setTimeout(() => {
-                state.rfb.sendKey(V_KEY, 'KeyV', true);
+                state.rfb.sendKey(V_KEY, "KeyV", true);
                 setTimeout(() => {
-                    state.rfb.sendKey(V_KEY, 'KeyV', false);
+                    state.rfb.sendKey(V_KEY, "KeyV", false);
                     setTimeout(() => {
-                        state.rfb.sendKey(CTRL_KEY, 'ControlLeft', false);
+                        state.rfb.sendKey(CTRL_KEY, "ControlLeft", false);
                     }, 20);
                 }, 20);
             }, 20);
         } catch (e) {
-            console.error('sendCtrlV failed:', e);
+            console.error("sendCtrlV failed:", e);
         }
     }
 
@@ -827,8 +916,8 @@ function bindToolbar() {
         for (let i = 0; i < text.length; i++) {
             const char = text.charAt(i);
             let keysym = char.charCodeAt(0);
-            if (char === '\n' || char === '\r') keysym = 0xff0d; // Enter key
-            if (char === '\t') keysym = 0xff09; // Tab key
+            if (char === "\n" || char === "\r") keysym = 0xff0d; // Enter key
+            if (char === "\t") keysym = 0xff09; // Tab key
 
             setTimeout(() => {
                 try {
@@ -837,79 +926,79 @@ function bindToolbar() {
                         state.rfb.sendKey(keysym, null, false);
                     }, 15);
                 } catch (e) {
-                    console.error('typeTextToRemote failed:', e);
+                    console.error("typeTextToRemote failed:", e);
                 }
             }, delay);
             delay += 35;
         }
     }
 
-    el.btnClipboard?.addEventListener('click', (event) => {
+    el.btnClipboard?.addEventListener("click", (event) => {
         event.stopPropagation();
-        el.clipboardPanel?.classList.toggle('hidden');
-        if (!el.clipboardPanel?.classList.contains('hidden')) {
+        el.clipboardPanel?.classList.toggle("hidden");
+        if (!el.clipboardPanel?.classList.contains("hidden")) {
             setTimeout(() => el.clipboardTextInput?.focus(), 50);
         }
     });
 
-    el.btnSendClipboard?.addEventListener('click', () => {
+    el.btnSendClipboard?.addEventListener("click", () => {
         const text = el.clipboardTextInput?.value;
         if (text && state?.rfb) {
             state.rfb.clipboardPasteFrom(text);
             setTimeout(sendCtrlV, 150);
-            setStatus('Teks dikirim ke Clipboard & Ctrl+V otomatis');
-            el.clipboardPanel?.classList.add('hidden');
+            setStatus("Teks dikirim ke Clipboard & Ctrl+V otomatis");
+            el.clipboardPanel?.classList.add("hidden");
         }
     });
 
-    el.btnTypeClipboard?.addEventListener('click', () => {
+    el.btnTypeClipboard?.addEventListener("click", () => {
         const text = el.clipboardTextInput?.value;
         if (text && state?.rfb && !state.viewOnly) {
             typeTextToRemote(text);
-            setStatus('Mengetikkan teks langsung ke layar VNC Remote...');
-            el.clipboardPanel?.classList.add('hidden');
+            setStatus("Mengetikkan teks langsung ke layar VNC Remote...");
+            el.clipboardPanel?.classList.add("hidden");
         }
     });
 
-    el.qkCtrlAltDel?.addEventListener('click', () => {
+    el.qkCtrlAltDel?.addEventListener("click", () => {
         QUICK_KEYS.ctrlAltDel();
-        el.quickKeysPanel?.classList.add('hidden');
+        el.quickKeysPanel?.classList.add("hidden");
     });
 
-    el.qkWinKey?.addEventListener('click', () => {
+    el.qkWinKey?.addEventListener("click", () => {
         QUICK_KEYS.winKey();
-        el.quickKeysPanel?.classList.add('hidden');
+        el.quickKeysPanel?.classList.add("hidden");
     });
 
-    el.qkAltTab?.addEventListener('click', () => {
+    el.qkAltTab?.addEventListener("click", () => {
         QUICK_KEYS.altTab();
-        el.quickKeysPanel?.classList.add('hidden');
+        el.quickKeysPanel?.classList.add("hidden");
     });
 
-    el.qkCtrlEsc?.addEventListener('click', () => {
+    el.qkCtrlEsc?.addEventListener("click", () => {
         QUICK_KEYS.ctrlEsc();
-        el.quickKeysPanel?.classList.add('hidden');
+        el.quickKeysPanel?.classList.add("hidden");
     });
 
-    el.qkF5?.addEventListener('click', () => {
+    el.qkF5?.addEventListener("click", () => {
         QUICK_KEYS.f5();
-        el.quickKeysPanel?.classList.add('hidden');
+        el.quickKeysPanel?.classList.add("hidden");
     });
 
-    el.qkCtrlAltBackspace?.addEventListener('click', () => {
+    el.qkCtrlAltBackspace?.addEventListener("click", () => {
         QUICK_KEYS.ctrlAltBackspace();
-        el.quickKeysPanel?.classList.add('hidden');
+        el.quickKeysPanel?.classList.add("hidden");
     });
 
-    el.btnViewOnly?.addEventListener('click', () => {
+    el.btnViewOnly?.addEventListener("click", () => {
         state.viewOnly = !state.viewOnly;
         applyViewOnly(state.viewOnly);
-        setStatus(state.viewOnly ? 'View-only mode' : 'Control mode');
+        setStatus(state.viewOnly ? "View-only mode" : "Control mode");
     });
 
-    el.btnScreenshot?.addEventListener('click', screenshot);
+    el.btnScreenshot?.addEventListener("click", screenshot);
 
-    el.btnFullscreen?.addEventListener('click', () => {
+    el.btnFullscreen?.addEventListener("click", () => {
         if (document.fullscreenElement) {
             document.exitFullscreen();
         } else {
@@ -917,49 +1006,53 @@ function bindToolbar() {
         }
     });
 
-    el.btnSettings?.addEventListener('click', (event) => {
+    el.btnSettings?.addEventListener("click", (event) => {
         event.stopPropagation();
-        el.settingsPanel?.classList.toggle('hidden');
+        el.settingsPanel?.classList.toggle("hidden");
     });
 
-    el.btnToggleBar?.addEventListener('click', () => {
-        el.toolbar?.classList.add('lg:hidden');
-        el.floatingShowBar?.classList.remove('hidden');
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    el.btnToggleBar?.addEventListener("click", () => {
+        el.toolbar?.classList.add("lg:hidden");
+        el.floatingShowBar?.classList.remove("hidden");
+        setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
     });
 
-    el.floatingShowBar?.addEventListener('click', () => {
-        el.toolbar?.classList.remove('lg:hidden');
-        el.floatingShowBar?.classList.add('hidden');
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    el.floatingShowBar?.addEventListener("click", () => {
+        el.toolbar?.classList.remove("lg:hidden");
+        el.floatingShowBar?.classList.add("hidden");
+        setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
     });
 
-    el.chkScale?.addEventListener('change', () => applyScaling(el.chkScale.checked));
-    el.chkCursor?.addEventListener('change', () => applyLocalCursor(el.chkCursor.checked));
+    el.chkScale?.addEventListener("change", () =>
+        applyScaling(el.chkScale.checked),
+    );
+    el.chkCursor?.addEventListener("change", () =>
+        applyLocalCursor(el.chkCursor.checked),
+    );
 
     // --- Mobile Dock Button Handlers (Mobile Only) ---
-    el.mbLeftClick?.addEventListener('click', (e) => {
+    el.mbLeftClick?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        triggerMouseClick('left');
-        setStatus('Klik Kiri');
+        triggerMouseClick("left");
+        setStatus("Klik Kiri");
     });
 
-    el.mbDoubleClick?.addEventListener('click', (e) => {
+    el.mbDoubleClick?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        triggerMouseClick('double');
-        setStatus('Klik 2x');
+        triggerMouseClick("double");
+        setStatus("Klik 2x");
     });
 
-    el.mbRightClick?.addEventListener('click', (e) => {
+    el.mbRightClick?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        triggerMouseClick('right');
-        setStatus('Klik Kanan');
+        triggerMouseClick("right");
+        setStatus("Klik Kanan");
     });
 
-    el.mbZoom?.addEventListener('click', (e) => {
+    el.mbZoom?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         let nextZoom = 1.0;
@@ -967,30 +1060,48 @@ function bindToolbar() {
         else if (mobileZoomLevel < 1.9) nextZoom = 2.0;
         else nextZoom = 1.0;
         setMobileZoom(nextZoom);
-        setStatus(`Zoom ${nextZoom === 1.0 ? '1x (Fit)' : nextZoom + 'x'}`);
+        setStatus(`Zoom ${nextZoom === 1.0 ? "1x (Fit)" : nextZoom + "x"}`);
     });
 
     function updateKeyboardDockState(active) {
         if (!el.mbKeyboard) return;
-        const iconEl = qs('mb-keyboard-icon');
+        const iconEl = qs("mb-keyboard-icon");
         if (active) {
-            el.mbKeyboard.classList.remove('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
-            el.mbKeyboard.classList.add('bg-rose-500/30', 'text-rose-300', 'border-rose-500/50');
-            el.mbKeyboard.title = 'Tutup Keyboard (Exit Ketik)';
+            el.mbKeyboard.classList.remove(
+                "bg-emerald-500/20",
+                "text-emerald-400",
+                "border-emerald-500/40",
+            );
+            el.mbKeyboard.classList.add(
+                "bg-rose-500/30",
+                "text-rose-300",
+                "border-rose-500/50",
+            );
+            el.mbKeyboard.title = "Tutup Keyboard (Exit Ketik)";
             if (iconEl) {
-                iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />';
+                iconEl.innerHTML =
+                    '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />';
             }
         } else {
-            el.mbKeyboard.classList.remove('bg-rose-500/30', 'text-rose-300', 'border-rose-500/50');
-            el.mbKeyboard.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
-            el.mbKeyboard.title = 'Buka Keyboard Android';
+            el.mbKeyboard.classList.remove(
+                "bg-rose-500/30",
+                "text-rose-300",
+                "border-rose-500/50",
+            );
+            el.mbKeyboard.classList.add(
+                "bg-emerald-500/20",
+                "text-emerald-400",
+                "border-emerald-500/40",
+            );
+            el.mbKeyboard.title = "Buka Keyboard Android";
             if (iconEl) {
-                iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />';
+                iconEl.innerHTML =
+                    '<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />';
             }
         }
     }
 
-    el.mbKeyboard?.addEventListener('click', (e) => {
+    el.mbKeyboard?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (!el.mobileKeyboardInput) return;
@@ -998,53 +1109,64 @@ function bindToolbar() {
         if (document.activeElement === el.mobileKeyboardInput) {
             el.mobileKeyboardInput.blur();
             updateKeyboardDockState(false);
-            setStatus('Keyboard Ditutup');
+            setStatus("Keyboard Ditutup");
         } else {
             el.mobileKeyboardInput.focus();
             updateKeyboardDockState(true);
-            setStatus('Papan Ketik Android Aktif (Klik X untuk Tutup)');
+            setStatus("Papan Ketik Android Aktif (Klik X untuk Tutup)");
         }
     });
 
     if (el.mobileKeyboardInput) {
-        el.mobileKeyboardInput.addEventListener('focus', () => updateKeyboardDockState(true));
-        el.mobileKeyboardInput.addEventListener('blur', () => {
-            el.mobileKeyboardInput.value = '';
+        el.mobileKeyboardInput.addEventListener("focus", () =>
+            updateKeyboardDockState(true),
+        );
+        el.mobileKeyboardInput.addEventListener("blur", () => {
+            el.mobileKeyboardInput.value = "";
             updateKeyboardDockState(false);
         });
 
-        el.mobileKeyboardInput.addEventListener('beforeinput', (e) => {
+        el.mobileKeyboardInput.addEventListener("beforeinput", (e) => {
             if (!state?.rfb || state.viewOnly) return;
-            if (e.inputType === 'deleteContentBackward') {
-                sendKeySequence([[KEY.BACKSPACE, true], [KEY.BACKSPACE, false]]);
+            if (e.inputType === "deleteContentBackward") {
+                sendKeySequence([
+                    [KEY.BACKSPACE, true],
+                    [KEY.BACKSPACE, false],
+                ]);
             }
         });
 
-        el.mobileKeyboardInput.addEventListener('input', (e) => {
+        el.mobileKeyboardInput.addEventListener("input", (e) => {
             if (!state?.rfb || state.viewOnly) return;
             const val = el.mobileKeyboardInput.value;
             if (val) {
                 for (let i = 0; i < val.length; i++) {
                     const char = val.charAt(i);
                     let code = char.charCodeAt(0);
-                    if (char === '\n' || char === '\r') code = KEY.ENTER;
+                    if (char === "\n" || char === "\r") code = KEY.ENTER;
                     try {
                         state.rfb.sendKey(code, null, true);
                         state.rfb.sendKey(code, null, false);
                     } catch (err) {
-                        console.error('sendKey char error:', err);
+                        console.error("sendKey char error:", err);
                     }
                 }
-                el.mobileKeyboardInput.value = '';
+                el.mobileKeyboardInput.value = "";
             }
         });
 
-        el.mobileKeyboardInput.addEventListener('keydown', (e) => {
+        el.mobileKeyboardInput.addEventListener("keydown", (e) => {
             if (!state?.rfb || state.viewOnly) return;
-            if (e.key === 'Backspace') {
-                sendKeySequence([[KEY.BACKSPACE, true], [KEY.BACKSPACE, false]]);
-            } else if (e.key === 'Enter') {
-                sendKeySequence([[KEY.ENTER, true], [KEY.ENTER, false]]);
+            if (e.key === "Backspace") {
+                sendKeySequence([
+                    [KEY.BACKSPACE, true],
+                    [KEY.BACKSPACE, false],
+                ]);
+            } else if (e.key === "Enter") {
+                sendKeySequence([
+                    [KEY.ENTER, true],
+                    [KEY.ENTER, false],
+                ]);
             }
         });
     }
@@ -1057,61 +1179,61 @@ function bindToolbar() {
 /* ------------------------------------------------------------------ */
 
 async function init() {
-    el.root = qs('viewer-root');
+    el.root = qs("viewer-root");
     if (!el.root) {
         return;
     }
 
-    el.screenContainer = qs('screen-container');
-    el.screen = qs('screen');
-    el.toolbar = qs('toolbar');
-    el.btnToggleMenu = qs('btn-toggle-menu');
-    el.toolbarMenu = qs('toolbar-menu');
-    el.connStatus = qs('conn-status');
-    el.connecting = qs('overlay-connecting');
-    el.stageText = qs('stage-text');
-    el.disconnected = qs('overlay-disconnected');
-    el.discText = qs('disc-text');
-    el.discBtn = qs('disc-btn');
-    el.discBtnText = qs('disc-btn-text');
-    el.passwordOverlay = qs('overlay-password');
-    el.passwordForm = qs('password-form');
-    el.passwordInput = qs('vnc-password-input');
-    el.passwordError = qs('password-error');
-    el.btnBack = qs('btn-back');
-    el.btnQuickKeys = qs('btn-quick-keys');
-    el.quickKeysPanel = qs('quick-keys-panel');
-    el.qkCtrlAltDel = qs('qk-ctrl-alt-del');
-    el.qkWinKey = qs('qk-win-key');
-    el.qkAltTab = qs('qk-alt-tab');
-    el.qkCtrlEsc = qs('qk-ctrl-esc');
-    el.qkF5 = qs('qk-f5');
-    el.qkCtrlAltBackspace = qs('qk-ctrl-alt-backspace');
-    el.btnClipboard = qs('btn-clipboard');
-    el.clipboardPanel = qs('clipboard-panel');
-    el.clipboardTextInput = qs('clipboard-text-input');
-    el.btnSendClipboard = qs('btn-send-clipboard');
-    el.btnTypeClipboard = qs('btn-type-clipboard');
-    el.btnViewOnly = qs('btn-view-only');
-    el.btnScreenshot = qs('btn-screenshot');
-    el.btnFullscreen = qs('btn-fullscreen');
-    el.btnSettings = qs('btn-settings');
-    el.settingsPanel = qs('settings-panel');
-    el.chkScale = qs('chk-scale');
-    el.chkCursor = qs('chk-cursor');
-    el.btnToggleBar = qs('btn-toggle-bar');
-    el.floatingShowBar = qs('floating-show-bar');
+    el.screenContainer = qs("screen-container");
+    el.screen = qs("screen");
+    el.toolbar = qs("toolbar");
+    el.btnToggleMenu = qs("btn-toggle-menu");
+    el.toolbarMenu = qs("toolbar-menu");
+    el.connStatus = qs("conn-status");
+    el.connecting = qs("overlay-connecting");
+    el.stageText = qs("stage-text");
+    el.disconnected = qs("overlay-disconnected");
+    el.discText = qs("disc-text");
+    el.discBtn = qs("disc-btn");
+    el.discBtnText = qs("disc-btn-text");
+    el.passwordOverlay = qs("overlay-password");
+    el.passwordForm = qs("password-form");
+    el.passwordInput = qs("vnc-password-input");
+    el.passwordError = qs("password-error");
+    el.btnBack = qs("btn-back");
+    el.btnQuickKeys = qs("btn-quick-keys");
+    el.quickKeysPanel = qs("quick-keys-panel");
+    el.qkCtrlAltDel = qs("qk-ctrl-alt-del");
+    el.qkWinKey = qs("qk-win-key");
+    el.qkAltTab = qs("qk-alt-tab");
+    el.qkCtrlEsc = qs("qk-ctrl-esc");
+    el.qkF5 = qs("qk-f5");
+    el.qkCtrlAltBackspace = qs("qk-ctrl-alt-backspace");
+    el.btnClipboard = qs("btn-clipboard");
+    el.clipboardPanel = qs("clipboard-panel");
+    el.clipboardTextInput = qs("clipboard-text-input");
+    el.btnSendClipboard = qs("btn-send-clipboard");
+    el.btnTypeClipboard = qs("btn-type-clipboard");
+    el.btnViewOnly = qs("btn-view-only");
+    el.btnScreenshot = qs("btn-screenshot");
+    el.btnFullscreen = qs("btn-fullscreen");
+    el.btnSettings = qs("btn-settings");
+    el.settingsPanel = qs("settings-panel");
+    el.chkScale = qs("chk-scale");
+    el.chkCursor = qs("chk-cursor");
+    el.btnToggleBar = qs("btn-toggle-bar");
+    el.floatingShowBar = qs("floating-show-bar");
 
     // Mobile Virtual Pointer & Floating Dock Elements
-    el.virtualCursor = qs('virtual-cursor');
-    el.mobileDock = qs('mobile-dock');
-    el.mbLeftClick = qs('mb-left-click');
-    el.mbDoubleClick = qs('mb-double-click');
-    el.mbRightClick = qs('mb-right-click');
-    el.mbZoom = qs('mb-zoom');
-    el.mbZoomText = qs('mb-zoom-text');
-    el.mbKeyboard = qs('mb-keyboard');
-    el.mobileKeyboardInput = qs('mobile-keyboard-input');
+    el.virtualCursor = qs("virtual-cursor");
+    el.mobileDock = qs("mobile-dock");
+    el.mbLeftClick = qs("mb-left-click");
+    el.mbDoubleClick = qs("mb-double-click");
+    el.mbRightClick = qs("mb-right-click");
+    el.mbZoom = qs("mb-zoom");
+    el.mbZoomText = qs("mb-zoom-text");
+    el.mbKeyboard = qs("mb-keyboard");
+    el.mobileKeyboardInput = qs("mobile-keyboard-input");
 
     bindToolbar();
 
@@ -1122,14 +1244,14 @@ async function init() {
         state = createSessionState();
         connect(ticket);
     } catch (err) {
-        if (err.message === 'unauthenticated') {
+        if (err.message === "unauthenticated") {
             showDisconnected(
-                'Sesi autentikasi Anda telah berakhir (logout). Silakan login kembali untuk mengakses portal VNC.',
+                "Sesi autentikasi Anda telah berakhir (logout). Silakan login kembali untuk mengakses portal VNC.",
                 true,
             );
         } else {
             showDisconnected(
-                'Gagal memulai sesi remote. Sesi mungkin telah kedaluwarsa — silakan kembali ke halaman Devices dan klik Connect lagi.',
+                "Gagal memulai sesi remote. Sesi mungkin telah kedaluwarsa — silakan kembali ke halaman Devices dan klik Connect lagi.",
             );
         }
     }

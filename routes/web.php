@@ -16,6 +16,8 @@ Route::get('/dashboard', [ComputerController::class, 'dashboard'])
 
 Route::middleware('auth')->group(function () {
     Route::get('computers/status', [ComputerController::class, 'status'])->name('computers.status');
+    Route::get('computers/export', [ComputerController::class, 'export'])->name('computers.export');
+    Route::post('computers/import', [ComputerController::class, 'import'])->name('computers.import');
 
     Route::resource('computers', ComputerController::class)->except(['show']);
 

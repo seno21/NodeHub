@@ -76,10 +76,10 @@ class VncSessionTest extends TestCase
         ]);
 
         // JSON client (fetch from dashboard)
-        $this->actingAs($user)
-            ->postJson("/computers/{$computer->id}/connect")
-            ->assertStatus(503)
-            ->assertJsonFragment(['message' => "\"{$computer->name}\" is unreachable on 127.0.0.1:59000 — remote session was not started."]);
+        $res = $this->actingAs($user)
+            ->postJson("/computers/{$computer->id}/connect");
+        $res->assertStatus(503);
+        $this->assertTrue(str_contains($res->json('message'), 'PORT VNC TERTUTUP') || str_contains($res->json('message'), 'unreachable'));
 
         // Regular form client
         $this->actingAs($user)

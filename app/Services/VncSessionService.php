@@ -106,31 +106,64 @@ class VncSessionService
     }
 
     /**
-     * Complete diagnostic probe for dedicated "Cek Ping" button (ICMP + VNC Port + SSH Port).
+     * Complete diagnostic probe for dedicated "Cek Ping" button (ICMP + VNC Port + SSH Port & Auth).
      *
      * @return array{
      *   online: boolean,
      *   latency_ms: ?float,
      *   vnc_ok: boolean,
      *   vnc_latency: ?float,
+     *   vnc_error_type: string,
+     *   vnc_error_message: string,
      *   ssh_ok: boolean,
      *   ssh_latency: ?float,
+     *   ssh_auth_ok: boolean,
+     *   ssh_error_type: string,
+     *   ssh_error_message: string,
      *   icmp_ok: boolean
      * }
      */
     public function pingDiagnostics(Computer $computer): array
     {
-        $vncLatency = $this->probe($computer);
+        // 1. Detailed VNC Probe
+        $vncStart = microtime(true);
+        $vncPort = (int) ($computer->vnc_port ?: 5900);
+        $vncSocket = @fsockopen($computer->ip_address, $vncPort, $vncErrno, $vncErrstr, (float) config('vnc.status_timeout', 1.0));
+        $vncOk = is_resource($vncSocket);
+        $vncLatency = null;
+        $vncErrorType = 'ok';
+        $vncErrorMessage = 'Port VNC Terhubung & Service Responding';
 
-        $start = microtime(true);
-        $sshPort = (int) ($computer->ssh_port ?: 22);
-        $sshSocket = @fsockopen($computer->ip_address, $sshPort, $errno, $errstr, 1);
-        $sshOk = is_resource($sshSocket);
-        if ($sshOk) {
-            fclose($sshSocket);
+        if ($vncOk) {
+            fclose($vncSocket);
+            $vncLatency = round((microtime(true) - $vncStart) * 1000, 1);
+        } else {
+            $errLower = strtolower($vncErrstr ?: '');
+            if ($vncErrno === 111 || str_contains($errLower, 'refused')) {
+                $vncErrorType = 'port_closed';
+                $vncErrorMessage = "Port VNC ({$vncPort}) Tertutup (Connection Refused)";
+            } elseif ($vncErrno === 110 || str_contains($errLower, 'timed out')) {
+                $vncErrorType = 'timeout';
+                $vncErrorMessage = "Koneksi VNC Timeout (Port {$vncPort} tidak merespons)";
+            } elseif (str_contains($errLower, 'route') || str_contains($errLower, 'unreachable')) {
+                $vncErrorType = 'host_unreachable';
+                $vncErrorMessage = "Host / IP address {$computer->ip_address} tidak dapat dijangkau";
+            } else {
+                $vncErrorType = 'connection_failed';
+                $vncErrorMessage = "Port VNC tidak merespons: " . ($vncErrstr ?: "Error #{$vncErrno}");
+            }
         }
-        $sshLatency = $sshOk ? max(0.1, round((microtime(true) - $start) * 1000, 1)) : null;
 
+        // 2. Detailed SSH Probe & Auth check
+        /** @var RemoteActionService $actionService */
+        $actionService = app(RemoteActionService::class);
+        $sshCheck = $actionService->checkSshConnection($computer);
+
+        $sshOk = $sshCheck['error_type'] !== 'port_closed' && $sshCheck['error_type'] !== 'timeout' && $sshCheck['error_type'] !== 'host_unreachable' && $sshCheck['error_type'] !== 'connection_failed';
+        $sshAuthOk = $sshCheck['success'];
+        $sshLatency = $sshCheck['latency_ms'] ? (float) $sshCheck['latency_ms'] : null;
+
+        // 3. ICMP Ping
         $icmpOk = false;
         if (! app()->environment('testing')) {
             $ip = escapeshellarg($computer->ip_address);
@@ -138,15 +171,20 @@ class VncSessionService
             $icmpOk = ($resultCode === 0);
         }
 
-        $online = $vncLatency !== null || $sshOk || $icmpOk;
+        $online = $vncOk || $sshOk || $icmpOk;
 
         return [
             'online' => $online,
             'latency_ms' => $vncLatency ?? $sshLatency ?? ($icmpOk ? 1.0 : null),
-            'vnc_ok' => $vncLatency !== null,
+            'vnc_ok' => $vncOk,
             'vnc_latency' => $vncLatency,
+            'vnc_error_type' => $vncErrorType,
+            'vnc_error_message' => $vncErrorMessage,
             'ssh_ok' => $sshOk,
             'ssh_latency' => $sshLatency,
+            'ssh_auth_ok' => $sshAuthOk,
+            'ssh_error_type' => $sshCheck['error_type'],
+            'ssh_error_message' => $sshCheck['message'],
             'icmp_ok' => $icmpOk,
         ];
     }

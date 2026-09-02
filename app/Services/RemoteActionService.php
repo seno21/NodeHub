@@ -44,25 +44,58 @@ class RemoteActionService
     /**
      * Perform pre-flight SSH connection & authentication check on a single computer.
      *
-     * @return array{ssh: ?SSH2, success: boolean, message: string, latency_ms: int}
+     * @return array{ssh: ?SSH2, success: boolean, message: string, error_type: string, latency_ms: int}
      */
     public function checkSshConnection(Computer $computer): array
     {
         $startTime = microtime(true);
-        $port = $computer->ssh_port ?: 22;
+        $port = (int) ($computer->ssh_port ?: 22);
         $user = $computer->ssh_user ?: 'xubuntu';
         $password = $computer->ssh_password;
+
+        // Pre-check TCP socket to distinguish network/port errors from authentication failures
+        $socket = @fsockopen($computer->ip_address, $port, $errno, $errstr, 2.0);
+        if (!is_resource($socket)) {
+            $latency = (int) round((microtime(true) - $startTime) * 1000);
+            $errLower = strtolower($errstr ?: '');
+
+            if ($errno === 111 || str_contains($errLower, 'refused')) {
+                $errorType = 'port_closed';
+                $msg = "PORT SSH TERTUTUP: Port {$port} pada {$computer->ip_address} tertutup / ditolak (Connection Refused). Service SSH belum berjalan atau diblokir firewall.";
+            } elseif ($errno === 110 || str_contains($errLower, 'timed out')) {
+                $errorType = 'timeout';
+                $msg = "KONEKSI TIMEOUT: {$computer->ip_address}:{$port} tidak merespons dalam 2 detik. Alamat IP tidak terjangkau atau diblokir firewall.";
+            } elseif (str_contains($errLower, 'route') || str_contains($errLower, 'unreachable')) {
+                $errorType = 'host_unreachable';
+                $msg = "HOST UNREACHABLE: Alamat IP {$computer->ip_address} tidak dapat dijangkau di jaringan.";
+            } else {
+                $errorType = 'connection_failed';
+                $msg = "KONEKSI GAGAL: Tidak dapat terhubung ke {$computer->ip_address}:{$port} - " . ($errstr ?: "Error #{$errno}");
+            }
+
+            return [
+                'ssh' => null,
+                'success' => false,
+                'error_type' => $errorType,
+                'message' => $msg,
+                'latency_ms' => $latency,
+            ];
+        }
+
+        fclose($socket);
 
         if (empty($password)) {
             $latency = (int) round((microtime(true) - $startTime) * 1000);
             return [
                 'ssh' => null,
                 'success' => false,
-                'message' => "Password SSH belum disetting pada perangkat ini ($user@{$computer->ip_address}:$port)",
+                'error_type' => 'password_missing',
+                'message' => "Password SSH belum diatur pada perangkat ini ($user@{$computer->ip_address}:$port)",
                 'latency_ms' => $latency,
             ];
         }
 
+        // TCP Socket connected! Now attempt SSH login to test credentials.
         try {
             $ssh = new SSH2($computer->ip_address, $port, 5);
 
@@ -71,7 +104,8 @@ class RemoteActionService
                 return [
                     'ssh' => null,
                     'success' => false,
-                    'message' => "Autentikasi SSH gagal ($user@{$computer->ip_address}:$port) — Cek Password SSH",
+                    'error_type' => 'wrong_password',
+                    'message' => "AUTENTIKASI GAGAL (SALAH PASSWORD): Username '$user' atau Password SSH salah pada {$computer->ip_address}:{$port}. Mohon periksa kembali kredensial SSH.",
                     'latency_ms' => $latency,
                 ];
             }
@@ -80,17 +114,19 @@ class RemoteActionService
             return [
                 'ssh' => $ssh,
                 'success' => true,
+                'error_type' => 'ok',
                 'message' => "Koneksi SSH Terhubung & Autentikasi Berhasil ($user@{$computer->ip_address}:$port)",
                 'latency_ms' => $latency,
             ];
         } catch (\Throwable $e) {
             $latency = (int) round((microtime(true) - $startTime) * 1000);
-            Log::warning("SSH connection check failed for {$computer->name} ({$computer->ip_address}): {$e->getMessage()}");
+            Log::warning("SSH handshake failed for {$computer->name} ({$computer->ip_address}): {$e->getMessage()}");
 
             return [
                 'ssh' => null,
                 'success' => false,
-                'message' => "Koneksi SSH Gagal / Timeout ({$computer->ip_address}:$port): {$e->getMessage()}",
+                'error_type' => 'ssh_handshake_error',
+                'message' => "ERROR HANDSHAKE SSH ({$computer->ip_address}:$port): {$e->getMessage()}",
                 'latency_ms' => $latency,
             ];
         }

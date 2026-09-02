@@ -304,4 +304,302 @@ class ComputerController extends Controller
             ->route('computers.index')
             ->with('status', __('Device deleted successfully.'));
     }
+
+    /**
+     * Export all devices to JSON backup or CSV format.
+     */
+    public function export(Request $request)
+    {
+        $format = strtolower($request->input('format', 'json'));
+        $includePasswords = $request->boolean('include_passwords', true);
+
+        $query = Computer::query();
+        if (Schema::hasTable('tags')) {
+            $query->with('tagsRelation');
+        }
+
+        $computers = $query->get();
+        $dateStr = now()->format('Y-m-d');
+
+        if ($format === 'csv') {
+            $filename = "nodehub-devices-backup-{$dateStr}.csv";
+            $headers = [
+                'Content-Type' => 'text/csv; charset=utf-8',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            ];
+
+            $callback = function () use ($computers, $includePasswords) {
+                $file = fopen('php://output', 'w');
+                // UTF-8 BOM for Excel compatibility
+                fputs($file, "\xEF\xBB\xBF");
+                fputcsv($file, [
+                    'Name', 'IP Address', 'OS', 'Location',
+                    'VNC Port', 'VNC Password',
+                    'SSH Port', 'SSH User', 'SSH Password',
+                    'Description', 'Tags'
+                ]);
+
+                foreach ($computers as $c) {
+                    $tagNames = [];
+                    if ($c->relationLoaded('tagsRelation') && $c->tagsRelation->isNotEmpty()) {
+                        $tagNames = $c->tagsRelation->pluck('name')->all();
+                    } elseif ($c->tags) {
+                        $tagNames = array_values(array_filter(array_map('trim', explode(',', $c->tags))));
+                    }
+
+                    fputcsv($file, [
+                        $c->name,
+                        $c->ip_address,
+                        $c->os_type,
+                        $c->location ?: '',
+                        $c->vnc_port ?: 5900,
+                        $includePasswords ? ($c->vnc_password ?: '') : '',
+                        $c->ssh_port ?: 22,
+                        $c->ssh_user ?: 'xubuntu',
+                        $includePasswords ? ($c->ssh_password ?: '') : '',
+                        $c->description ?: '',
+                        implode(', ', $tagNames),
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            AuditLogger::log('computer.export', "Export list perangkat (Format: CSV, Count: {$computers->count()})", [
+                'count' => $computers->count(),
+                'format' => 'csv',
+            ]);
+
+            return response()->stream($callback, 200, $headers);
+        }
+
+        // Default JSON Backup Format
+        $data = [
+            'app' => 'NodeHub',
+            'version' => '1.0',
+            'exported_at' => now()->toIso8601String(),
+            'total_devices' => $computers->count(),
+            'devices' => $computers->map(function ($c) use ($includePasswords) {
+                $tagNames = [];
+                if ($c->relationLoaded('tagsRelation') && $c->tagsRelation->isNotEmpty()) {
+                    $tagNames = $c->tagsRelation->pluck('name')->all();
+                } elseif ($c->tags) {
+                    $tagNames = array_values(array_filter(array_map('trim', explode(',', $c->tags))));
+                }
+
+                return [
+                    'name' => $c->name,
+                    'ip_address' => $c->ip_address,
+                    'os_type' => $c->os_type,
+                    'location' => $c->location,
+                    'vnc_port' => (int) ($c->vnc_port ?: 5900),
+                    'vnc_password' => $includePasswords ? $c->vnc_password : null,
+                    'ssh_port' => (int) ($c->ssh_port ?: 22),
+                    'ssh_user' => $c->ssh_user ?: 'xubuntu',
+                    'ssh_password' => $includePasswords ? $c->ssh_password : null,
+                    'description' => $c->description,
+                    'tags' => array_values(array_unique($tagNames)),
+                ];
+            })->all(),
+        ];
+
+        AuditLogger::log('computer.export', "Export list perangkat (Format: JSON, Count: {$computers->count()})", [
+            'count' => $computers->count(),
+            'format' => 'json',
+        ]);
+
+        $filename = "nodehub-devices-backup-{$dateStr}.json";
+        return response()->streamDownload(function () use ($data) {
+            echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }, $filename, ['Content-Type' => 'application/json']);
+    }
+
+    /**
+     * Import / Restore devices list from JSON backup or CSV file.
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'backup_file' => 'required|file|max:10240',
+            'duplicate_action' => 'required|in:skip,update,add',
+        ]);
+
+        $file = $request->file('backup_file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        $duplicateAction = $request->input('duplicate_action', 'skip');
+
+        $devicesToImport = [];
+
+        if ($extension === 'json') {
+            $content = file_get_contents($file->getRealPath());
+            $parsed = json_decode($content, true);
+
+            if (!is_array($parsed)) {
+                return back()->withErrors(['backup_file' => 'File JSON backup tidak valid atau rusak.']);
+            }
+
+            if (isset($parsed['devices']) && is_array($parsed['devices'])) {
+                $devicesToImport = $parsed['devices'];
+            } elseif (array_is_list($parsed)) {
+                $devicesToImport = $parsed;
+            } else {
+                return back()->withErrors(['backup_file' => 'Format struktur file JSON backup tidak sesuai.']);
+            }
+        } elseif (in_array($extension, ['csv', 'txt'])) {
+            $handle = fopen($file->getRealPath(), 'r');
+            if ($handle === false) {
+                return back()->withErrors(['backup_file' => 'Gagal membaca file CSV.']);
+            }
+
+            $bom = fread($handle, 3);
+            if ($bom !== "\xEF\xBB\xBF") {
+                rewind($handle);
+            }
+
+            $header = fgetcsv($handle);
+            if (!$header) {
+                fclose($handle);
+                return back()->withErrors(['backup_file' => 'File CSV kosong.']);
+            }
+
+            $headerNormalized = array_map(fn ($h) => strtolower(trim(str_replace([' ', '_'], '', $h))), $header);
+
+            while (($row = fgetcsv($handle)) !== false) {
+                if (count($row) < 2) continue;
+                $item = [];
+                foreach ($row as $idx => $val) {
+                    $colName = $headerNormalized[$idx] ?? null;
+                    if (!$colName) continue;
+                    if (str_contains($colName, 'name')) $item['name'] = trim($val);
+                    elseif (str_contains($colName, 'ip')) $item['ip_address'] = trim($val);
+                    elseif (str_contains($colName, 'os')) $item['os_type'] = trim($val);
+                    elseif (str_contains($colName, 'location') || str_contains($colName, 'lokasi')) $item['location'] = trim($val);
+                    elseif (str_contains($colName, 'vncport')) $item['vnc_port'] = (int) trim($val);
+                    elseif (str_contains($colName, 'vncpass')) $item['vnc_password'] = trim($val);
+                    elseif (str_contains($colName, 'sshport')) $item['ssh_port'] = (int) trim($val);
+                    elseif (str_contains($colName, 'sshuser')) $item['ssh_user'] = trim($val);
+                    elseif (str_contains($colName, 'sshpass')) $item['ssh_password'] = trim($val);
+                    elseif (str_contains($colName, 'desc')) $item['description'] = trim($val);
+                    elseif (str_contains($colName, 'tag')) $item['tags'] = array_filter(array_map('trim', explode(',', $val)));
+                }
+                if (!empty($item['name']) && !empty($item['ip_address'])) {
+                    $devicesToImport[] = $item;
+                }
+            }
+            fclose($handle);
+        } else {
+            return back()->withErrors(['backup_file' => 'Format file tidak didukung. Harap upload file .json atau .csv.']);
+        }
+
+        if (empty($devicesToImport)) {
+            return back()->withErrors(['backup_file' => 'Tidak ada data perangkat yang valid ditemukan dalam file.']);
+        }
+
+        $createdCount = 0;
+        $updatedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($devicesToImport as $item) {
+            $name = trim($item['name'] ?? '');
+            $ip = trim($item['ip_address'] ?? '');
+
+            if (empty($name) || empty($ip) || !filter_var($ip, FILTER_VALIDATE_IP)) {
+                $skippedCount++;
+                continue;
+            }
+
+            $osType = strtolower(trim($item['os_type'] ?? 'linux'));
+            if (!in_array($osType, ['windows', 'linux'])) {
+                $osType = 'linux';
+            }
+
+            $vncPort = (int) ($item['vnc_port'] ?? 5900);
+            if ($vncPort < 1 || $vncPort > 65535) $vncPort = 5900;
+
+            $sshPort = (int) ($item['ssh_port'] ?? 22);
+            if ($sshPort < 1 || $sshPort > 65535) $sshPort = 22;
+
+            $sshUser = trim($item['ssh_user'] ?? 'xubuntu') ?: 'xubuntu';
+
+            $existing = Computer::query()->where('ip_address', $ip)->first();
+
+            if ($existing) {
+                if ($duplicateAction === 'skip') {
+                    $skippedCount++;
+                    continue;
+                }
+
+                if ($duplicateAction === 'update') {
+                    $updateData = [
+                        'name' => $name,
+                        'os_type' => $osType,
+                        'location' => trim($item['location'] ?? '') ?: null,
+                        'vnc_port' => $vncPort,
+                        'ssh_port' => $sshPort,
+                        'ssh_user' => $sshUser,
+                        'description' => trim($item['description'] ?? '') ?: null,
+                    ];
+                    if (!empty($item['vnc_password'])) {
+                        $updateData['vnc_password'] = $item['vnc_password'];
+                    }
+                    if (!empty($item['ssh_password'])) {
+                        $updateData['ssh_password'] = $item['ssh_password'];
+                    }
+
+                    $existing->update($updateData);
+
+                    $this->syncImportTags($existing, $item['tags'] ?? []);
+                    $updatedCount++;
+                    continue;
+                }
+            }
+
+            // Create new device
+            $computer = Computer::query()->create([
+                'name' => $name,
+                'ip_address' => $ip,
+                'os_type' => $osType,
+                'location' => trim($item['location'] ?? '') ?: null,
+                'vnc_port' => $vncPort,
+                'vnc_password' => $item['vnc_password'] ?? null,
+                'ssh_port' => $sshPort,
+                'ssh_user' => $sshUser,
+                'ssh_password' => $item['ssh_password'] ?? null,
+                'description' => trim($item['description'] ?? '') ?: null,
+            ]);
+
+            $this->syncImportTags($computer, $item['tags'] ?? []);
+            $createdCount++;
+        }
+
+        AuditLogger::log('computer.import', "Import daftar perangkat dari backup ({$createdCount} dibuat, {$updatedCount} diperbarui, {$skippedCount} dilewati)", [
+            'created' => $createdCount,
+            'updated' => $updatedCount,
+            'skipped' => $skippedCount,
+            'duplicate_action' => $duplicateAction,
+        ]);
+
+        $statusMsg = "Proses Restore/Import Selesai! Berhasil ditambahkan: {$createdCount}, diperbarui: {$updatedCount}, dilewati: {$skippedCount}.";
+
+        return redirect()->route('computers.index')->with('status', $statusMsg);
+    }
+
+    private function syncImportTags(Computer $computer, array|string $tagsInput): void
+    {
+        if (!Schema::hasTable('tags')) return;
+
+        $rawTags = is_array($tagsInput) ? $tagsInput : explode(',', (string) $tagsInput);
+        $tagNames = array_values(array_filter(array_map('trim', $rawTags)));
+
+        if (empty($tagNames)) return;
+
+        $tagIds = [];
+        foreach ($tagNames as $name) {
+            $tag = Tag::query()->firstOrCreate(['name' => $name]);
+            $tagIds[] = $tag->id;
+        }
+
+        $computer->tagsRelation()->syncWithoutDetaching($tagIds);
+        $computer->update(['tags' => implode(', ', $tagNames)]);
+    }
 }
