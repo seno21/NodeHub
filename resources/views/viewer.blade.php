@@ -344,11 +344,25 @@
                 <input id="vnc-password-input" type="password" autocomplete="off"
                     placeholder="{{ __('VNC password') }}"
                     class="mt-5 block w-full rounded-lg border border-white/10 bg-zinc-800 px-3 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                <p id="password-error" class="mt-2 hidden text-xs text-red-400"></p>
-                <button type="submit"
-                    class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-blue-700">
-                    {{ __('Unlock Session') }}
-                </button>
+                <p id="password-error" class="mt-2 hidden text-xs text-red-400 font-semibold"></p>
+
+                <div class="mt-5 flex flex-col gap-2">
+                    <button type="submit"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00828c] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-[#006e76] shadow-lg shadow-[#00828c]/20">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        {{ __('Unlock Session') }}
+                    </button>
+
+                    <a id="btn-password-back" href="{{ route('computers.index') }}"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-xs font-semibold text-gray-300 transition hover:bg-white/20 hover:text-white border border-white/10">
+                        <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                        </svg>
+                        {{ __('Kembali ke Daftar Devices') }}
+                    </a>
+                </div>
             </form>
         </div>
 

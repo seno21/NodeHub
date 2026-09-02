@@ -839,6 +839,20 @@ function bindToolbar() {
         window.location.href = "/computers";
     });
 
+    el.btnPasswordBack?.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (state) {
+            state.userNavigating = true;
+        }
+        if (state?.rfb) {
+            try {
+                state.rfb.disconnect();
+            } catch {}
+            state.rfb = null;
+        }
+        window.location.href = "/computers";
+    });
+
     el.passwordForm?.addEventListener("submit", (event) => {
         event.preventDefault();
 
@@ -1200,6 +1214,7 @@ async function init() {
     el.passwordForm = qs("password-form");
     el.passwordInput = qs("vnc-password-input");
     el.passwordError = qs("password-error");
+    el.btnPasswordBack = qs("btn-password-back");
     el.btnBack = qs("btn-back");
     el.btnQuickKeys = qs("btn-quick-keys");
     el.quickKeysPanel = qs("quick-keys-panel");
