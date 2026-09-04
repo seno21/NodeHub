@@ -23,12 +23,10 @@ class ComputerController extends Controller
      */
     public function dashboard(): View
     {
-        $computers = Computer::query()->get(['id', 'os_type']);
-
         return view('dashboard', [
-            'total' => $computers->count(),
-            'windowsCount' => $computers->where('os_type', 'windows')->count(),
-            'linuxCount' => $computers->where('os_type', 'linux')->count(),
+            'total' => Computer::query()->count(),
+            'windowsCount' => Computer::query()->where('os_type', 'windows')->count(),
+            'linuxCount' => Computer::query()->where('os_type', 'linux')->count(),
         ]);
     }
 
@@ -83,13 +81,6 @@ class ComputerController extends Controller
                 $tagNames = array_values(array_filter(array_map('trim', explode(',', $c->tags))));
             }
 
-            $sshPort = (int) ($c->ssh_port ?: 22);
-            $sshSocket = @fsockopen($c->ip_address, $sshPort, $errno, $errstr, 1);
-            $sshOpen = is_resource($sshSocket);
-            if ($sshOpen) {
-                fclose($sshSocket);
-            }
-
             return [
                 'id' => $c->id,
                 'name' => $c->name,
@@ -101,7 +92,7 @@ class ComputerController extends Controller
                 'location' => $c->location,
                 'description' => $c->description,
                 'has_ssh' => !empty($c->ssh_password),
-                'ssh_open' => $sshOpen,
+                'ssh_open' => false,
                 'created_at' => $c->created_at?->format('d M Y, H:i') ?? '-',
                 'tags' => array_values(array_unique($tagNames)),
                 'tags_relation' => $c->relationLoaded('tagsRelation')

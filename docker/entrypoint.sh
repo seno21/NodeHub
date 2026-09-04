@@ -75,6 +75,13 @@ mariadb -u root -e "FLUSH PRIVILEGES;" 2>/dev/null || true
 # Run Laravel migrations
 php artisan migrate --force
 
+# Cache Laravel configurations, routes, and views for maximum production performance
+echo "entrypoint: Optimizing & caching Laravel configurations..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache 2>/dev/null || true
+
 # Seed admin user on fresh database if no users exist
 php -r '
     $db = getenv("DB_DATABASE") ?: "nodehub";
