@@ -63,7 +63,10 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    <span class="hidden md:inline text-xs font-bold text-gray-200 tracking-wide">NodeHub Remote</span>
+                    <div id="device-info-header" class="flex items-center gap-1.5 sm:gap-2">
+                        <span id="device-name-display" class="text-xs font-bold text-gray-100 tracking-wide truncate max-w-[120px] sm:max-w-[200px]">NodeHub Remote</span>
+                        <span id="device-ip-badge" class="hidden text-[11px] font-mono font-medium text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded-md shadow-xs"></span>
+                    </div>
                 </div>
 
                 <span id="conn-status" class="ms-1 me-1 select-none text-xs font-medium text-slate-300 truncate max-w-[150px] sm:max-w-xs"></span>

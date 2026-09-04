@@ -93,6 +93,8 @@ class VncSessionController extends Controller
             'password' => $session['vnc_password'],
             'os_type' => $session['os_type'],
             'device_name' => $session['name'] ?? '',
+            'ip_address' => $session['ip_address'] ?? '',
+            'vnc_port' => $session['vnc_port'] ?? 5900,
         ]);
     }
 

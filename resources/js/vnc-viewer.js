@@ -571,6 +571,19 @@ function connect(ticket) {
     }
 
     state.ticket = ticket;
+    state.deviceName = ticket.device_name || "Remote Device";
+    state.ipAddress = ticket.ip_address || "";
+    state.vncPort = ticket.vnc_port || 5900;
+
+    if (el.deviceNameDisplay) {
+        el.deviceNameDisplay.textContent = state.deviceName;
+    }
+
+    if (el.deviceIpBadge && state.ipAddress) {
+        el.deviceIpBadge.textContent = `${state.ipAddress}:${state.vncPort}`;
+        el.deviceIpBadge.classList.remove("hidden");
+    }
+
     const options = { shared: true };
 
     if (ticket.password) {
@@ -1201,6 +1214,8 @@ async function init() {
     el.screenContainer = qs("screen-container");
     el.screen = qs("screen");
     el.toolbar = qs("toolbar");
+    el.deviceNameDisplay = qs("device-name-display");
+    el.deviceIpBadge = qs("device-ip-badge");
     el.btnToggleMenu = qs("btn-toggle-menu");
     el.toolbarMenu = qs("toolbar-menu");
     el.connStatus = qs("conn-status");
