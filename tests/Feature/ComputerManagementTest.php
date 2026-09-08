@@ -343,6 +343,30 @@ class ComputerManagementTest extends TestCase
         $this->assertSame('192.168.1.102', $comp2->fresh()->ip_address);
     }
 
+    public function test_migration_resolves_existing_duplicate_ips_automatically(): void
+    {
+        // Drop unique constraint temporarily to insert legacy duplicates
+        \Illuminate\Support\Facades\Schema::table('computers', function (\Illuminate\Database\Schema\Blueprint $table) {
+            $table->dropUnique(['ip_address']);
+        });
+
+        // Insert duplicate legacy records directly
+        \Illuminate\Support\Facades\DB::table('computers')->insert([
+            ['name' => 'Legacy 1', 'ip_address' => '10.10.10.10', 'vnc_port' => 5900, 'os_type' => 'linux'],
+            ['name' => 'Legacy 2', 'ip_address' => '10.10.10.10', 'vnc_port' => 5900, 'os_type' => 'linux'],
+        ]);
+
+        // Re-run the migration instance
+        $migration = include database_path('migrations/2026_09_08_090000_add_unique_ip_address_to_computers_table.php');
+        $migration->up();
+
+        $comp1 = \App\Models\Computer::where('name', 'Legacy 1')->first();
+        $comp2 = \App\Models\Computer::where('name', 'Legacy 2')->first();
+
+        $this->assertSame('10.10.10.10', $comp1->ip_address);
+        $this->assertSame("10.10.10.10-dup-{$comp2->id}", $comp2->ip_address);
+    }
+
     /**
      * Open a temporary TCP listener simulating a reachable VNC target.
      *
