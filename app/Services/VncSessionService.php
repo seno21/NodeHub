@@ -35,6 +35,39 @@ class VncSessionService
     }
 
     /**
+     * Create an ephemeral VNC session for a direct IP connection (Fast Connect).
+     *
+     * Returns the session token used by noVNC to connect through websockify.
+     */
+    public function createDirectSession(
+        string $ipAddress,
+        int $vncPort = 5900,
+        ?string $vncPassword = null,
+        ?string $name = null,
+        string $osType = 'linux',
+    ): string {
+        $token = Str::random(40);
+        $displayName = $name ?: "Fast Connect ({$ipAddress}:{$vncPort})";
+
+        Cache::put(
+            $this->cacheKey($token),
+            [
+                'name' => $displayName,
+                'ip_address' => $ipAddress,
+                'vnc_port' => $vncPort,
+                'os_type' => $osType,
+                'vnc_password' => $vncPassword,
+                'is_fast_connect' => true,
+            ],
+            now()->addSeconds(config('vnc.token_ttl')),
+        );
+
+        $this->appendTokenLineDirect($token, $ipAddress, $vncPort);
+
+        return $token;
+    }
+
+    /**
      * Get the stored session data for a token, or null when expired.
      *
      * @return array{ip_address: string, vnc_port: int, os_type: string, vnc_password: string|null}|null
@@ -227,6 +260,11 @@ class VncSessionService
 
     private function appendTokenLine(string $token, Computer $computer): void
     {
+        $this->appendTokenLineDirect($token, $computer->ip_address, (int) $computer->vnc_port);
+    }
+
+    private function appendTokenLineDirect(string $token, string $ipAddress, int $vncPort): void
+    {
         $path = config('vnc.websockify.token_file');
         $dir = dirname($path);
 
@@ -235,7 +273,7 @@ class VncSessionService
         }
 
         // TokenFile format expected by websockify: "<token>: <host>:<port>"
-        $line = sprintf('%s: %s:%d', $token, $computer->ip_address, (int) $computer->vnc_port);
+        $line = sprintf('%s: %s:%d', $token, $ipAddress, $vncPort);
 
         file_put_contents($path, $line.PHP_EOL, FILE_APPEND | LOCK_EX);
     }

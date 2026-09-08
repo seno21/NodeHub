@@ -22,6 +22,14 @@
                     <span>Export / Backup</span>
                 </button>
 
+                <button type="button" x-on:click="$dispatch('open-fast-connect')"
+                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-wider transition shadow-xs">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                    </svg>
+                    <span>Fast Connect</span>
+                </button>
+
                 <a href="{{ route('computers.create') }}"
                     class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#00828c] border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#006e76] active:bg-[#00585f] focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-xs">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

@@ -71,6 +71,90 @@ class VncSessionController extends Controller
     }
 
     /**
+     * Start a direct VNC session without needing a pre-registered computer (Fast Connect).
+     */
+    public function fastConnect(Request $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validate([
+            'ip_address' => ['required', 'string', 'max:255'],
+            'vnc_port' => ['nullable', 'integer', 'between:1,65535'],
+            'vnc_password' => ['nullable', 'string', 'max:255'],
+            'os_type' => ['nullable', 'string', 'in:windows,linux,mac'],
+            'save_device' => ['nullable', 'boolean'],
+            'device_name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $ipAddress = trim($validated['ip_address']);
+        $vncPort = (int) ($validated['vnc_port'] ?? 5900);
+        $vncPassword = $validated['vnc_password'] ?? null;
+        $osType = $validated['os_type'] ?? 'linux';
+        $saveDevice = (bool) ($validated['save_device'] ?? false);
+        $deviceName = !empty($validated['device_name']) ? trim($validated['device_name']) : "Fast Connect ({$ipAddress})";
+
+        $bridgeMessage = __(
+            'The remote gateway (websockify) is not running. Start it on the server with: php artisan vnc:bridge --daemon',
+        );
+
+        if (config('vnc.bridge_check') && ! $this->sessions->isBridgeUp()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $bridgeMessage], 503);
+            }
+
+            return back()->withErrors(['fast_connect' => $bridgeMessage]);
+        }
+
+        $vncSocket = @fsockopen($ipAddress, $vncPort, $vncErrno, $vncErrstr, 2.0);
+        if (! is_resource($vncSocket)) {
+            $errLower = strtolower($vncErrstr ?: '');
+            if ($vncErrno === 111 || str_contains($errLower, 'refused')) {
+                $unreachableMessage = "PORT VNC TERTUTUP: Service VNC pada \"{$ipAddress}:{$vncPort}\" tertutup / ditolak (Connection Refused). Pastikan server VNC aktif di target.";
+            } elseif ($vncErrno === 110 || str_contains($errLower, 'timed out')) {
+                $unreachableMessage = "KONEKSI TIMEOUT: \"{$ipAddress}:{$vncPort}\" tidak merespons. Periksa jaringan / IP address target.";
+            } else {
+                $unreachableMessage = "\"{$ipAddress}\" tidak dapat dijangkau pada port {$vncPort} — " . ($vncErrstr ?: 'Remote session gagal dibuka.');
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $unreachableMessage], 503);
+            }
+
+            return back()->withErrors(['fast_connect' => $unreachableMessage]);
+        } else {
+            fclose($vncSocket);
+        }
+
+        if ($saveDevice) {
+            Computer::create([
+                'name' => $deviceName,
+                'ip_address' => $ipAddress,
+                'vnc_port' => $vncPort,
+                'vnc_password' => $vncPassword,
+                'os_type' => $osType,
+                'location' => 'Fast Connect',
+                'description' => 'Ditambahkan otomatis via Fast Connect',
+            ]);
+        }
+
+        $token = $this->sessions->createDirectSession($ipAddress, $vncPort, $vncPassword, $deviceName, $osType);
+
+        AuditLogger::log('vnc.fast_connect', "Membuka koneksi Fast Connect VNC ke {$ipAddress}:{$vncPort}", [
+            'ip_address' => $ipAddress,
+            'vnc_port' => $vncPort,
+            'os_type' => $osType,
+            'saved_as_device' => $saveDevice,
+            'session_token' => substr($token, 0, 10) . '...',
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'redirect' => route('viewer.show', ['token' => $token]),
+            ]);
+        }
+
+        return redirect()->route('viewer.show', ['token' => $token]);
+    }
+
+    /**
      * Display the noVNC viewer page.
      */
     public function show(string $token): View

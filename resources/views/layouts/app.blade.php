@@ -47,6 +47,8 @@
             @include('layouts.bottom-nav')
         </div>
     </div>
+
+    <x-fast-connect-modal />
 </body>
 
 </html>
