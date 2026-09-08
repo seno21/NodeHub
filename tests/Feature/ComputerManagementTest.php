@@ -157,7 +157,7 @@ class ComputerManagementTest extends TestCase
         try {
             $user = User::factory()->create();
             $online = Computer::factory()->create(['ip_address' => $host, 'vnc_port' => $port]);
-            $offline = Computer::factory()->create(['ip_address' => $host, 'vnc_port' => 59000]);
+            $offline = Computer::factory()->create(['ip_address' => '127.0.0.2', 'vnc_port' => 59000]);
 
             $this->actingAs($user)
                 ->getJson("/computers/{$online->id}/ping")
@@ -304,6 +304,43 @@ class ComputerManagementTest extends TestCase
         $this->assertSame('Kasir 2', $duplicated->name);
         $this->assertSame('secret_vnc_pass', $duplicated->vnc_password);
         $this->assertSame('secret_ssh_pass', $duplicated->ssh_password);
+    }
+
+    public function test_user_cannot_create_device_with_duplicate_ip(): void
+    {
+        $user = User::factory()->create();
+        $existing = Computer::factory()->create(['ip_address' => '192.168.1.100']);
+        $tag = \App\Models\Tag::create(['name' => 'General']);
+
+        $response = $this->actingAs($user)->post('/computers', [
+            'name' => 'Device Duplicate',
+            'ip_address' => '192.168.1.100',
+            'vnc_port' => '5900',
+            'os_type' => 'windows',
+            'tag_ids' => [$tag->id],
+        ]);
+
+        $response->assertSessionHasErrors(['ip_address']);
+        $this->assertDatabaseCount('computers', 1);
+    }
+
+    public function test_user_cannot_update_device_to_existing_duplicate_ip(): void
+    {
+        $user = User::factory()->create();
+        $comp1 = Computer::factory()->create(['ip_address' => '192.168.1.101']);
+        $comp2 = Computer::factory()->create(['ip_address' => '192.168.1.102']);
+        $tag = \App\Models\Tag::create(['name' => 'General']);
+
+        $response = $this->actingAs($user)->put("/computers/{$comp2->id}", [
+            'name' => 'Device 2 Updated',
+            'ip_address' => '192.168.1.101',
+            'vnc_port' => '5900',
+            'os_type' => 'linux',
+            'tag_ids' => [$tag->id],
+        ]);
+
+        $response->assertSessionHasErrors(['ip_address']);
+        $this->assertSame('192.168.1.102', $comp2->fresh()->ip_address);
     }
 
     /**

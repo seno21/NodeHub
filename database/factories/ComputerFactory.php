@@ -19,7 +19,7 @@ class ComputerFactory extends Factory
     {
         return [
             'name' => 'PC-'.$this->faker->unique()->numerify('###'),
-            'ip_address' => $this->faker->localIpv4(),
+            'ip_address' => $this->faker->unique()->localIpv4(),
             'vnc_port' => 5900,
             'os_type' => $this->faker->randomElement(Computer::OS_TYPES),
             'vnc_password' => null,

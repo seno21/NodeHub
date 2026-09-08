@@ -26,7 +26,7 @@ class UpdateComputerRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'ip_address' => ['required', 'ip'],
+            'ip_address' => ['required', 'ip', Rule::unique('computers', 'ip_address')->ignore($this->computer)],
             'vnc_port' => ['required', 'integer', 'min:1', 'max:65535'],
             'os_type' => ['required', Rule::in(Computer::OS_TYPES)],
             'location' => ['nullable', 'string', 'max:255'],
@@ -50,6 +50,7 @@ class UpdateComputerRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'ip_address.unique' => __('IP Address sudah terdaftar dalam daftar perangkat.'),
             'tag_ids.required' => __('Minimal harus memilih 1 tag untuk perangkat.'),
             'tag_ids.required_without' => __('Minimal harus memilih 1 tag untuk perangkat.'),
             'tag_ids.min' => __('Minimal harus memilih 1 tag untuk perangkat.'),

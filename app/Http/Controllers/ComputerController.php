@@ -515,11 +515,6 @@ class ComputerController extends Controller
             $existing = Computer::query()->where('ip_address', $ip)->first();
 
             if ($existing) {
-                if ($duplicateAction === 'skip') {
-                    $skippedCount++;
-                    continue;
-                }
-
                 if ($duplicateAction === 'update') {
                     $updateData = [
                         'name' => $name,
@@ -543,6 +538,10 @@ class ComputerController extends Controller
                     $updatedCount++;
                     continue;
                 }
+
+                // If existing IP is found and duplicate action is skip/add, skip to maintain IP uniqueness
+                $skippedCount++;
+                continue;
             }
 
             // Create new device

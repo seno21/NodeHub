@@ -136,6 +136,46 @@ class FastConnectTest extends TestCase
         );
     }
 
+    public function test_fast_connect_allowed_with_existing_ip_if_save_device_is_false(): void
+    {
+        [$server, $host, $port] = $this->openLocalVncServer();
+
+        try {
+            $user = User::factory()->create();
+            Computer::factory()->create(['ip_address' => $host, 'vnc_port' => $port]);
+
+            $response = $this->actingAs($user)
+                ->postJson('/vnc/fast-connect', [
+                    'ip_address' => $host,
+                    'vnc_port' => $port,
+                    'save_device' => false,
+                ]);
+
+            $response->assertOk()
+                ->assertJsonStructure(['redirect']);
+        } finally {
+            fclose($server);
+        }
+    }
+
+    public function test_fast_connect_rejected_if_ip_exists_and_save_device_is_true(): void
+    {
+        $user = User::factory()->create();
+        Computer::factory()->create(['ip_address' => '192.168.1.150']);
+
+        $response = $this->actingAs($user)
+            ->postJson('/vnc/fast-connect', [
+                'ip_address' => '192.168.1.150',
+                'vnc_port' => 5900,
+                'save_device' => true,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('ip_address');
+
+        $this->assertTrue(str_contains($response->json('message'), 'terdaftar'));
+    }
+
     /**
      * Open a temporary TCP listener simulating a reachable VNC target.
      *

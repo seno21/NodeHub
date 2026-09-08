@@ -91,6 +91,20 @@ class VncSessionController extends Controller
         $saveDevice = (bool) ($validated['save_device'] ?? false);
         $deviceName = !empty($validated['device_name']) ? trim($validated['device_name']) : "Fast Connect ({$ipAddress})";
 
+        if ($saveDevice && Computer::query()->where('ip_address', $ipAddress)->exists()) {
+            $errorMessage = __('IP Address sudah terdaftar di daftar Perangkat. Hapus centang "Simpan ke daftar Perangkat" jika hanya ingin Fast Connect.');
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $errorMessage,
+                    'errors' => [
+                        'ip_address' => [$errorMessage],
+                    ],
+                ], 422);
+            }
+
+            return back()->withErrors(['fast_connect' => $errorMessage]);
+        }
+
         $bridgeMessage = __(
             'The remote gateway (websockify) is not running. Start it on the server with: php artisan vnc:bridge --daemon',
         );
