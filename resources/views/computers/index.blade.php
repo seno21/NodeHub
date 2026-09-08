@@ -8,24 +8,29 @@
             <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                 <button type="button" x-on:click="$dispatch('trigger-open-import-modal')"
                     class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-xs text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] transition shadow-xs">
-                    <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                     </svg>
-                    <span>Import / Restore</span>
+                    <span>Restore</span>
                 </button>
 
                 <button type="button" x-on:click="$dispatch('trigger-open-export-modal')"
                     class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold text-xs text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] transition shadow-xs">
-                    <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
-                    <span>Export / Backup</span>
+                    <span>Backup</span>
                 </button>
 
                 <button type="button" x-on:click="$dispatch('open-fast-connect')"
                     class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-wider transition shadow-xs">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
                     </svg>
                     <span>Fast Connect</span>
                 </button>
@@ -41,8 +46,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }})"
-        x-on:trigger-open-export-modal.window="openExportModal()"
+    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }})" x-on:trigger-open-export-modal.window="openExportModal()"
         x-on:trigger-open-import-modal.window="openImportModal()"
         x-on:trigger-check-all-connections.window="checkAllConnections('{{ route('computers.status') }}', false)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,7 +123,8 @@
 
                     <div
                         class="flex items-center gap-2.5 w-full sm:w-auto justify-end border-t sm:border-t-0 border-emerald-200/60 pt-2 sm:pt-0 shrink-0">
-                        <button type="button" x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
+                        <button type="button"
+                            x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
                             class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200/70 bg-white/60 transition">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                 stroke-width="2">
@@ -409,7 +414,8 @@
                                     <button type="button" title="Duplicate / Salin Perangkat"
                                         class="rounded-xl p-2.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 bg-slate-100 transition"
                                         x-on:click.prevent="openDuplicateModal(comp)">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" stroke-width="1.8">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125H3.375A1.125 1.125 0 0 1 2.25 20.625V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v9.25c0 .621-.504 1.125-1.125 1.125Z" />
                                         </svg>
@@ -643,7 +649,8 @@
                                             <button type="button" title="Duplicate / Salin Perangkat"
                                                 class="rounded-md p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
                                                 x-on:click.prevent="openDuplicateModal(comp)">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125H3.375A1.125 1.125 0 0 1 2.25 20.625V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v9.25c0 .621-.504 1.125-1.125 1.125Z" />
                                                 </svg>
@@ -714,7 +721,8 @@
                             title="{{ __('Halaman Sebelumnya') }}">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                 stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 19.5L8.25 12l7.5-7.5" />
                             </svg>
                             <span class="hidden sm:inline">{{ __('Sebelumnya') }}</span>
                         </button>
@@ -1050,59 +1058,75 @@
                     x-transition.scale.origin.center.duration.200ms x-on:click.outside="closeDuplicateModal()">
 
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+                    <div
+                        class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
                         <div class="flex items-center gap-3">
-                            <span class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 shrink-0 font-bold">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <span
+                                class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 shrink-0 font-bold">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    stroke-width="1.8">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125H3.375A1.125 1.125 0 0 1 2.25 20.625V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v9.25c0 .621-.504 1.125-1.125 1.125Z" />
                                 </svg>
                             </span>
                             <div>
-                                <h3 class="font-bold text-base text-slate-900 leading-tight">Duplicate / Salin Device</h3>
-                                <p class="text-xs text-slate-500">Menyalin dari: <span class="font-semibold text-slate-700" x-text="duplicateDevice.name"></span> (<span class="font-mono" x-text="duplicateDevice.ip_address"></span>)</p>
+                                <h3 class="font-bold text-base text-slate-900 leading-tight">Duplicate / Salin Device
+                                </h3>
+                                <p class="text-xs text-slate-500">Menyalin dari: <span
+                                        class="font-semibold text-slate-700" x-text="duplicateDevice.name"></span>
+                                    (<span class="font-mono" x-text="duplicateDevice.ip_address"></span>)</p>
                             </div>
                         </div>
                         <button type="button" x-on:click="closeDuplicateModal()"
                             class="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <!-- Modal Form Body -->
-                    <form method="POST" action="{{ route('computers.store') }}" class="flex flex-col flex-1 min-h-0">
+                    <form method="POST" action="{{ route('computers.store') }}"
+                        class="flex flex-col flex-1 min-h-0">
                         @csrf
                         <input type="hidden" name="duplicate_from_id" :value="duplicateForm.duplicate_from_id">
 
                         <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
                             <!-- Helper Banner -->
-                            <div class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-900 text-xs flex items-start gap-2.5">
-                                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                            <div
+                                class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-900 text-xs flex items-start gap-2.5">
+                                <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                 </svg>
                                 <div>
-                                    <span class="font-bold">Info Duplikasi:</span> Kredensial VNC/SSH, port, OS, lokasi, dan tag disalin otomatis. Silakan masukkan nama dan IP address baru.
+                                    <span class="font-bold">Info Duplikasi:</span> Kredensial VNC/SSH, port, OS,
+                                    lokasi, dan tag disalin otomatis. Silakan masukkan nama dan IP address baru.
                                 </div>
                             </div>
 
                             <!-- Name & IP Inputs -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="dup_name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_name"
+                                        class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         Nama Perangkat Baru <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="dup_name" name="name" x-model="duplicateForm.name" required
+                                    <input type="text" id="dup_name" name="name" x-model="duplicateForm.name"
+                                        required
                                         class="w-full rounded-xl border-slate-300 text-sm shadow-xs focus:border-[#00828c] focus:ring-[#00828c]"
                                         placeholder="Nama Perangkat">
                                 </div>
 
                                 <div>
-                                    <label for="dup_ip" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_ip"
+                                        class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         Alamat IP Baru <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="dup_ip" name="ip_address" x-model="duplicateForm.ip_address" required
+                                    <input type="text" id="dup_ip" name="ip_address"
+                                        x-model="duplicateForm.ip_address" required
                                         class="w-full rounded-xl border-slate-300 text-sm font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]"
                                         placeholder="192.168.1.100">
                                 </div>
@@ -1111,7 +1135,8 @@
                             <!-- OS & Location -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="dup_os" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_os"
+                                        class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         Sistem Operasi
                                     </label>
                                     <select id="dup_os" name="os_type" x-model="duplicateForm.os_type"
@@ -1122,10 +1147,12 @@
                                 </div>
 
                                 <div>
-                                    <label for="dup_location" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_location"
+                                        class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         Lokasi
                                     </label>
-                                    <input type="text" id="dup_location" name="location" x-model="duplicateForm.location"
+                                    <input type="text" id="dup_location" name="location"
+                                        x-model="duplicateForm.location"
                                         class="w-full rounded-xl border-slate-300 text-sm shadow-xs focus:border-[#00828c] focus:ring-[#00828c]"
                                         placeholder="Lab / Ruangan">
                                 </div>
@@ -1134,24 +1161,30 @@
                             <!-- Ports & SSH User -->
                             <div class="grid grid-cols-3 gap-3">
                                 <div>
-                                    <label for="dup_vnc_port" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_vnc_port"
+                                        class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         Port VNC
                                     </label>
-                                    <input type="number" id="dup_vnc_port" name="vnc_port" x-model="duplicateForm.vnc_port" required min="1" max="65535"
+                                    <input type="number" id="dup_vnc_port" name="vnc_port"
+                                        x-model="duplicateForm.vnc_port" required min="1" max="65535"
                                         class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
                                 </div>
                                 <div>
-                                    <label for="dup_ssh_port" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_ssh_port"
+                                        class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         Port SSH
                                     </label>
-                                    <input type="number" id="dup_ssh_port" name="ssh_port" x-model="duplicateForm.ssh_port" min="1" max="65535"
+                                    <input type="number" id="dup_ssh_port" name="ssh_port"
+                                        x-model="duplicateForm.ssh_port" min="1" max="65535"
                                         class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
                                 </div>
                                 <div>
-                                    <label for="dup_ssh_user" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                    <label for="dup_ssh_user"
+                                        class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                                         SSH User
                                     </label>
-                                    <input type="text" id="dup_ssh_user" name="ssh_user" x-model="duplicateForm.ssh_user"
+                                    <input type="text" id="dup_ssh_user" name="ssh_user"
+                                        x-model="duplicateForm.ssh_user"
                                         class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
                                 </div>
                             </div>
@@ -1159,17 +1192,22 @@
                             <!-- Tags selection -->
                             @if (isset($allTags) && $allTags->isNotEmpty())
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                    <label
+                                        class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                         Tag Perangkat <span class="text-red-500">*</span>
                                     </label>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                    <div
+                                        class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
                                         @foreach ($allTags as $tagItem)
-                                            <label class="inline-flex items-center gap-2 p-2 rounded-lg border border-slate-200 bg-white hover:border-[#00828c]/50 transition cursor-pointer text-xs">
+                                            <label
+                                                class="inline-flex items-center gap-2 p-2 rounded-lg border border-slate-200 bg-white hover:border-[#00828c]/50 transition cursor-pointer text-xs">
                                                 <input type="checkbox" name="tag_ids[]" value="{{ $tagItem->id }}"
                                                     x-model="duplicateForm.tag_ids"
                                                     class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                                <span class="h-2 w-2 rounded-full shrink-0" style="background-color: {{ $tagItem->color ?: '#00828c' }}"></span>
-                                                <span class="truncate font-medium text-slate-700">#{{ $tagItem->name }}</span>
+                                                <span class="h-2 w-2 rounded-full shrink-0"
+                                                    style="background-color: {{ $tagItem->color ?: '#00828c' }}"></span>
+                                                <span
+                                                    class="truncate font-medium text-slate-700">#{{ $tagItem->name }}</span>
                                             </label>
                                         @endforeach
                                     </div>
@@ -1179,21 +1217,26 @@
                             <!-- Credentials Copy Checkboxes -->
                             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                                 <label class="inline-flex items-center gap-2.5 cursor-pointer">
-                                    <input type="checkbox" name="copy_vnc_password" value="1" x-model="duplicateForm.copy_vnc_password"
+                                    <input type="checkbox" name="copy_vnc_password" value="1"
+                                        x-model="duplicateForm.copy_vnc_password"
                                         class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                    <span class="text-xs font-semibold text-slate-800">Salin Password VNC dari perangkat asal</span>
+                                    <span class="text-xs font-semibold text-slate-800">Salin Password VNC dari
+                                        perangkat asal</span>
                                 </label>
                                 <br>
                                 <label class="inline-flex items-center gap-2.5 cursor-pointer">
-                                    <input type="checkbox" name="copy_ssh_password" value="1" x-model="duplicateForm.copy_ssh_password"
+                                    <input type="checkbox" name="copy_ssh_password" value="1"
+                                        x-model="duplicateForm.copy_ssh_password"
                                         class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                    <span class="text-xs font-semibold text-slate-800">Salin Password SSH dari perangkat asal</span>
+                                    <span class="text-xs font-semibold text-slate-800">Salin Password SSH dari
+                                        perangkat asal</span>
                                 </label>
                             </div>
 
                             <!-- Description -->
                             <div>
-                                <label for="dup_desc" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                <label for="dup_desc"
+                                    class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                                     Deskripsi / Catatan (Opsional)
                                 </label>
                                 <textarea id="dup_desc" name="description" x-model="duplicateForm.description" rows="2"
@@ -1203,7 +1246,8 @@
                         </div>
 
                         <!-- Modal Footer -->
-                        <div class="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-3.5 shrink-0">
+                        <div
+                            class="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-3.5 shrink-0">
                             <a :href="'/computers/create?duplicate_from=' + duplicateForm.duplicate_from_id"
                                 class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
                                 Buka Form Lengkap →
@@ -1216,8 +1260,10 @@
                                 </button>
                                 <button type="submit"
                                     class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 4.5v15m7.5-7.5h-15" />
                                     </svg>
                                     Simpan Duplicate
                                 </button>
@@ -1234,49 +1280,68 @@
             x-on:keydown.escape.window="closeExportModal()" x-transition.opacity.duration.200ms>
             <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
                 x-transition.scale.origin.center.duration.200ms x-on:click.outside="closeExportModal()">
-                
-                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3.5 sm:px-6 shrink-0">
+
+                <div
+                    class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3.5 sm:px-6 shrink-0">
                     <div class="flex items-center gap-3">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-bold shrink-0">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        <span
+                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-bold shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
                         </span>
                         <div>
-                            <h3 class="font-bold text-base text-slate-900 leading-tight">Export & Backup List Device</h3>
+                            <h3 class="font-bold text-base text-slate-900 leading-tight">Export & Backup List Device
+                            </h3>
                             <p class="text-xs text-slate-500">Download data perangkat untuk backup / migrasi portal</p>
                         </div>
                     </div>
                     <button type="button" x-on:click="closeExportModal()"
                         class="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <form method="GET" action="{{ route('computers.export') }}" x-on:submit="closeExportModal()" class="p-4 sm:p-6 space-y-4">
-                    <div class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 text-xs flex items-start gap-2.5">
-                        <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                <form method="GET" action="{{ route('computers.export') }}" x-on:submit="closeExportModal()"
+                    class="p-4 sm:p-6 space-y-4">
+                    <div
+                        class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 text-xs flex items-start gap-2.5">
+                        <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                         </svg>
                         <div>
-                            <span class="font-bold">Info Backup:</span> File backup (JSON/CSV) ini berisi seluruh daftar perangkat, IP, port, lokasi, deskripsi, tag, dan kredensial VNC/SSH.
+                            <span class="font-bold">Info Backup:</span> File backup (JSON/CSV) ini berisi seluruh
+                            daftar perangkat, IP, port, lokasi, deskripsi, tag, dan kredensial VNC/SSH.
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Format File</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih
+                            Format File</label>
                         <div class="grid grid-cols-2 gap-3">
-                            <label class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
-                                <input type="radio" name="format" value="json" checked class="sr-only peer">
-                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">JSON Backup (.json)</span>
-                                <span class="text-[11px] text-slate-500 mt-1">Sangat Direkomendasikan untuk Migrasi Portal NodeHub</span>
+                            <label
+                                class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
+                                <input type="radio" name="format" value="json" checked
+                                    class="sr-only peer">
+                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">JSON Backup
+                                    (.json)</span>
+                                <span class="text-[11px] text-slate-500 mt-1">Sangat Direkomendasikan untuk Migrasi
+                                    Portal NodeHub</span>
                             </label>
-                            <label class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
+                            <label
+                                class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
                                 <input type="radio" name="format" value="csv" class="sr-only peer">
-                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">CSV Spreadsheet (.csv)</span>
-                                <span class="text-[11px] text-slate-500 mt-1">Untuk dibuka di Microsoft Excel atau Google Sheets</span>
+                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">CSV
+                                    Spreadsheet (.csv)</span>
+                                <span class="text-[11px] text-slate-500 mt-1">Untuk dibuka di Microsoft Excel atau
+                                    Google Sheets</span>
                             </label>
                         </div>
                     </div>
@@ -1285,10 +1350,12 @@
                         <label class="inline-flex items-center gap-2.5 cursor-pointer">
                             <input type="checkbox" name="include_passwords" value="1" checked
                                 class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                            <span class="text-xs font-semibold text-slate-800">Sertakan Password VNC & SSH dalam Backup</span>
+                            <span class="text-xs font-semibold text-slate-800">Sertakan Password VNC & SSH dalam
+                                Backup</span>
                         </label>
                         <p class="text-[11px] text-slate-500 mt-1 ml-6">
-                            Jika dicentang, password VNC/SSH akan ikut disimpan di file backup agar migrasi ke server baru bisa langsung terhubung tanpa memasukkan password kembali.
+                            Jika dicentang, password VNC/SSH akan ikut disimpan di file backup agar migrasi ke server
+                            baru bisa langsung terhubung tanpa memasukkan password kembali.
                         </p>
                     </div>
 
@@ -1299,8 +1366,10 @@
                         </button>
                         <button type="submit"
                             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
                             Download Backup File
                         </button>
@@ -1315,35 +1384,44 @@
             x-on:keydown.escape.window="closeImportModal()" x-transition.opacity.duration.200ms>
             <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200"
                 x-transition.scale.origin.center.duration.200ms x-on:click.outside="closeImportModal()">
-                
-                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3.5 sm:px-6 shrink-0">
+
+                <div
+                    class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3.5 sm:px-6 shrink-0">
                     <div class="flex items-center gap-3">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c] border border-[#00828c]/20 font-bold shrink-0">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        <span
+                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c] border border-[#00828c]/20 font-bold shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
                         </span>
                         <div>
-                            <h3 class="font-bold text-base text-slate-900 leading-tight">Restore & Import List Device</h3>
+                            <h3 class="font-bold text-base text-slate-900 leading-tight">Restore & Import List Device
+                            </h3>
                             <p class="text-xs text-slate-500">Upload file backup JSON/CSV untuk import masal</p>
                         </div>
                     </div>
                     <button type="button" x-on:click="closeImportModal()"
                         class="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <form method="POST" action="{{ route('computers.import') }}" enctype="multipart/form-data" class="p-4 sm:p-6 space-y-4">
+                <form method="POST" action="{{ route('computers.import') }}" enctype="multipart/form-data"
+                    class="p-4 sm:p-6 space-y-4">
                     @csrf
 
                     <div>
-                        <label for="backup_file_input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <label for="backup_file_input"
+                            class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                             Pilih File Backup (.json / .csv) <span class="text-red-500">*</span>
                         </label>
-                        <input type="file" id="backup_file_input" name="backup_file" required accept=".json,.csv,.txt"
+                        <input type="file" id="backup_file_input" name="backup_file" required
+                            accept=".json,.csv,.txt"
                             class="w-full text-xs text-slate-700 border border-slate-300 rounded-xl cursor-pointer bg-slate-50 p-2 focus:outline-none focus:border-[#00828c]">
                         <p class="text-[11px] text-slate-500 mt-1">
                             Mendukung file JSON backup hasil export NodeHub atau file spreadsheet CSV.
@@ -1351,14 +1429,17 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Penanganan Duplikat (Berdasarkan IP Address)</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Penanganan
+                            Duplikat (Berdasarkan IP Address)</label>
                         <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <label class="flex items-start gap-2.5 cursor-pointer">
                                 <input type="radio" name="duplicate_action" value="skip" checked
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800">Lewati Duplikat (Recommended)</span>
-                                    <p class="text-[11px] text-slate-500">Jika IP Address sudah terdaftar, perangkat tersebut tidak akan diubah.</p>
+                                    <span class="text-xs font-bold text-slate-800">Lewati Duplikat
+                                        (Recommended)</span>
+                                    <p class="text-[11px] text-slate-500">Jika IP Address sudah terdaftar, perangkat
+                                        tersebut tidak akan diubah.</p>
                                 </div>
                             </label>
                             <label class="flex items-start gap-2.5 cursor-pointer">
@@ -1366,7 +1447,8 @@
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
                                     <span class="text-xs font-bold text-slate-800">Perbarui Data Perangkat Ada</span>
-                                    <p class="text-[11px] text-slate-500">Jika IP Address cocok, perbarui nama, port, lokasi, dan password dari file backup.</p>
+                                    <p class="text-[11px] text-slate-500">Jika IP Address cocok, perbarui nama, port,
+                                        lokasi, dan password dari file backup.</p>
                                 </div>
                             </label>
                             <label class="flex items-start gap-2.5 cursor-pointer">
@@ -1374,7 +1456,8 @@
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
                                     <span class="text-xs font-bold text-slate-800">Tambahkan Semua Sebagai Baru</span>
-                                    <p class="text-[11px] text-slate-500">Import semua perangkat tanpa mengecek IP duplikat.</p>
+                                    <p class="text-[11px] text-slate-500">Import semua perangkat tanpa mengecek IP
+                                        duplikat.</p>
                                 </div>
                             </label>
                         </div>
@@ -1387,8 +1470,10 @@
                         </button>
                         <button type="submit"
                             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white font-bold text-xs shadow-xs transition">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
                             Mulai Restore / Import
                         </button>
