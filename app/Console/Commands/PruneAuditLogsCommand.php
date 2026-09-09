@@ -30,11 +30,11 @@ class PruneAuditLogsCommand extends Command
             ? (int) $this->option('days')
             : (int) config('audit.retention_days', 30);
 
-        $this->info("Pembersihan audit log (Retensi: {$days} hari)...");
+        $this->info("Pruning audit logs (Retention: {$days} days)...");
 
         $count = AuditLog::pruneOldLogs($days);
 
-        $this->info("Berhasil menghapus {$count} baris audit log lama.");
+        $this->info("Successfully pruned {$count} old audit log records.");
 
         return Command::SUCCESS;
     }

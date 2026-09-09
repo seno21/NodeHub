@@ -12,7 +12,7 @@
                         {{ __('Audit Logs') }}
                     </h2>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        {{ __('Riwayat seluruh aktivitas sistem dengan retensi otomatis :days hari', ['days' => $retentionDays]) }}
+                        {{ __('System activity history with automatic :days-day retention', ['days' => $retentionDays]) }}
                     </p>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                     <svg class="h-4 w-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    <span>{{ __('Bersihkan Log > :days Hari', ['days' => $retentionDays]) }}</span>
+                    <span>{{ __('Purge Logs > :days Days', ['days' => $retentionDays]) }}</span>
                 </button>
             </div>
         </div>
@@ -63,7 +63,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Total Audit Log</p>
+                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Total Audit Logs</p>
                         <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mt-0.5">{{ number_format($totalLogsCount) }}</h3>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Log Hari Ini</p>
+                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Today's Logs</p>
                         <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mt-0.5">{{ number_format($todayLogsCount) }}</h3>
                     </div>
                 </div>
@@ -87,8 +87,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Masa Retensi</p>
-                        <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mt-0.5">{{ $retentionDays }} Hari</h3>
+                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Retention Period</p>
+                        <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mt-0.5">{{ $retentionDays }} Days</h3>
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Data Tertua</p>
+                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Oldest Record</p>
                         <h3 class="text-xs sm:text-sm font-bold text-gray-800 mt-0.5 truncate">
                             {{ $oldestLogDate instanceof \DateTimeInterface ? $oldestLogDate->format('d M Y') : ($oldestLogDate ? \Illuminate\Support\Carbon::parse($oldestLogDate)->format('d M Y') : '-') }}
                         </h3>
@@ -112,10 +112,10 @@
                 <form method="GET" action="{{ route('audit-logs.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                     <!-- Search input -->
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Cari Kata Kunci') }}</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Search Keyword') }}</label>
                         <div class="relative">
                             <input type="text" name="search" value="{{ request('search') }}"
-                                   placeholder="Cari deskripsi, event, IP, pengguna..."
+                                   placeholder="Search description, event, IP, user..."
                                    class="w-full rounded-xl border-gray-200 text-xs sm:text-sm pl-9 pr-3 py-2 focus:border-[#00828c] focus:ring-[#00828c]">
                             <svg class="h-4 w-4 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -125,9 +125,9 @@
 
                     <!-- Category filter -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Kategori Event') }}</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Event Category') }}</label>
                         <select name="category" class="w-full rounded-xl border-gray-200 text-xs sm:text-sm py-2 focus:border-[#00828c] focus:ring-[#00828c]">
-                            <option value="all">{{ __('Semua Kategori') }}</option>
+                            <option value="all">{{ __('All Categories') }}</option>
                             @foreach($categories as $key => $label)
                                 <option value="{{ $key }}" {{ request('category') === $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
@@ -136,9 +136,9 @@
 
                     <!-- User filter -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Pengguna') }}</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('User') }}</label>
                         <select name="user_id" class="w-full rounded-xl border-gray-200 text-xs sm:text-sm py-2 focus:border-[#00828c] focus:ring-[#00828c]">
-                            <option value="">{{ __('Semua Pengguna') }}</option>
+                            <option value="">{{ __('All Users') }}</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
                                     {{ $user->name }}
@@ -221,7 +221,7 @@
                         <svg class="h-10 w-10 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p class="text-xs font-medium">{{ __('Tidak ada audit log yang ditemukan.') }}</p>
+                        <p class="text-xs font-medium">{{ __('No audit logs found.') }}</p>
                     </div>
                 @endforelse
             </div>
@@ -232,12 +232,12 @@
                     <table class="w-full text-left text-sm text-gray-600">
                         <thead class="bg-gray-50 border-b border-gray-200 text-xs font-semibold uppercase tracking-wider text-gray-500">
                             <tr>
-                                <th class="px-5 py-3.5">Waktu</th>
-                                <th class="px-5 py-3.5">Pengguna</th>
+                                <th class="px-5 py-3.5">Timestamp</th>
+                                <th class="px-5 py-3.5">User</th>
                                 <th class="px-5 py-3.5">Event</th>
-                                <th class="px-5 py-3.5">Deskripsi Aktivitas</th>
+                                <th class="px-5 py-3.5">Description</th>
                                 <th class="px-5 py-3.5">IP Address</th>
-                                <th class="px-5 py-3.5 text-right">Detail</th>
+                                <th class="px-5 py-3.5 text-right">Details</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -293,7 +293,7 @@
                                         <svg class="h-10 w-10 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <p class="text-sm font-medium">{{ __('Tidak ada audit log yang ditemukan.') }}</p>
+                                        <p class="text-sm font-medium">{{ __('No audit logs found.') }}</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -330,10 +330,10 @@
                             </span>
                             <div>
                                 <h3 class="text-base font-bold text-gray-900" id="prune-modal-title">
-                                    Konfirmasi Bersihkan Log Lama
+                                    Purge Old Logs
                                 </h3>
                                 <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    Apakah Anda yakin ingin menghapus log yang berusia lebih dari <strong class="text-gray-800">{{ $retentionDays }} hari</strong>? Log dalam batas retensi akan tetap tersimpan secara aman.
+                                    Are you sure you want to delete logs older than <strong class="text-gray-800">{{ $retentionDays }} days</strong>? Logs within the retention period will remain safe.
                                 </p>
                             </div>
                         </div>
@@ -341,13 +341,13 @@
                         <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
                             <button type="button" @click="pruneModalOpen = false"
                                     class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition">
-                                Batal
+                                Cancel
                             </button>
                             <form action="{{ route('audit-logs.prune') }}" method="POST">
                                 @csrf
                                 <button type="submit"
                                         class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition shadow-xs">
-                                    Ya, Bersihkan Log
+                                    Yes, Purge Logs
                                 </button>
                             </form>
                         </div>
@@ -368,7 +368,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                 </svg>
                                 <h3 class="text-xs sm:text-sm font-bold" id="modal-title">
-                                    Detail JSON - <span x-text="selectedLog?.event"></span>
+                                    JSON Payload - <span x-text="selectedLog?.event"></span>
                                 </h3>
                             </div>
                             <button type="button" @click="modalOpen = false" class="text-slate-400 hover:text-white transition p-1">
@@ -385,7 +385,7 @@
                         <div class="bg-slate-50 px-5 py-3 border-t border-gray-200 flex justify-end">
                             <button type="button" @click="modalOpen = false"
                                     class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-semibold rounded-xl transition">
-                                Tutup
+                                Close
                             </button>
                         </div>
                     </div>

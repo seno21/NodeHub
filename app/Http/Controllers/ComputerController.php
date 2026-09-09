@@ -204,6 +204,10 @@ class ComputerController extends Controller
             }
         }
 
+        if ($request->has('enable_ssh') && !$request->boolean('enable_ssh')) {
+            $validated['ssh_password'] = null;
+        }
+
         /** @var Computer $computer */
         $computer = Computer::query()->create($validated);
 
@@ -213,7 +217,7 @@ class ComputerController extends Controller
             $computer->update(['tags' => $tagNames]);
         }
 
-        AuditLogger::log('computer.create', "Menambahkan perangkat baru: {$computer->name} ({$computer->ip_address}:{$computer->vnc_port})", [
+        AuditLogger::log('computer.create', "Added new device: {$computer->name} ({$computer->ip_address}:{$computer->vnc_port})", [
             'computer_id' => $computer->id,
             'name' => $computer->name,
             'ip_address' => $computer->ip_address,
@@ -224,7 +228,7 @@ class ComputerController extends Controller
 
         return redirect()
             ->route('computers.index')
-            ->with('status', $request->filled('duplicate_from_id') ? __('Perangkat berhasil diduplikasi.') : __('Device created successfully.'));
+            ->with('status', $request->filled('duplicate_from_id') ? __('Device duplicated successfully.') : __('Device created successfully.'));
     }
 
     /**
@@ -254,7 +258,9 @@ class ComputerController extends Controller
             $data['vnc_password'] = $request->input('vnc_password');
         }
 
-        if ($request->filled('ssh_password')) {
+        if ($request->has('enable_ssh') && !$request->boolean('enable_ssh')) {
+            $data['ssh_password'] = null;
+        } elseif ($request->filled('ssh_password')) {
             $data['ssh_password'] = $request->input('ssh_password');
         }
 
@@ -265,7 +271,7 @@ class ComputerController extends Controller
 
         $computer->update($data);
 
-        AuditLogger::log('computer.update', "Perbarui informasi perangkat: {$computer->name}", [
+        AuditLogger::log('computer.update', "Updated device: {$computer->name}", [
             'computer_id' => $computer->id,
             'name' => $computer->name,
             'ip_address' => $computer->ip_address,
@@ -289,7 +295,7 @@ class ComputerController extends Controller
 
         $computer->delete();
 
-        AuditLogger::log('computer.delete', "Menghapus perangkat: {$details['name']} ({$details['ip_address']})", $details);
+        AuditLogger::log('computer.delete', "Deleted device: {$details['name']} ({$details['ip_address']})", $details);
 
         return redirect()
             ->route('computers.index')
@@ -356,7 +362,7 @@ class ComputerController extends Controller
                 fclose($file);
             };
 
-            AuditLogger::log('computer.export', "Export list perangkat (Format: CSV, Count: {$computers->count()})", [
+            AuditLogger::log('computer.export', "Exported device list (Format: CSV, Count: {$computers->count()})", [
                 'count' => $computers->count(),
                 'format' => 'csv',
             ]);
@@ -367,7 +373,7 @@ class ComputerController extends Controller
         // Default JSON Backup Format
         $data = [
             'app' => 'NodeHub',
-            'version' => '1.0',
+            'version' => '2.0',
             'exported_at' => now()->toIso8601String(),
             'total_devices' => $computers->count(),
             'devices' => $computers->map(function ($c) use ($includePasswords) {
@@ -394,7 +400,7 @@ class ComputerController extends Controller
             })->all(),
         ];
 
-        AuditLogger::log('computer.export', "Export list perangkat (Format: JSON, Count: {$computers->count()})", [
+        AuditLogger::log('computer.export', "Exported device list (Format: JSON, Count: {$computers->count()})", [
             'count' => $computers->count(),
             'format' => 'json',
         ]);
@@ -434,12 +440,12 @@ class ComputerController extends Controller
             } elseif (array_is_list($parsed)) {
                 $devicesToImport = $parsed;
             } else {
-                return back()->withErrors(['backup_file' => 'Format struktur file JSON backup tidak sesuai.']);
+                return back()->withErrors(['backup_file' => __('Invalid JSON backup file format.')]);
             }
         } elseif (in_array($extension, ['csv', 'txt'])) {
             $handle = fopen($file->getRealPath(), 'r');
             if ($handle === false) {
-                return back()->withErrors(['backup_file' => 'Gagal membaca file CSV.']);
+                return back()->withErrors(['backup_file' => __('Failed to read CSV file.')]);
             }
 
             $bom = fread($handle, 3);
@@ -450,7 +456,7 @@ class ComputerController extends Controller
             $header = fgetcsv($handle);
             if (!$header) {
                 fclose($handle);
-                return back()->withErrors(['backup_file' => 'File CSV kosong.']);
+                return back()->withErrors(['backup_file' => __('CSV file is empty.')]);
             }
 
             $headerNormalized = array_map(fn ($h) => strtolower(trim(str_replace([' ', '_'], '', $h))), $header);
@@ -479,11 +485,11 @@ class ComputerController extends Controller
             }
             fclose($handle);
         } else {
-            return back()->withErrors(['backup_file' => 'Format file tidak didukung. Harap upload file .json atau .csv.']);
+            return back()->withErrors(['backup_file' => __('Unsupported file format. Please upload a .json or .csv file.')]);
         }
 
         if (empty($devicesToImport)) {
-            return back()->withErrors(['backup_file' => 'Tidak ada data perangkat yang valid ditemukan dalam file.']);
+            return back()->withErrors(['backup_file' => __('No valid device data found in file.')]);
         }
 
         $createdCount = 0;
@@ -562,14 +568,18 @@ class ComputerController extends Controller
             $createdCount++;
         }
 
-        AuditLogger::log('computer.import', "Import daftar perangkat dari backup ({$createdCount} dibuat, {$updatedCount} diperbarui, {$skippedCount} dilewati)", [
+        AuditLogger::log('computer.import', "Imported devices from backup ({$createdCount} created, {$updatedCount} updated, {$skippedCount} skipped)", [
             'created' => $createdCount,
             'updated' => $updatedCount,
             'skipped' => $skippedCount,
             'duplicate_action' => $duplicateAction,
         ]);
 
-        $statusMsg = "Proses Restore/Import Selesai! Berhasil ditambahkan: {$createdCount}, diperbarui: {$updatedCount}, dilewati: {$skippedCount}.";
+        $statusMsg = __("Import complete! Created: :created, Updated: :updated, Skipped: :skipped.", [
+            'created' => $createdCount,
+            'updated' => $updatedCount,
+            'skipped' => $skippedCount,
+        ]);
 
         return redirect()->route('computers.index')->with('status', $statusMsg);
     }

@@ -51,12 +51,12 @@ class LockScreenController extends Controller
         $request->validate([
             'password' => ['required', 'string'],
         ], [
-            'password.required' => __('Silakan masukkan password untuk membuka kunci sesi.'),
+            'password.required' => __('Please enter your password to unlock.'),
         ]);
 
         if (! Hash::check($request->password, $user->password)) {
             return back()->withErrors([
-                'password' => __('Password yang Anda masukkan tidak sesuai.'),
+                'password' => __('The password you entered is incorrect.'),
             ]);
         }
 

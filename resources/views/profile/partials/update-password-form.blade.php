@@ -7,10 +7,10 @@
         </div>
         <div>
             <h2 class="text-base font-bold text-slate-800">
-                {{ __('Ubah Kata Sandi') }}
+                {{ __('Change Password') }}
             </h2>
             <p class="text-xs text-slate-500">
-                {{ __('Gunakan kata sandi yang panjang dan acak untuk menjaga keamanan akun.') }}
+                {{ __('Ensure your account is using a long, random password for security.') }}
             </p>
         </div>
     </div>
@@ -20,20 +20,20 @@
         @method('put')
 
         <div>
-            <x-input-label for="update_password_current_password" :value="__('Kata Sandi Saat Ini')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <x-input-label for="update_password_current_password" :value="__('Current Password')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
             <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm" autocomplete="current-password" placeholder="••••••••" />
             <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2 text-xs text-rose-500" />
         </div>
 
         <div>
-            <x-input-label for="update_password_password" :value="__('Kata Sandi Baru')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm" autocomplete="new-password" placeholder="Minimal 8 karakter" />
+            <x-input-label for="update_password_password" :value="__('New Password')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm" autocomplete="new-password" placeholder="Min 8 characters" />
             <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2 text-xs text-rose-500" />
         </div>
 
         <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Konfirmasi Kata Sandi Baru')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm" autocomplete="new-password" placeholder="Ulangi kata sandi baru" />
+            <x-input-label for="update_password_password_confirmation" :value="__('Confirm New Password')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm" autocomplete="new-password" placeholder="Repeat new password" />
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2 text-xs text-rose-500" />
         </div>
 
@@ -43,7 +43,7 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                 </svg>
-                {{ __('Perbarui Password') }}
+                {{ __('Update Password') }}
             </button>
 
             @if (session('status') === 'password-updated')
@@ -57,7 +57,7 @@
                     <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {{ __('Password berhasil diperbarui.') }}
+                    {{ __('Password updated successfully.') }}
                 </div>
             @endif
         </div>

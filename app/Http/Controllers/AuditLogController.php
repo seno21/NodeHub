@@ -51,12 +51,12 @@ class AuditLogController extends Controller
         $users = User::orderBy('name')->get(['id', 'name', 'email']);
 
         $categories = [
-            'auth' => 'Autentikasi (Login/Logout)',
-            'computer' => 'Perangkat / Device',
-            'action' => 'Aksi Remote',
-            'vnc' => 'Sesi VNC Connect',
-            'tag' => 'Manajemen Tag',
-            'profile' => 'Profil Pengguna',
+            'auth' => 'Authentication',
+            'computer' => 'Devices',
+            'action' => 'Remote Actions',
+            'vnc' => 'VNC Sessions',
+            'tag' => 'Tag Management',
+            'profile' => 'User Profile',
         ];
 
         return view('audit-logs.index', [
@@ -80,7 +80,7 @@ class AuditLogController extends Controller
         $prunedCount = AuditLog::pruneOldLogs($retentionDays);
 
         return redirect()->route('audit-logs.index')
-            ->with('status', __("Audit log (:count baris) yang berusia lebih dari :days hari berhasil dibersihkan!", [
+            ->with('status', __("Audit logs older than :days days (:count records) were cleaned up successfully!", [
                 'count' => $prunedCount,
                 'days' => $retentionDays,
             ]));

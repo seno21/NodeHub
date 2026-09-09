@@ -35,11 +35,11 @@ class VncSessionController extends Controller
         if (!is_resource($vncSocket)) {
             $errLower = strtolower($vncErrstr ?: '');
             if ($vncErrno === 111 || str_contains($errLower, 'refused')) {
-                $unreachableMessage = "PORT VNC TERTUTUP: Service VNC pada \"{$computer->name}\" ({$computer->ip_address}:{$computer->vnc_port}) tertutup / ditolak (Connection Refused). Pastikan server VNC aktif di target.";
+                $unreachableMessage = "VNC PORT CLOSED: VNC service on \"{$computer->name}\" ({$computer->ip_address}:{$computer->vnc_port}) is refused. Ensure VNC server is running on target.";
             } elseif ($vncErrno === 110 || str_contains($errLower, 'timed out')) {
-                $unreachableMessage = "KONEKSI TIMEOUT: \"{$computer->name}\" ({$computer->ip_address}:{$computer->vnc_port}) tidak merespons. Periksa jaringan / IP address target.";
+                $unreachableMessage = "CONNECTION TIMEOUT: \"{$computer->name}\" ({$computer->ip_address}:{$computer->vnc_port}) did not respond. Check network or IP address.";
             } else {
-                $unreachableMessage = "\"{$computer->name}\" tidak dapat dijangkau pada {$computer->ip_address}:{$computer->vnc_port} — " . ($vncErrstr ?: 'Remote session gagal dibuka.');
+                $unreachableMessage = "\"{$computer->name}\" is unreachable on {$computer->ip_address}:{$computer->vnc_port} — " . ($vncErrstr ?: 'Failed to open remote session.');
             }
 
             if ($request->expectsJson()) {
@@ -53,7 +53,7 @@ class VncSessionController extends Controller
 
         $token = $this->sessions->createSession($computer);
 
-        AuditLogger::log('vnc.connect', "Membuka koneksi VNC Remote Desktop ke {$computer->name} ({$computer->ip_address}:{$computer->vnc_port})", [
+        AuditLogger::log('vnc.connect', "Opened VNC Remote Desktop session to {$computer->name} ({$computer->ip_address}:{$computer->vnc_port})", [
             'computer_id' => $computer->id,
             'computer_name' => $computer->name,
             'ip_address' => $computer->ip_address,
@@ -92,7 +92,7 @@ class VncSessionController extends Controller
         $deviceName = !empty($validated['device_name']) ? trim($validated['device_name']) : "Fast Connect ({$ipAddress})";
 
         if ($saveDevice && Computer::query()->where('ip_address', $ipAddress)->exists()) {
-            $errorMessage = __('IP Address sudah terdaftar di daftar Perangkat. Hapus centang "Simpan ke daftar Perangkat" jika hanya ingin Fast Connect.');
+            $errorMessage = __('IP Address is already registered. Uncheck "Save to Device List" for Fast Connect only.');
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $errorMessage,
@@ -121,11 +121,11 @@ class VncSessionController extends Controller
         if (! is_resource($vncSocket)) {
             $errLower = strtolower($vncErrstr ?: '');
             if ($vncErrno === 111 || str_contains($errLower, 'refused')) {
-                $unreachableMessage = "PORT VNC TERTUTUP: Service VNC pada \"{$ipAddress}:{$vncPort}\" tertutup / ditolak (Connection Refused). Pastikan server VNC aktif di target.";
+                $unreachableMessage = "VNC PORT CLOSED: VNC service on \"{$ipAddress}:{$vncPort}\" is refused. Ensure VNC server is running on target.";
             } elseif ($vncErrno === 110 || str_contains($errLower, 'timed out')) {
-                $unreachableMessage = "KONEKSI TIMEOUT: \"{$ipAddress}:{$vncPort}\" tidak merespons. Periksa jaringan / IP address target.";
+                $unreachableMessage = "CONNECTION TIMEOUT: \"{$ipAddress}:{$vncPort}\" did not respond. Check network or IP address.";
             } else {
-                $unreachableMessage = "\"{$ipAddress}\" tidak dapat dijangkau pada port {$vncPort} — " . ($vncErrstr ?: 'Remote session gagal dibuka.');
+                $unreachableMessage = "\"{$ipAddress}\" is unreachable on port {$vncPort} — " . ($vncErrstr ?: 'Failed to open remote session.');
             }
 
             if ($request->expectsJson()) {
@@ -145,13 +145,13 @@ class VncSessionController extends Controller
                 'vnc_password' => $vncPassword,
                 'os_type' => $osType,
                 'location' => 'Fast Connect',
-                'description' => 'Ditambahkan otomatis via Fast Connect',
+                'description' => 'Auto-added via Fast Connect',
             ]);
         }
 
         $token = $this->sessions->createDirectSession($ipAddress, $vncPort, $vncPassword, $deviceName, $osType);
 
-        AuditLogger::log('vnc.fast_connect', "Membuka koneksi Fast Connect VNC ke {$ipAddress}:{$vncPort}", [
+        AuditLogger::log('vnc.fast_connect', "Opened Fast Connect VNC session to {$ipAddress}:{$vncPort}", [
             'ip_address' => $ipAddress,
             'vnc_port' => $vncPort,
             'os_type' => $osType,

@@ -48,12 +48,12 @@
 
             <!-- Left Section: Back Button & Device Status -->
             <div class="flex items-center gap-2 sm:gap-3">
-                <a href="{{ route('computers.index') }}" id="btn-back" title="{{ __('Kembali ke Daftar Devices') }}"
+                <a href="{{ route('computers.index') }}" id="btn-back" title="{{ __('Back to Device List') }}"
                     class="toolbar-btn flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition text-gray-200 hover:text-white">
                     <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>
-                    <span class="hidden sm:inline">{{ __('Kembali') }}</span>
+                    <span class="hidden sm:inline">{{ __('Back') }}</span>
                 </a>
 
                 <span class="h-4 w-px bg-white/15"></span>
@@ -128,7 +128,7 @@
 
                 {{-- Clipboard / Send Text --}}
                 <div class="relative">
-                    <button type="button" id="btn-clipboard" title="{{ __('Kirim Clipboard / Teks ke Remote') }}" class="toolbar-btn">
+                    <button type="button" id="btn-clipboard" title="{{ __('Send Clipboard / Text to Remote') }}" class="toolbar-btn">
                         <svg class="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
                         </svg>
@@ -137,20 +137,20 @@
                     <div id="clipboard-panel"
                         class="hidden absolute right-0 top-10 z-50 w-64 sm:w-72 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
                         <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                            {{ __('Kirim Teks / Clipboard ke Remote') }}
+                            {{ __('Send Text / Clipboard to Remote') }}
                         </p>
                         <textarea id="clipboard-text-input" rows="3"
                             class="w-full rounded-lg border border-white/10 bg-zinc-800 p-2 text-xs text-gray-100 placeholder-gray-500 focus:border-[#00828c] focus:outline-none focus:ring-1 focus:ring-[#00828c]"
-                            placeholder="{{ __('Tempel / ketik teks dari komputer Anda di sini...') }}"></textarea>
+                            placeholder="{{ __('Paste or type text from your computer here...') }}"></textarea>
                         <div class="mt-2 flex gap-1.5">
                             <button type="button" id="btn-send-clipboard"
                                 class="flex-1 rounded-lg bg-[#00828c] py-1.5 text-xs font-bold text-white hover:bg-[#006e76] transition">
-                                {{ __('Kirim ke Clipboard VNC') }}
+                                {{ __('Send to VNC Clipboard') }}
                             </button>
                             <button type="button" id="btn-type-clipboard"
                                 class="rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-gray-300 hover:bg-white/20 transition"
-                                title="{{ __('Ketik karakter demi karakter langsung ke layar remote') }}">
-                                {{ __('Ketik Teks') }}
+                                title="{{ __('Type characters directly to remote screen') }}">
+                                {{ __('Type Text') }}
                             </button>
                         </div>
                     </div>
@@ -223,7 +223,7 @@
                 </div>
 
                 {{-- Toggle Bar Collapse --}}
-                <button type="button" id="btn-toggle-bar" title="{{ __('Sembunyikan Bar Kontrol') }}" class="toolbar-btn">
+                <button type="button" id="btn-toggle-bar" title="{{ __('Hide Control Bar') }}" class="toolbar-btn">
                     <svg class="h-4 w-4 text-slate-400 hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
                     </svg>
@@ -232,7 +232,7 @@
         </header>
 
         <!-- Floating Restore Top Bar Button (Shown when bar is collapsed) -->
-        <button type="button" id="floating-show-bar" title="{{ __('Tampilkan Bar Kontrol') }}"
+        <button type="button" id="floating-show-bar" title="{{ __('Show Control Bar') }}"
             class="hidden fixed top-2 right-3 z-50 p-1.5 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-gray-300 hover:text-white backdrop-blur-md border border-white/10 shadow-lg transition">
             <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -262,33 +262,33 @@
         <!-- Floating Mobile Dock Bar (Mobile Only - Icon Only Layout) -->
         <div id="mobile-dock" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden lg:hidden items-center gap-2 rounded-2xl border border-white/20 bg-zinc-900/90 px-3 py-2 backdrop-blur-md shadow-2xl transition-all duration-200">
             <!-- Left Click -->
-            <button type="button" id="mb-left-click" title="Klik Kiri" class="flex items-center justify-center p-2 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white active:scale-95 transition shadow-lg shadow-[#00828c]/30">
+            <button type="button" id="mb-left-click" title="Left Click" class="flex items-center justify-center p-2 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white active:scale-95 transition shadow-lg shadow-[#00828c]/30">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286.678z" />
                 </svg>
             </button>
 
             <!-- Double Click -->
-            <button type="button" id="mb-double-click" title="Klik 2x (Buka File/Folder)" class="flex items-center justify-center px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-400 font-black text-xs active:scale-95 transition border border-white/10">
+            <button type="button" id="mb-double-click" title="Double Click" class="flex items-center justify-center px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-400 font-black text-xs active:scale-95 transition border border-white/10">
                 2x
             </button>
 
             <!-- Right Click -->
-            <button type="button" id="mb-right-click" title="Klik Kanan" class="flex items-center justify-center p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 active:scale-95 transition">
+            <button type="button" id="mb-right-click" title="Right Click" class="flex items-center justify-center p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 active:scale-95 transition">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 00-6 6v3" />
                 </svg>
             </button>
 
             <!-- Zoom Toggle Button -->
-            <button type="button" id="mb-zoom" title="Perbesar Layar / Zoom (1x / 1.5x / 2x)" class="flex items-center justify-center p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 border border-sky-500/40 active:scale-95 transition">
+            <button type="button" id="mb-zoom" title="Zoom Screen (1x / 1.5x / 2x)" class="flex items-center justify-center p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 border border-sky-500/40 active:scale-95 transition">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
                 </svg>
             </button>
 
             <!-- Keyboard Toggle & Exit Button -->
-            <button type="button" id="mb-keyboard" title="Buka / Tutup Keyboard Android" class="flex items-center justify-center p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 active:scale-95 transition">
+            <button type="button" id="mb-keyboard" title="Toggle Android Keyboard" class="flex items-center justify-center p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 active:scale-95 transition">
                 <svg id="mb-keyboard-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
@@ -360,7 +360,7 @@
                         <svg class="h-4 w-4 text-[#00828c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>
-                        {{ __('Kembali ke Daftar Devices') }}
+                        {{ __('Back to Device List') }}
                     </a>
                 </div>
             </form>
@@ -384,7 +384,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>
-                    <span id="disc-btn-text">{{ __('Kembali ke Daftar Devices') }}</span>
+                    <span id="disc-btn-text">{{ __('Back to Device List') }}</span>
                 </a>
             </div>
         </div>

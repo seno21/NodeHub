@@ -11,7 +11,7 @@
         <!-- Username / Email Address -->
         <div>
             <label for="login" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                {{ __('Username atau Email') }}
+                {{ __('Username or Email') }}
             </label>
             <div class="relative rounded-2xl">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
@@ -21,7 +21,7 @@
                     </svg>
                 </div>
                 <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus
-                    autocomplete="username" placeholder="Username atau email"
+                    autocomplete="username" placeholder="Username or email"
                     class="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 focus:border-[#00828c] focus:ring-2 focus:ring-[#00828c]/20 rounded-2xl text-sm text-slate-100 placeholder-slate-500 transition duration-200" />
             </div>
             <x-input-error :messages="$errors->get('login')" class="mt-2 text-xs text-rose-400" />
@@ -70,7 +70,7 @@
                 <input id="remember_me" type="checkbox" name="remember"
                     class="rounded-lg bg-slate-950 border-slate-800 text-[#00828c] focus:ring-[#00828c] focus:ring-offset-slate-900 transition">
                 <span
-                    class="ms-2.5 text-xs text-slate-400 group-hover:text-slate-300 transition">{{ __('Ingat saya di perangkat ini') }}</span>
+                    class="ms-2.5 text-xs text-slate-400 group-hover:text-slate-300 transition">{{ __('Remember me') }}</span>
             </label>
         </div>
 
@@ -78,7 +78,7 @@
         <div class="pt-2">
             <button type="submit"
                 class="w-full py-3.5 px-4 bg-gradient-to-r from-[#00828c] via-[#006e76] to-[#00585f] hover:from-[#00939e] hover:to-[#006e76] text-white font-bold text-sm rounded-2xl shadow-lg shadow-[#00828c]/30 hover:shadow-[#00828c]/40 active:scale-[0.99] transition duration-200 flex items-center justify-center gap-2 group">
-                <span>{{ __('Login Web UI') }}</span>
+                <span>{{ __('Sign In') }}</span>
                 <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

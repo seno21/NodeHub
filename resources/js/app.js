@@ -175,6 +175,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         ssh_user: 'xubuntu',
         description: '',
         tag_ids: [],
+        enable_ssh: false,
         copy_vnc_password: true,
         copy_ssh_password: true,
     },
@@ -185,6 +186,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         if (comp.tags_relation && Array.isArray(comp.tags_relation)) {
             tagIds = comp.tags_relation.map(t => t.id);
         }
+        const hasSsh = Boolean(comp.has_ssh);
         this.duplicateForm = {
             duplicate_from_id: comp.id,
             name: comp.name ? `${comp.name} (Copy)` : '',
@@ -196,8 +198,9 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
             ssh_user: comp.ssh_user || 'xubuntu',
             description: comp.description || '',
             tag_ids: tagIds,
+            enable_ssh: hasSsh,
             copy_vnc_password: true,
-            copy_ssh_password: true,
+            copy_ssh_password: hasSsh,
         };
         this.duplicateModalOpen = true;
     },

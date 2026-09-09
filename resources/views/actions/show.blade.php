@@ -9,10 +9,10 @@
                 </a>
                 <div>
                     <h2 class="font-bold text-xl text-gray-900 leading-tight">
-                        {{ __('Detail & Crosscheck Action') }}
+                        {{ __('Action Details') }}
                     </h2>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        {{ __('Preview rincian perintah SSH dan perangkat target sebelum eksekusi') }}
+                        {{ __('Preview SSH command and target devices before execution') }}
                     </p>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                     </svg>
-                    {{ __('Edit Action') }}
+                    {{ __('Edit') }}
                 </a>
 
                 <button type="button" x-on:click="showDeleteModal = true"
@@ -31,7 +31,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
-                    {{ __('Hapus') }}
+                    {{ __('Delete') }}
                 </button>
 
                 {{-- Modern Delete Confirmation Modal --}}
@@ -45,9 +45,9 @@
                             </svg>
                         </div>
 
-                        <h3 class="font-bold text-base text-gray-900 leading-snug">Hapus Action ini?</h3>
+                        <h3 class="font-bold text-base text-gray-900 leading-snug">Delete Action?</h3>
                         <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
-                            Tindakan ini tidak dapat dibatalkan. Konfigurasi aksi <strong class="text-gray-800">"{{ $action->name }}"</strong> akan dihapus secara permanen.
+                            This action cannot be undone. <strong class="text-gray-800">"{{ $action->name }}"</strong> will be permanently deleted.
                         </p>
 
                         <form method="POST" action="{{ route('actions.destroy', $action) }}" class="mt-6 flex items-center justify-center gap-2.5">
@@ -55,11 +55,11 @@
                             @method('delete')
                             <button type="button" x-on:click="showDeleteModal = false"
                                 class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
-                                Batal
+                                Cancel
                             </button>
                             <button type="submit"
                                 class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-md shadow-rose-500/20">
-                                Ya, Hapus
+                                Delete
                             </button>
                         </form>
                     </div>
@@ -89,7 +89,7 @@
                     </span>
                     <div class="flex-1">
                         <h3 class="text-xl font-bold text-gray-900 leading-snug">{{ $action->name }}</h3>
-                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">{{ $action->description ?: 'Tidak ada deskripsi singkat' }}</p>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">{{ $action->description ?: 'No description provided' }}</p>
                     </div>
                 </div>
 
@@ -97,7 +97,7 @@
                     {{-- SSH Command Box with crisp light text --}}
                     <div>
                         <span class="font-bold text-gray-500 uppercase tracking-wider text-[11px] block mb-2">
-                            Perintah Exec SSH:
+                            SSH Command:
                         </span>
                         <div class="bg-[#0d1117] border border-slate-800 p-4 rounded-2xl font-mono text-xs overflow-x-auto flex items-center gap-3 shadow-inner">
                             <span class="text-emerald-500 font-bold select-none">$</span>
@@ -108,16 +108,16 @@
                     {{-- Target Computers List Table --}}
                     <div>
                         <span class="font-bold text-gray-500 uppercase tracking-wider text-[11px] block mb-2">
-                            Daftar Perangkat Target ({{ $action->computers->count() }} Perangkat):
+                            Target Devices ({{ $action->computers->count() }}):
                         </span>
 
                         <div class="bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-2xs">
                             <table class="min-w-full divide-y divide-gray-200 text-xs">
                                 <thead>
                                     <tr class="bg-slate-50 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                                        <th scope="col" class="px-5 py-3">Nama Perangkat</th>
-                                        <th scope="col" class="px-5 py-3">Kredensial SSH</th>
-                                        <th scope="col" class="px-5 py-3">Tag Perangkat</th>
+                                        <th scope="col" class="px-5 py-3">Device Name</th>
+                                        <th scope="col" class="px-5 py-3">SSH Credentials</th>
+                                        <th scope="col" class="px-5 py-3">Tags</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -163,7 +163,7 @@
                         <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" x-show="executing" style="display: none;">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
-                        <span>Jalankan Action Sekarang (Exec)</span>
+                        <span>Execute Action</span>
                     </button>
                 </div>
             </div>
@@ -176,7 +176,7 @@
                         <span class="h-3 w-3 rounded-full bg-yellow-500"></span>
                         <span class="h-3 w-3 rounded-full bg-green-500"></span>
                         <span class="ml-2 font-mono text-xs text-gray-400 font-semibold">
-                            Realtime Terminal Execution Log
+                            Real-time Execution Log
                         </span>
                     </div>
 
@@ -197,7 +197,7 @@
                         </button>
                         <button type="button" x-on:click="logs = []" x-show="logs.length > 0" x-cloak
                             class="text-xs text-gray-400 hover:text-rose-400 font-mono transition px-2.5 py-1">
-                            Clear Logs
+                            Clear Log
                         </button>
                     </div>
                 </div>
@@ -210,7 +210,7 @@
                         </div>
                     </template>
                     <p x-show="logs.length === 0" class="text-gray-600 italic py-6 text-center">
-                        Klik tombol "Jalankan Action Sekarang (Exec)" di atas untuk melihat log eksekusi realtime.
+                        Click "Execute Action" above to view real-time log.
                     </p>
                 </div>
             </div>
@@ -253,7 +253,7 @@
                     let md = `# Remote Action Execution Log: ${this.action.name}\n\n`;
                     md += `- **Action Name:** ${this.action.name}\n`;
                     md += `- **Command:** \`${this.action.command}\`\n`;
-                    md += `- **Waktu Export:** ${timeNow}\n`;
+                    md += `- **Export Time:** ${timeNow}\n`;
                     md += `- **Total Log Entries:** ${this.logs.length}\n\n`;
                     md += `## Terminal Output Log\n\n\`\`\`text\n`;
                     md += this.logs.map(l => `[${l.time}] ${l.text}`).join('\n');
@@ -268,8 +268,8 @@
 
                 async executeRemoteAction() {
                     this.executing = true;
-                    this.addLog(`=== MEMULAI EKSEKUSI ACTION: "${this.action.name}" ===`, 'text-cyan-400 font-bold');
-                    this.addLog(`[STEP 1/2] Membaca & Mengecek Koneksi SSH ke ${this.action.computer_ids.length} perangkat target...`, 'text-blue-400 font-bold');
+                    this.addLog(`=== STARTING ACTION: "${this.action.name}" ===`, 'text-cyan-400 font-bold');
+                    this.addLog(`[STEP 1/2] Checking SSH connection to ${this.action.computer_ids.length} target devices...`, 'text-blue-400 font-bold');
 
                     try {
                         const response = await fetch(`/actions/${this.action.id}/execute`, {
@@ -291,26 +291,26 @@
                                 // Step 1: Pre-flight SSH Connection Check
                                 if (res.ssh_check) {
                                     if (res.ssh_check.success) {
-                                        this.addLog(`[SSH CHECK SUKSES] ${res.computer_name}: ${res.ssh_check.message}`, 'text-emerald-400 font-medium');
+                                        this.addLog(`[SSH CHECK OK] ${res.computer_name}: ${res.ssh_check.message}`, 'text-emerald-400 font-medium');
                                     } else {
-                                        this.addLog(`[SSH CHECK GAGAL] ${res.computer_name}: ${res.ssh_check.message}`, 'text-rose-400 font-bold');
+                                        this.addLog(`[SSH CHECK FAILED] ${res.computer_name}: ${res.ssh_check.message}`, 'text-rose-400 font-bold');
                                     }
                                 }
 
                                 // Step 2: Custom Script Execution (only runs if SSH check passed)
                                 if (res.execution) {
                                     if (res.execution.success) {
-                                        this.addLog(`[SCRIPT EXEC SUKSES] ${res.computer_name}: ${res.execution.message} -> ${res.execution.output}`, 'text-emerald-400 font-bold');
+                                        this.addLog(`[SCRIPT EXEC OK] ${res.computer_name}: ${res.execution.message} -> ${res.execution.output}`, 'text-emerald-400 font-bold');
                                     } else {
-                                        this.addLog(`[SCRIPT EXEC GAGAL] ${res.computer_name}: ${res.execution.message}`, 'text-rose-400 font-bold');
+                                        this.addLog(`[SCRIPT EXEC FAILED] ${res.computer_name}: ${res.execution.message}`, 'text-rose-400 font-bold');
                                     }
                                 }
                             });
 
-                            this.addLog(`Hasil Eksekusi: ${data.success_count} SUKSES, ${data.fail_count} GAGAL (Total ${data.total} Perangkat).`, 'text-amber-400 font-bold');
+                            this.addLog(`Result: ${data.success_count} SUCCESS, ${data.fail_count} FAILED (Total ${data.total} Devices).`, 'text-amber-400 font-bold');
                         }
                     } catch (e) {
-                        this.addLog(`Error eksekusi: ${e.message}`, 'text-rose-500 font-bold');
+                        this.addLog(`Execution error: ${e.message}`, 'text-rose-500 font-bold');
                     } finally {
                         this.executing = false;
                     }

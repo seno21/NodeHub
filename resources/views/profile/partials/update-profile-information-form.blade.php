@@ -7,10 +7,10 @@
         </div>
         <div>
             <h2 class="text-base font-bold text-slate-800">
-                {{ __('Informasi Profil') }}
+                {{ __('Profile Information') }}
             </h2>
             <p class="text-xs text-slate-500">
-                {{ __('Perbarui data diri dan alamat email utama akun Anda.') }}
+                {{ __('Update your profile information and email address.') }}
             </p>
         </div>
     </div>
@@ -24,7 +24,7 @@
         @method('patch')
 
         <div>
-            <x-input-label for="name" :value="__('Nama Lengkap')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <x-input-label for="name" :value="__('Full Name')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2 text-xs text-rose-500" :messages="$errors->get('name')" />
         </div>
@@ -36,22 +36,22 @@
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Alamat Email')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <x-input-label for="email" :value="__('Email Address')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2 text-xs text-rose-500" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
                     <p class="font-medium">
-                        {{ __('Alamat email Anda belum diverifikasi.') }}
+                        {{ __('Your email address is unverified.') }}
                         <button form="send-verification" class="underline font-semibold hover:text-amber-900 focus:outline-none ml-1">
-                            {{ __('Kirim ulang email verifikasi.') }}
+                            {{ __('Resend verification email.') }}
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
                         <p class="mt-1.5 font-semibold text-emerald-700">
-                            {{ __('Link verifikasi baru telah dikirimkan ke email Anda.') }}
+                            {{ __('A new verification link has been sent to your email.') }}
                         </p>
                     @endif
                 </div>
@@ -59,17 +59,17 @@
         </div>
 
         <div>
-            <x-input-label for="auto_lock_timeout" :value="__('Durasi Auto-Lock Sesi (Inaktivitas)')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
+            <x-input-label for="auto_lock_timeout" :value="__('Auto-Lock Inactivity Timeout')" class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
             <select id="auto_lock_timeout" name="auto_lock_timeout" class="mt-1 block w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
-                <option value="5" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 5)>5 {{ __('Menit') }}</option>
-                <option value="10" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 10)>10 {{ __('Menit') }}</option>
-                <option value="15" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 15)>15 {{ __('Menit') }}</option>
-                <option value="20" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 20)>20 {{ __('Menit (Default)') }}</option>
-                <option value="30" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 30)>30 {{ __('Menit') }}</option>
-                <option value="60" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 60)>60 {{ __('Menit (1 Jam)') }}</option>
+                <option value="5" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 5)>5 {{ __('Minutes') }}</option>
+                <option value="10" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 10)>10 {{ __('Minutes') }}</option>
+                <option value="15" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 15)>15 {{ __('Minutes') }}</option>
+                <option value="20" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 20)>20 {{ __('Minutes (Default)') }}</option>
+                <option value="30" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 30)>30 {{ __('Minutes') }}</option>
+                <option value="60" @selected(old('auto_lock_timeout', $user->auto_lock_timeout ?? 20) == 60)>60 {{ __('Minutes (1 Hour)') }}</option>
             </select>
             <p class="mt-1 text-[11px] text-slate-500">
-                {{ __('Sesi aplikasi akan otomatis dikunci jika tidak ada aktivitas pengguna sesuai durasi yang dipilih.') }}
+                {{ __('App session will auto-lock after specified inactivity duration.') }}
             </p>
             <x-input-error class="mt-2 text-xs text-rose-500" :messages="$errors->get('auto_lock_timeout')" />
         </div>
@@ -80,7 +80,7 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
-                {{ __('Simpan Perubahan') }}
+                {{ __('Save Changes') }}
             </button>
 
             @if (session('status') === 'profile-updated')
@@ -94,7 +94,7 @@
                     <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {{ __('Profil berhasil diperbarui.') }}
+                    {{ __('Profile updated successfully.') }}
                 </div>
             @endif
         </div>

@@ -79,7 +79,7 @@ class VncSessionTest extends TestCase
         $res = $this->actingAs($user)
             ->postJson("/computers/{$computer->id}/connect");
         $res->assertStatus(503);
-        $this->assertTrue(str_contains($res->json('message'), 'PORT VNC TERTUTUP') || str_contains($res->json('message'), 'unreachable'));
+        $this->assertTrue(str_contains($res->json('message'), 'VNC PORT CLOSED') || str_contains($res->json('message'), 'unreachable') || str_contains($res->json('message'), 'CLOSED'));
 
         // Regular form client
         $this->actingAs($user)

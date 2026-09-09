@@ -3,9 +3,9 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="font-extrabold text-2xl text-slate-900 tracking-tight">
-                    {{ __('Pengaturan Akun & Profil') }}
+                    {{ __('Account & Profile Settings') }}
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">{{ __('Kelola informasi identitas, keamanan kata sandi, dan preferensi akun Anda') }}</p>
+                <p class="text-xs text-slate-500 mt-1">{{ __('Manage your account information, password security, and preferences') }}</p>
             </div>
         </div>
     </x-slot>
@@ -27,7 +27,7 @@
                                 {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                             </div>
                         </div>
-                        <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-slate-900 rounded-full" title="{{ __('Sesi Aktif') }}"></span>
+                        <span class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-slate-900 rounded-full" title="{{ __('Active Session') }}"></span>
                     </div>
 
                     {{-- User Info --}}
@@ -54,13 +54,13 @@
                                 <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                 </svg>
-                                Terdaftar: {{ Auth::user()->created_at?->format('d M Y') ?? 'N/A' }}
+                                Joined: {{ Auth::user()->created_at?->format('d M Y') ?? 'N/A' }}
                             </span>
                             <span class="inline-flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Inaktivitas 20m Auto-Lock
+                                20m Auto-Lock Inactivity
                             </span>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                                 <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                                 </svg>
-                                <span>{{ __('Kunci Sesi') }}</span>
+                                <span>{{ __('Lock Session') }}</span>
                             </button>
                         </form>
                     </div>

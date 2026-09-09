@@ -38,7 +38,7 @@
                 </span>
                 <span
                     class="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-amber-950 border-2 border-[#002f33] shadow-md"
-                    title="Sesi Terkunci">
+                    title="Session Locked">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
@@ -56,7 +56,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span>{{ __('Sesi Terkunci (Inaktivitas ') . (Auth::user()->auto_lock_timeout ?? 20) . __(' Menit)') }}</span>
+                    <span>{{ __('Session Locked (' . (Auth::user()->auto_lock_timeout ?? 20) . 'm inactivity)') }}</span>
                 </div>
             </div>
 
@@ -68,7 +68,7 @@
                     <label for="password" class="sr-only">{{ __('Password') }}</label>
                     <div class="relative">
                         <input id="password" name="password" :type="showPassword ? 'text' : 'password'" required
-                            autofocus placeholder="{{ __('Masukkan Password Anda...') }}"
+                            autofocus placeholder="{{ __('Enter your password...') }}"
                             class="w-full px-4 py-3 bg-black/20 border border-white/20 rounded-2xl text-sm text-white placeholder-slate-400 focus:bg-black/30 focus:border-[#00828c] focus:outline-none focus:ring-2 focus:ring-[#00828c]/50 transition pr-10">
 
                         <button type="button" x-on:click="showPassword = !showPassword"
@@ -113,7 +113,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                     </svg>
-                    <span>{{ __('Buka Kunci Sesi') }}</span>
+                    <span>{{ __('Unlock Session') }}</span>
                 </button>
             </form>
 
@@ -123,7 +123,7 @@
                     @csrf
                     <button type="submit"
                         class="text-xs text-teal-200/70 hover:text-white font-medium transition underline-offset-4 hover:underline">
-                        {{ __('Bukan Anda? Log Out dan Ganti Akun') }}
+                        {{ __('Not you? Log out & switch account') }}
                     </button>
                 </form>
             </div>

@@ -10,10 +10,10 @@
             </span>
             @if (request('search') || request('tag') || request('os'))
                 <h3 class="mt-4 text-base font-semibold text-gray-900">
-                    {{ __('Tidak ada perangkat yang ditemukan') }}
+                    {{ __('No devices found') }}
                 </h3>
                 <p class="mt-1 text-sm text-gray-500">
-                    {{ __('Coba gunakan kata kunci lain atau hapus filter pencarian.') }}
+                    {{ __('Try different search keywords or clear search filters.') }}
                 </p>
             @else
                 <h3 class="mt-4 text-base font-semibold text-gray-900">
@@ -155,27 +155,16 @@
         <table class="min-w-full divide-y divide-gray-200 text-sm">
             <thead>
                 <tr class="bg-gray-50/80 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500">
-                    <th scope="col" class="px-5 py-3">{{ __('Status') }}</th>
                     <th scope="col" class="px-5 py-3">{{ __('Device') }}</th>
                     <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Location') }}</th>
                     <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Address') }}</th>
-                    <th scope="col" class="px-5 py-3 hidden lg:table-cell">{{ __('OS') }}</th>
+                    <th scope="col" class="px-3 py-3 w-px whitespace-nowrap hidden lg:table-cell">{{ __('OS') }}</th>
                     <th scope="col" class="px-5 py-3 text-right">{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @foreach ($computers as $computer)
                     <tr class="group transition hover:bg-blue-50/40">
-                        {{-- Status --}}
-                        <td class="px-5 py-3.5 whitespace-nowrap">
-                            <span class="inline-flex items-center gap-2">
-                                <span class="h-2.5 w-2.5 rounded-full transition-colors duration-300"
-                                      x-bind:class="statusClass({{ $computer->id }})"></span>
-                                <span class="text-xs font-medium text-gray-500 min-w-[52px]"
-                                      x-text="statusLabel({{ $computer->id }})"></span>
-                            </span>
-                        </td>
-
                         {{-- Name --}}
                         <td class="px-5 py-3.5">
                             <p class="font-semibold text-gray-900 leading-snug">{{ $computer->name }}</p>
@@ -232,9 +221,9 @@
                         </td>
 
                         {{-- OS --}}
-                        <td class="px-5 py-3.5 whitespace-nowrap hidden lg:table-cell">
-                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide {{ $computer->os_type === 'windows' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700' }}">
-                                <svg class="h-3 w-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <td class="px-3 py-3.5 w-px whitespace-nowrap hidden lg:table-cell">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     @if ($computer->os_type === 'windows')
                                         <path fill="#0078D4" d="M3 5.55 10.6 4.5v7.05H3V5.55Zm8.75-1.19L21 3v8.55h-9.25V4.36ZM3 12.45h7.6v7.05L3 18.45v-6Zm8.75 0H21V21l-9.25-1.31v-7.24Z"/>
                                     @else
@@ -250,7 +239,11 @@
 
                         {{-- Actions --}}
                         <td class="px-5 py-3.5 whitespace-nowrap text-right">
-                            <div class="flex items-center justify-end gap-1">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <!-- Status Dot Only -->
+                                <span class="h-2.5 w-2.5 rounded-full shrink-0 transition-colors duration-300 me-1"
+                                      x-bind:class="statusClass({{ $computer->id }})"
+                                      x-bind:title="statusLabel({{ $computer->id }})"></span>
                                 <form method="POST" action="{{ route('computers.connect', $computer) }}"
                                       data-name="{{ $computer->name }}"
                                       x-on:submit.prevent="connect($event, {{ $computer->id }})">
@@ -330,10 +323,10 @@
 
                 <div class="flex-1 min-w-0">
                     <h2 class="text-base font-bold text-gray-900 leading-snug">
-                        {{ __('Konfirmasi Hapus Perangkat') }}
+                        {{ __('Confirm Delete Device') }}
                     </h2>
                     <p class="mt-0.5 text-xs text-rose-600 font-medium">
-                        {{ __('Tindakan ini permanen dan tidak dapat dibatalkan.') }}
+                        {{ __('This action is permanent and cannot be undone.') }}
                     </p>
                 </div>
             </div>
@@ -368,7 +361,7 @@
                 <button type="button"
                         x-on:click="$dispatch('close')"
                         class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition duration-150 focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    {{ __('Batal') }}
+                    {{ __('Cancel') }}
                 </button>
 
                 <button type="submit"
@@ -376,7 +369,7 @@
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
                     </svg>
-                    {{ __('Ya, Hapus Device') }}
+                    {{ __('Yes, Delete Device') }}
                 </button>
             </div>
         </form>

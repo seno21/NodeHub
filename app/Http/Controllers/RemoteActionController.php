@@ -73,7 +73,7 @@ class RemoteActionController extends Controller
 
         $action->computers()->sync($validated['computer_ids']);
 
-        AuditLogger::log('action.create', "Membuat aksi remote baru: {$action->name}", [
+        AuditLogger::log('action.create', "Created new remote action: {$action->name}", [
             'action_id' => $action->id,
             'name' => $action->name,
             'command' => $action->command,
@@ -81,7 +81,7 @@ class RemoteActionController extends Controller
         ]);
 
         return redirect()->route('actions.index')
-            ->with('status', __('Aksi Remote baru berhasil dibuat!'));
+            ->with('status', __('Remote Action created successfully.'));
     }
 
     /**
@@ -142,14 +142,14 @@ class RemoteActionController extends Controller
 
         $action->computers()->sync($validated['computer_ids']);
 
-        AuditLogger::log('action.update', "Memperbarui aksi remote: {$action->name}", [
+        AuditLogger::log('action.update', "Updated remote action: {$action->name}", [
             'action_id' => $action->id,
             'name' => $action->name,
             'command' => $action->command,
         ]);
 
         return redirect()->route('actions.index')
-            ->with('status', __('Aksi Remote berhasil diperbarui!'));
+            ->with('status', __('Remote Action updated successfully.'));
     }
 
     /**
@@ -160,12 +160,12 @@ class RemoteActionController extends Controller
         $name = $action->name;
         $action->delete();
 
-        AuditLogger::log('action.delete', "Menghapus aksi remote: {$name}", [
+        AuditLogger::log('action.delete', "Deleted remote action: {$name}", [
             'name' => $name,
         ]);
 
         return redirect()->route('actions.index')
-            ->with('status', __('Aksi Remote berhasil dihapus.'));
+            ->with('status', __('Remote Action deleted successfully.'));
     }
 
     /**
@@ -179,7 +179,7 @@ class RemoteActionController extends Controller
         $successCount = collect($results)->where('success', true)->count();
         $failCount = count($results) - $successCount;
 
-        AuditLogger::log('action.execute', "Mengeksekusi aksi remote '{$action->name}' pada " . count($results) . " perangkat", [
+        AuditLogger::log('action.execute', "Executed remote action '{$action->name}' on " . count($results) . " devices", [
             'action_id' => $action->id,
             'action_name' => $action->name,
             'command' => $action->command,

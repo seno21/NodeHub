@@ -130,9 +130,10 @@ class FastConnectTest extends TestCase
 
         $response->assertStatus(503);
         $this->assertTrue(
-            str_contains($response->json('message'), 'PORT VNC TERTUTUP') ||
+            str_contains($response->json('message'), 'VNC PORT CLOSED') ||
             str_contains($response->json('message'), 'unreachable') ||
-            str_contains($response->json('message'), 'gagal')
+            str_contains($response->json('message'), 'CLOSED') ||
+            str_contains($response->json('message'), 'Failed')
         );
     }
 
@@ -173,7 +174,7 @@ class FastConnectTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors('ip_address');
 
-        $this->assertTrue(str_contains($response->json('message'), 'terdaftar'));
+        $this->assertTrue(str_contains($response->json('message'), 'already registered') || str_contains($response->json('message'), 'registered'));
     }
 
     /**

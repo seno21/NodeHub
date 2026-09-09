@@ -3,16 +3,16 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="font-bold text-2xl text-slate-900 tracking-tight">
-                    {{ __('Edit Perangkat') }}
+                    {{ __('Edit Device') }}
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">{{ __('Perbarui informasi dan kredensial koneksi perangkat #:id', ['id' => $computer->id]) }}</p>
+                <p class="text-xs text-slate-500 mt-1">{{ __('Update device information and credentials #:id', ['id' => $computer->id]) }}</p>
             </div>
             <a href="{{ route('computers.index') }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
                 </svg>
-                {{ __('Kembali') }}
+                {{ __('Back') }}
             </a>
         </div>
     </x-slot>

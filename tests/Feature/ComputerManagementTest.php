@@ -128,6 +128,50 @@ class ComputerManagementTest extends TestCase
         $this->assertSame('old-secret', $computer->vnc_password, 'Empty password must keep the stored one.');
     }
 
+    public function test_user_can_create_device_with_ssh_disabled_by_default(): void
+    {
+        $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'General']);
+
+        $response = $this->actingAs($user)->post('/computers', [
+            'name' => 'VNC Only PC',
+            'ip_address' => '192.168.1.30',
+            'vnc_port' => '5900',
+            'os_type' => 'windows',
+            'enable_ssh' => 0,
+            'ssh_password' => 'should_be_cleared',
+            'tag_ids' => [$tag->id],
+        ]);
+
+        $response->assertRedirect('/computers');
+
+        $computer = Computer::query()->where('ip_address', '192.168.1.30')->firstOrFail();
+        $this->assertNull($computer->ssh_password);
+    }
+
+    public function test_user_can_disable_ssh_on_existing_device(): void
+    {
+        $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'General']);
+        $computer = Computer::factory()->create([
+            'ssh_password' => 'secret_ssh',
+        ]);
+
+        $response = $this->actingAs($user)->put("/computers/{$computer->id}", [
+            'name' => $computer->name,
+            'ip_address' => $computer->ip_address,
+            'vnc_port' => (string) $computer->vnc_port,
+            'os_type' => 'linux',
+            'enable_ssh' => 0,
+            'tag_ids' => [$tag->id],
+        ]);
+
+        $response->assertRedirect('/computers');
+
+        $computer->refresh();
+        $this->assertNull($computer->ssh_password);
+    }
+
     public function test_user_can_delete_a_device(): void
     {
         $user = User::factory()->create();
@@ -267,7 +311,7 @@ class ComputerManagementTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('POS Utama (Copy)');
-        $response->assertSee('Duplicate Perangkat');
+        $response->assertSee('Duplicate Device');
     }
 
     public function test_user_can_duplicate_a_device_with_copied_credentials(): void
@@ -304,6 +348,39 @@ class ComputerManagementTest extends TestCase
         $this->assertSame('Kasir 2', $duplicated->name);
         $this->assertSame('secret_vnc_pass', $duplicated->vnc_password);
         $this->assertSame('secret_ssh_pass', $duplicated->ssh_password);
+    }
+
+    public function test_user_can_duplicate_a_device_with_ssh_disabled(): void
+    {
+        $user = User::factory()->create();
+        $tag = \App\Models\Tag::create(['name' => 'Retail']);
+        $original = Computer::factory()->create([
+            'name' => 'Kasir Original',
+            'ip_address' => '192.168.1.10',
+            'vnc_port' => 5900,
+            'vnc_password' => 'secret_vnc_pass',
+            'ssh_password' => 'secret_ssh_pass',
+            'os_type' => 'linux',
+        ]);
+        $original->tagsRelation()->attach($tag->id);
+
+        $response = $this->actingAs($user)->post('/computers', [
+            'duplicate_from_id' => $original->id,
+            'name' => 'Kasir VNC Only',
+            'ip_address' => '192.168.1.12',
+            'vnc_port' => 5900,
+            'os_type' => 'linux',
+            'tag_ids' => [$tag->id],
+            'copy_vnc_password' => 1,
+            'enable_ssh' => 0,
+        ]);
+
+        $response->assertRedirect('/computers');
+
+        $duplicated = Computer::query()->where('ip_address', '192.168.1.12')->firstOrFail();
+        $this->assertSame('Kasir VNC Only', $duplicated->name);
+        $this->assertSame('secret_vnc_pass', $duplicated->vnc_password);
+        $this->assertNull($duplicated->ssh_password);
     }
 
     public function test_user_cannot_create_device_with_duplicate_ip(): void

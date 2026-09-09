@@ -39,6 +39,7 @@ class StoreComputerRequest extends FormRequest
             'ssh_user' => ['nullable', 'string', 'max:100'],
             'ssh_password' => ['nullable', 'string', 'max:255'],
             'refresh_command' => ['nullable', 'string', 'max:500'],
+            'enable_ssh' => ['nullable', 'boolean'],
             'duplicate_from_id' => ['nullable', 'integer', 'exists:computers,id'],
             'copy_vnc_password' => ['nullable', 'boolean'],
             'copy_ssh_password' => ['nullable', 'boolean'],
@@ -53,11 +54,11 @@ class StoreComputerRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'ip_address.unique' => __('IP Address sudah terdaftar dalam daftar perangkat.'),
-            'tag_ids.required' => __('Minimal harus memilih 1 tag untuk perangkat.'),
-            'tag_ids.required_without' => __('Minimal harus memilih 1 tag untuk perangkat.'),
-            'tag_ids.min' => __('Minimal harus memilih 1 tag untuk perangkat.'),
-            'tag_ids.*.exists' => __('Tag yang dipilih tidak valid.'),
+            'ip_address.unique' => __('IP Address is already registered.'),
+            'tag_ids.required' => __('At least 1 tag must be selected.'),
+            'tag_ids.required_without' => __('At least 1 tag must be selected.'),
+            'tag_ids.min' => __('At least 1 tag must be selected.'),
+            'tag_ids.*.exists' => __('The selected tag is invalid.'),
         ];
     }
 
@@ -66,13 +67,19 @@ class StoreComputerRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->merge([
+        $mergeData = [
             'vnc_port' => $this->input('vnc_port') !== null && $this->input('vnc_port') !== ''
                 ? (int) $this->input('vnc_port')
                 : 5900,
             'ssh_port' => $this->input('ssh_port') !== null && $this->input('ssh_port') !== ''
                 ? (int) $this->input('ssh_port')
                 : 22,
-        ]);
+        ];
+
+        if ($this->has('enable_ssh') && !$this->boolean('enable_ssh')) {
+            $mergeData['ssh_password'] = null;
+        }
+
+        $this->merge($mergeData);
     }
 }

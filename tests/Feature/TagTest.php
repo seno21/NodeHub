@@ -25,7 +25,7 @@ class TagTest extends TestCase
         $response = $this->actingAs($user)->get('/tags');
 
         $response->assertOk();
-        $response->assertSee('Manajemen Tags Perangkat');
+        $response->assertSee('Device Tags');
         $response->assertSee('#Kasir Utama');
     }
 

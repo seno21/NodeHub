@@ -115,7 +115,7 @@
                                     <span x-text="batchSummary.offline + ' Offline'"></span>
                                 </span>
                                 <span class="text-emerald-800 font-medium" x-show="batchSummary.offline === 0">
-                                    — Semua perangkat merespon jaringan!
+                                    — All devices are online!
                                 </span>
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
                             </svg>
-                            Lihat Log Terminal
+                            View Terminal Log
                         </button>
                         <button type="button" x-on:click="dismissBatchSummary()"
                             class="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-900 transition">
@@ -238,15 +238,15 @@
                         </svg>
                     </span>
                     <h3 class="mt-4 text-base font-semibold text-gray-900">
-                        {{ __('Tidak ada perangkat yang ditemukan') }}
+                        {{ __('No devices found') }}
                     </h3>
                     <p class="mt-1 text-sm text-gray-500">
-                        {{ __('Coba gunakan kata kunci lain atau hapus filter pencarian.') }}
+                        {{ __('Try different search keywords or clear search filters.') }}
                     </p>
                     <div class="mt-6">
                         <button type="button" x-on:click="resetFilters()"
                             class="inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold uppercase tracking-widest transition">
-                            {{ __('Reset Filter') }}
+                            {{ __('Reset Filters') }}
                         </button>
                     </div>
                 </div>
@@ -391,7 +391,7 @@
                                 </form>
 
                                 <div class="flex items-center gap-1 shrink-0">
-                                    <button type="button" title="Detail Perangkat & Informasional"
+                                    <button type="button" title="Device Details"
                                         class="rounded-xl p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 bg-slate-100 transition"
                                         x-on:click.prevent="openDetailModal(comp)">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -401,7 +401,7 @@
                                         </svg>
                                     </button>
 
-                                    <button type="button" title="Cek Diagnosa Ping & Port"
+                                    <button type="button" title="Ping & Port Diagnostics"
                                         class="rounded-xl p-2.5 text-gray-500 hover:text-[#00828c] hover:bg-[#00828c]/10 bg-slate-100 transition"
                                         x-on:click.prevent="ping(comp.id, comp.ip_address, comp.vnc_port, '/computers/' + comp.id + '/ping')">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -411,7 +411,7 @@
                                         </svg>
                                     </button>
 
-                                    <button type="button" title="Duplicate / Salin Perangkat"
+                                    <button type="button" title="Duplicate Device"
                                         class="rounded-xl p-2.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 bg-slate-100 transition"
                                         x-on:click.prevent="openDuplicateModal(comp)">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -454,27 +454,16 @@
                         <thead>
                             <tr
                                 class="bg-gray-50/80 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500">
-                                <th scope="col" class="px-5 py-3">{{ __('Status') }}</th>
                                 <th scope="col" class="px-5 py-3">{{ __('Device') }}</th>
                                 <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Location') }}</th>
                                 <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Address') }}</th>
-                                <th scope="col" class="px-5 py-3 hidden lg:table-cell">{{ __('OS') }}</th>
+                                <th scope="col" class="px-3 py-3 w-px whitespace-nowrap hidden lg:table-cell">{{ __('OS') }}</th>
                                 <th scope="col" class="px-5 py-3 text-right">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <template x-for="comp in paginatedDevices" :key="comp.id">
                                 <tr class="group transition hover:bg-blue-50/40">
-                                    {{-- Status --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap">
-                                        <span class="inline-flex items-center gap-2">
-                                            <span class="h-2.5 w-2.5 rounded-full transition-colors duration-300"
-                                                :class="statusClass(comp.id)"></span>
-                                            <span class="text-xs font-medium text-gray-500 min-w-[52px]"
-                                                x-text="statusLabel(comp.id)"></span>
-                                        </span>
-                                    </td>
-
                                     {{-- Name & Tags --}}
                                     <td class="px-5 py-3.5">
                                         <p class="font-semibold text-gray-900 leading-snug" x-text="comp.name"></p>
@@ -573,12 +562,9 @@
                                     </td>
 
                                     {{-- OS --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap hidden lg:table-cell">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
-                                            :class="comp.os_type === 'windows' ? 'bg-blue-50 text-blue-700' :
-                                                'bg-orange-50 text-orange-700'">
-                                            <svg class="h-3 w-3" viewBox="0 0 24 24"
+                                    <td class="px-3 py-3.5 w-px whitespace-nowrap hidden lg:table-cell">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <template x-if="comp.os_type === 'windows'">
                                                     <path fill="#0078D4"
@@ -595,14 +581,18 @@
                                                 </template>
                                             </svg>
                                             <span
-                                                x-text="comp.os_type.charAt(0).toUpperCase() + comp.os_type.slice(1)"></span>
+                                                x-text="comp.os_type === 'windows' ? 'Windows' : 'Linux'"></span>
                                         </span>
                                     </td>
 
                                     {{-- Actions --}}
                                     <td class="px-5 py-3.5 whitespace-nowrap text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <button type="button" title="Detail Perangkat & Informasional"
+                                        <div class="flex items-center justify-end gap-1.5">
+                                            <!-- Status Dot Only -->
+                                            <span class="h-2.5 w-2.5 rounded-full shrink-0 transition-colors duration-300 me-1"
+                                                :class="statusClass(comp.id)"
+                                                :title="statusLabel(comp.id)"></span>
+                                            <button type="button" title="Device Details"
                                                 class="rounded-md p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition"
                                                 x-on:click.prevent="openDetailModal(comp)">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -636,7 +626,7 @@
                                                 </button>
                                             </form>
 
-                                            <button type="button" title="Cek Diagnosa Ping & Port"
+                                            <button type="button" title="Ping & Port Diagnostics"
                                                 class="rounded-md p-1.5 text-gray-400 hover:text-[#00828c] hover:bg-[#00828c]/10 transition"
                                                 x-on:click.prevent="ping(comp.id, comp.ip_address, comp.vnc_port, '/computers/' + comp.id + '/ping')">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -646,7 +636,7 @@
                                                 </svg>
                                             </button>
 
-                                            <button type="button" title="Duplicate / Salin Perangkat"
+                                            <button type="button" title="Duplicate Device"
                                                 class="rounded-md p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
                                                 x-on:click.prevent="openDuplicateModal(comp)">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -849,7 +839,7 @@
                             <div>
                                 <h3 class="font-bold text-base text-slate-900 leading-tight"
                                     x-text="selectedDevice.name"></h3>
-                                <p class="text-xs text-slate-500">Detail Spesifikasi & Informasi Perangkat</p>
+                                <p class="text-xs text-slate-500">Device Specifications & Details</p>
                             </div>
                         </div>
                         <button type="button" x-on:click="closeDetailModal()"
@@ -908,13 +898,12 @@
                             </div>
                             <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
                                 <span
-                                    class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Lokasi</span>
+                                    class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Location</span>
                                 <p class="text-xs font-semibold text-slate-800 mt-0.5 truncate"
                                     x-text="selectedDevice.location || '-'"></p>
                             </div>
                             <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Dibuat
-                                    Pada</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Created At</span>
                                 <p class="text-xs font-semibold text-slate-800 mt-0.5"
                                     x-text="selectedDevice.created_at || '-'"></p>
                             </div>
@@ -930,11 +919,10 @@
                                         <span
                                             class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 font-bold text-xs">✓</span>
                                         <div>
-                                            <h4 class="font-bold text-xs text-emerald-900">Port SSH <span
+                                            <h4 class="font-bold text-xs text-emerald-900">SSH Port <span
                                                     x-text="selectedDevice.ssh_port || 22"></span> Open & Listening
                                             </h4>
-                                            <p class="text-[11px] text-emerald-700">Port SSH aktif dan menerima koneksi
-                                                jaringan TCP.</p>
+                                            <p class="text-[11px] text-emerald-700">SSH port is active and accepting TCP connections.</p>
                                         </div>
                                     </div>
                                     <span
@@ -950,11 +938,10 @@
                                         <span
                                             class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-slate-600 font-bold text-xs">✕</span>
                                         <div>
-                                            <h4 class="font-bold text-xs text-slate-800">Port SSH <span
+                                            <h4 class="font-bold text-xs text-slate-800">SSH Port <span
                                                     x-text="selectedDevice.ssh_port || 22"></span> Closed / Unreachable
                                             </h4>
-                                            <p class="text-[11px] text-slate-500">Port SSH tidak merespon atau layanan
-                                                SSH pada target mati.</p>
+                                            <p class="text-[11px] text-slate-500">SSH port is not responding or SSH service is disabled on target.</p>
                                         </div>
                                     </div>
                                     <span
@@ -976,11 +963,9 @@
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">Password
-                                            SSH Belum Konfigurasi</h4>
+                                        <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">SSH Password Not Configured</h4>
                                         <p class="mt-0.5 text-xs text-amber-800 leading-relaxed">
-                                            Password SSH belum diisi untuk perangkat ini. Fitur Remote Action (eksekusi
-                                            perintah/script remote) memerlukan password SSH.
+                                            SSH password is not set for this device. Remote Actions (remote command execution) require an SSH password.
                                         </p>
                                         <a :href="'/computers/' + selectedDevice.id + '/edit'"
                                             class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition">
@@ -989,7 +974,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                     d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                             </svg>
-                                            Konfigurasi SSH Sekarang
+                                            Configure SSH Now
                                         </a>
                                     </div>
                                 </div>
@@ -998,10 +983,9 @@
 
                         <!-- Description & Tags -->
                         <div class="space-y-2">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Deskripsi /
-                                Catatan</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Description / Notes</span>
                             <p class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 whitespace-pre-line"
-                                x-text="selectedDevice.description || 'Tidak ada deskripsi.'"></p>
+                                x-text="selectedDevice.description || 'No description provided.'"></p>
                         </div>
 
                         <div x-show="selectedDevice.tags_relation && selectedDevice.tags_relation.length > 0">
@@ -1024,7 +1008,7 @@
                         class="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-3.5 shrink-0">
                         <button type="button" x-on:click="closeDetailModal()"
                             class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
-                            Tutup
+                            Close
                         </button>
                         <button type="button" x-on:click="closeDetailModal(); openDuplicateModal(selectedDevice)"
                             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition">
@@ -1102,8 +1086,7 @@
                                         d="M11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                 </svg>
                                 <div>
-                                    <span class="font-bold">Info Duplikasi:</span> Kredensial VNC/SSH, port, OS,
-                                    lokasi, dan tag disalin otomatis. Silakan masukkan nama dan IP address baru.
+                                    <span class="font-bold">Duplication Info:</span> Settings & credentials copied from source. Enter new device details.
                                 </div>
                             </div>
 
@@ -1112,18 +1095,18 @@
                                 <div>
                                     <label for="dup_name"
                                         class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Nama Perangkat Baru <span class="text-red-500">*</span>
+                                        Device Name <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="dup_name" name="name" x-model="duplicateForm.name"
                                         required
                                         class="w-full rounded-xl border-slate-300 text-sm shadow-xs focus:border-[#00828c] focus:ring-[#00828c]"
-                                        placeholder="Nama Perangkat">
+                                        placeholder="Device Name">
                                 </div>
 
                                 <div>
                                     <label for="dup_ip"
                                         class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Alamat IP Baru <span class="text-red-500">*</span>
+                                        IP Address <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="dup_ip" name="ip_address"
                                         x-model="duplicateForm.ip_address" required
@@ -1137,7 +1120,7 @@
                                 <div>
                                     <label for="dup_os"
                                         class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Sistem Operasi
+                                        Operating System
                                     </label>
                                     <select id="dup_os" name="os_type" x-model="duplicateForm.os_type"
                                         class="w-full rounded-xl border-slate-300 text-sm shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
@@ -1149,44 +1132,65 @@
                                 <div>
                                     <label for="dup_location"
                                         class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Lokasi
+                                        Location
                                     </label>
                                     <input type="text" id="dup_location" name="location"
                                         x-model="duplicateForm.location"
                                         class="w-full rounded-xl border-slate-300 text-sm shadow-xs focus:border-[#00828c] focus:ring-[#00828c]"
-                                        placeholder="Lab / Ruangan">
+                                        placeholder="Location / Room">
                                 </div>
                             </div>
 
+                            <!-- Enable SSH Toggle for Duplicate Modal -->
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                                <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                                    <input type="hidden" name="enable_ssh" value="0">
+                                    <input type="checkbox" name="enable_ssh" value="1"
+                                        x-model="duplicateForm.enable_ssh"
+                                        class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
+                                    <span class="text-xs font-bold text-slate-800">Enable SSH Access</span>
+                                </label>
+                                <template x-if="duplicateForm.enable_ssh">
+                                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">SSH Active</span>
+                                </template>
+                                <template x-if="!duplicateForm.enable_ssh">
+                                    <span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">VNC Only</span>
+                                </template>
+                            </div>
+
                             <!-- Ports & SSH User -->
-                            <div class="grid grid-cols-3 gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                     <label for="dup_vnc_port"
                                         class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Port VNC
+                                        VNC Port
                                     </label>
                                     <input type="number" id="dup_vnc_port" name="vnc_port"
                                         x-model="duplicateForm.vnc_port" required min="1" max="65535"
                                         class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
                                 </div>
-                                <div>
-                                    <label for="dup_ssh_port"
-                                        class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Port SSH
-                                    </label>
-                                    <input type="number" id="dup_ssh_port" name="ssh_port"
-                                        x-model="duplicateForm.ssh_port" min="1" max="65535"
-                                        class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
-                                </div>
-                                <div>
-                                    <label for="dup_ssh_user"
-                                        class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        SSH User
-                                    </label>
-                                    <input type="text" id="dup_ssh_user" name="ssh_user"
-                                        x-model="duplicateForm.ssh_user"
-                                        class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
-                                </div>
+                                <template x-if="duplicateForm.enable_ssh">
+                                    <div>
+                                        <label for="dup_ssh_port"
+                                            class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                            SSH Port
+                                        </label>
+                                        <input type="number" id="dup_ssh_port" name="ssh_port"
+                                            x-model="duplicateForm.ssh_port" min="1" max="65535"
+                                            class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
+                                    </div>
+                                </template>
+                                <template x-if="duplicateForm.enable_ssh">
+                                    <div>
+                                        <label for="dup_ssh_user"
+                                            class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                            SSH User
+                                        </label>
+                                        <input type="text" id="dup_ssh_user" name="ssh_user"
+                                            x-model="duplicateForm.ssh_user"
+                                            class="w-full rounded-xl border-slate-300 text-xs font-mono shadow-xs focus:border-[#00828c] focus:ring-[#00828c]">
+                                    </div>
+                                </template>
                             </div>
 
                             <!-- Tags selection -->
@@ -1194,7 +1198,7 @@
                                 <div>
                                     <label
                                         class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                                        Tag Perangkat <span class="text-red-500">*</span>
+                                        Tags <span class="text-red-500">*</span>
                                     </label>
                                     <div
                                         class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -1220,28 +1224,29 @@
                                     <input type="checkbox" name="copy_vnc_password" value="1"
                                         x-model="duplicateForm.copy_vnc_password"
                                         class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                    <span class="text-xs font-semibold text-slate-800">Salin Password VNC dari
-                                        perangkat asal</span>
+                                    <span class="text-xs font-semibold text-slate-800">Copy VNC password from source</span>
                                 </label>
-                                <br>
-                                <label class="inline-flex items-center gap-2.5 cursor-pointer">
-                                    <input type="checkbox" name="copy_ssh_password" value="1"
-                                        x-model="duplicateForm.copy_ssh_password"
-                                        class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                    <span class="text-xs font-semibold text-slate-800">Salin Password SSH dari
-                                        perangkat asal</span>
-                                </label>
+                                <template x-if="duplicateForm.enable_ssh">
+                                    <div class="pt-1">
+                                        <label class="inline-flex items-center gap-2.5 cursor-pointer">
+                                            <input type="checkbox" name="copy_ssh_password" value="1"
+                                                x-model="duplicateForm.copy_ssh_password"
+                                                class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
+                                            <span class="text-xs font-semibold text-slate-800">Copy SSH password from source</span>
+                                        </label>
+                                    </div>
+                                </template>
                             </div>
 
                             <!-- Description -->
                             <div>
                                 <label for="dup_desc"
                                     class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                    Deskripsi / Catatan (Opsional)
+                                    Description (Optional)
                                 </label>
                                 <textarea id="dup_desc" name="description" x-model="duplicateForm.description" rows="2"
                                     class="w-full rounded-xl border-slate-300 text-xs shadow-xs focus:border-[#00828c] focus:ring-[#00828c]"
-                                    placeholder="Catatan tambahan..."></textarea>
+                                    placeholder="Additional notes..."></textarea>
                             </div>
                         </div>
 
@@ -1250,13 +1255,13 @@
                             class="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-3.5 shrink-0">
                             <a :href="'/computers/create?duplicate_from=' + duplicateForm.duplicate_from_id"
                                 class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
-                                Buka Form Lengkap →
+                                Open Full Form →
                             </a>
 
                             <div class="flex items-center gap-2">
                                 <button type="button" x-on:click="closeDuplicateModal()"
                                     class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
-                                    Batal
+                                    Cancel
                                 </button>
                                 <button type="submit"
                                     class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition">
@@ -1265,7 +1270,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M12 4.5v15m7.5-7.5h-15" />
                                     </svg>
-                                    Simpan Duplicate
+                                    Save Duplicate
                                 </button>
                             </div>
                         </div>
@@ -1293,9 +1298,9 @@
                             </svg>
                         </span>
                         <div>
-                            <h3 class="font-bold text-base text-slate-900 leading-tight">Export & Backup List Device
+                            <h3 class="font-bold text-base text-slate-900 leading-tight">Export & Backup Devices
                             </h3>
-                            <p class="text-xs text-slate-500">Download data perangkat untuk backup / migrasi portal</p>
+                            <p class="text-xs text-slate-500">Download device data for backup or migration</p>
                         </div>
                     </div>
                     <button type="button" x-on:click="closeExportModal()"
@@ -1317,14 +1322,12 @@
                                 d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                         </svg>
                         <div>
-                            <span class="font-bold">Info Backup:</span> File backup (JSON/CSV) ini berisi seluruh
-                            daftar perangkat, IP, port, lokasi, deskripsi, tag, dan kredensial VNC/SSH.
+                            <span class="font-bold">Backup Info:</span> Export includes all devices, IPs, ports, locations, tags, and credentials.
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih
-                            Format File</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select File Format</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label
                                 class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
@@ -1332,16 +1335,14 @@
                                     class="sr-only peer">
                                 <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">JSON Backup
                                     (.json)</span>
-                                <span class="text-[11px] text-slate-500 mt-1">Sangat Direkomendasikan untuk Migrasi
-                                    Portal NodeHub</span>
+                                <span class="text-[11px] text-slate-500 mt-1">Recommended for NodeHub migration</span>
                             </label>
                             <label
                                 class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
                                 <input type="radio" name="format" value="csv" class="sr-only peer">
                                 <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">CSV
                                     Spreadsheet (.csv)</span>
-                                <span class="text-[11px] text-slate-500 mt-1">Untuk dibuka di Microsoft Excel atau
-                                    Google Sheets</span>
+                                <span class="text-[11px] text-slate-500 mt-1">For Excel or Google Sheets</span>
                             </label>
                         </div>
                     </div>
@@ -1350,19 +1351,14 @@
                         <label class="inline-flex items-center gap-2.5 cursor-pointer">
                             <input type="checkbox" name="include_passwords" value="1" checked
                                 class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                            <span class="text-xs font-semibold text-slate-800">Sertakan Password VNC & SSH dalam
-                                Backup</span>
+                            <span class="text-xs font-semibold text-slate-800">Include VNC & SSH Passwords in Backup</span>
                         </label>
-                        <p class="text-[11px] text-slate-500 mt-1 ml-6">
-                            Jika dicentang, password VNC/SSH akan ikut disimpan di file backup agar migrasi ke server
-                            baru bisa langsung terhubung tanpa memasukkan password kembali.
-                        </p>
                     </div>
 
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                         <button type="button" x-on:click="closeExportModal()"
                             class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
-                            Batal
+                            Cancel
                         </button>
                         <button type="submit"
                             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition">
@@ -1371,7 +1367,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
-                            Download Backup File
+                            Download Backup
                         </button>
                     </div>
                 </form>
@@ -1397,9 +1393,9 @@
                             </svg>
                         </span>
                         <div>
-                            <h3 class="font-bold text-base text-slate-900 leading-tight">Restore & Import List Device
+                            <h3 class="font-bold text-base text-slate-900 leading-tight">Restore & Import Devices
                             </h3>
-                            <p class="text-xs text-slate-500">Upload file backup JSON/CSV untuk import masal</p>
+                            <p class="text-xs text-slate-500">Upload JSON or CSV backup file for bulk import</p>
                         </div>
                     </div>
                     <button type="button" x-on:click="closeImportModal()"
@@ -1418,46 +1414,38 @@
                     <div>
                         <label for="backup_file_input"
                             class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Pilih File Backup (.json / .csv) <span class="text-red-500">*</span>
+                            Select Backup File (.json / .csv) <span class="text-red-500">*</span>
                         </label>
                         <input type="file" id="backup_file_input" name="backup_file" required
                             accept=".json,.csv,.txt"
                             class="w-full text-xs text-slate-700 border border-slate-300 rounded-xl cursor-pointer bg-slate-50 p-2 focus:outline-none focus:border-[#00828c]">
-                        <p class="text-[11px] text-slate-500 mt-1">
-                            Mendukung file JSON backup hasil export NodeHub atau file spreadsheet CSV.
-                        </p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Penanganan
-                            Duplikat (Berdasarkan IP Address)</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Duplicate Handling (By IP)</label>
                         <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <label class="flex items-start gap-2.5 cursor-pointer">
                                 <input type="radio" name="duplicate_action" value="skip" checked
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800">Lewati Duplikat
-                                        (Recommended)</span>
-                                    <p class="text-[11px] text-slate-500">Jika IP Address sudah terdaftar, perangkat
-                                        tersebut tidak akan diubah.</p>
+                                    <span class="text-xs font-bold text-slate-800">Skip Duplicates (Recommended)</span>
+                                    <p class="text-[11px] text-slate-500">Keep existing device if IP already registered.</p>
                                 </div>
                             </label>
                             <label class="flex items-start gap-2.5 cursor-pointer">
                                 <input type="radio" name="duplicate_action" value="update"
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800">Perbarui Data Perangkat Ada</span>
-                                    <p class="text-[11px] text-slate-500">Jika IP Address cocok, perbarui nama, port,
-                                        lokasi, dan password dari file backup.</p>
+                                    <span class="text-xs font-bold text-slate-800">Update Existing Devices</span>
+                                    <p class="text-[11px] text-slate-500">Update device details if IP matches.</p>
                                 </div>
                             </label>
                             <label class="flex items-start gap-2.5 cursor-pointer">
                                 <input type="radio" name="duplicate_action" value="add"
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800">Tambahkan Semua Sebagai Baru</span>
-                                    <p class="text-[11px] text-slate-500">Import semua perangkat tanpa mengecek IP
-                                        duplikat.</p>
+                                    <span class="text-xs font-bold text-slate-800">Import All as New</span>
+                                    <p class="text-[11px] text-slate-500">Import all devices without IP check.</p>
                                 </div>
                             </label>
                         </div>
@@ -1466,7 +1454,7 @@
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                         <button type="button" x-on:click="closeImportModal()"
                             class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition">
-                            Batal
+                            Cancel
                         </button>
                         <button type="submit"
                             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00828c] hover:bg-[#006e76] text-white font-bold text-xs shadow-xs transition">
@@ -1475,7 +1463,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
-                            Mulai Restore / Import
+                            Import Devices
                         </button>
                     </div>
                 </form>
@@ -1504,10 +1492,10 @@
 
                     <div class="flex-1 min-w-0">
                         <h2 class="text-base font-bold text-gray-900 leading-snug">
-                            {{ __('Konfirmasi Hapus Perangkat') }}
+                            {{ __('Delete Device') }}
                         </h2>
                         <p class="mt-0.5 text-xs text-rose-600 font-medium">
-                            {{ __('Tindakan ini permanen dan tidak dapat dibatalkan.') }}
+                            {{ __('This action is permanent and cannot be undone.') }}
                         </p>
                     </div>
                 </div>
@@ -1548,7 +1536,7 @@
                 <div class="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
                     <button type="button" x-on:click="$dispatch('close')"
                         class="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition duration-150 focus:outline-none focus:ring-2 focus:ring-slate-300 text-center">
-                        {{ __('Batal') }}
+                        {{ __('Cancel') }}
                     </button>
 
                     <button type="submit"
@@ -1558,7 +1546,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>
-                        {{ __('Ya, Hapus Device') }}
+                        {{ __('Delete Device') }}
                     </button>
                 </div>
             </form>

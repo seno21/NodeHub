@@ -17,7 +17,7 @@ class SessionLockTest extends TestCase
         $response = $this->actingAs($user)->get('/lock');
 
         $response->assertStatus(200);
-        $response->assertSee('Sesi Terkunci');
+        $response->assertSee('Session Locked');
     }
 
     public function test_user_can_manually_lock_session(): void

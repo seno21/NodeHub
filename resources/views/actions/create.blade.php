@@ -13,7 +13,7 @@
                         {{ __('Create Remote Action') }}
                     </h2>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        {{ __('Konfigurasi nama, ikon, perintah SSH, dan pilih perangkat target') }}
+                        {{ __('Configure name, icon, SSH command, and target devices') }}
                     </p>
                 </div>
             </div>
@@ -53,12 +53,12 @@
                         <div class="space-y-5">
                             <h3
                                 class="font-bold text-sm uppercase tracking-wider text-gray-400 border-b border-gray-100 pb-2">
-                                1. Informasi & Perintah Action
+                                1. Action Details & Command
                             </h3>
 
                             {{-- Name --}}
                             <div>
-                                <x-input-label for="name" :value="__('Nama Action')" />
+                                <x-input-label for="name" :value="__('Action Name')" />
                                 <x-text-input id="name" name="name" type="text" value="{{ old('name') }}"
                                     required class="mt-1.5 block w-full rounded-xl text-xs py-2.5"
                                     placeholder="Refresh Firefox Displays / Restart Database VM" />
@@ -67,7 +67,7 @@
 
                             {{-- Iconify Logo Input --}}
                             <div>
-                                <x-input-label for="icon" :value="__('Logo / Iconify Name (Paste dari Iconify)')" />
+                                <x-input-label for="icon" :value="__('Icon / Iconify Name')" />
                                 <div class="flex items-center gap-2 mt-1.5">
                                     <div
                                         class="p-2.5 rounded-xl border border-gray-200 bg-slate-50 flex items-center justify-center shrink-0 w-11 h-11 shadow-xs">
@@ -79,7 +79,7 @@
                                         placeholder="lucide:refresh-cw, tabler:reload, mdi:power, lucide:rocket" />
                                 </div>
                                 <p class="mt-1.5 text-[11px] text-gray-500">
-                                    Cari & paste nama ikon dari <a href="https://icon-sets.iconify.design/"
+                                    Search & paste icon name from <a href="https://icon-sets.iconify.design/"
                                         target="_blank" class="text-[#00828c] underline font-semibold">Iconify</a>
                                     (<code>lucide:refresh-cw</code>, <code>tabler:reload</code>,
                                     <code>mdi:rocket-launch</code>).
@@ -89,17 +89,17 @@
 
                             {{-- Description --}}
                             <div>
-                                <x-input-label for="description" :value="__('Deskripsi Singkat')" />
+                                <x-input-label for="description" :value="__('Short Description')" />
                                 <x-text-input id="description" name="description" type="text"
                                     value="{{ old('description') }}"
                                     class="mt-1.5 block w-full rounded-xl text-xs py-2.5"
-                                    placeholder="Keterangan singkat kegunaan aksi..." />
+                                    placeholder="Brief description of action..." />
                                 <x-input-error :messages="$errors->get('description')" class="mt-1.5" />
                             </div>
 
                             {{-- Command --}}
                             <div>
-                                <x-input-label for="command" :value="__('Perintah yang Akan Dieksekusi (Shell Command)')" />
+                                <x-input-label for="command" :value="__('Shell Command')" />
                                 <textarea id="command" name="command" rows="3" required
                                     class="mt-1.5 block w-full rounded-xl border-gray-200 text-xs font-mono focus:border-blue-500 focus:ring-blue-500 shadow-xs"
                                     placeholder="DISPLAY=:0 xdotool key F5">{{ old('command', 'DISPLAY=:0 xdotool key F5') }}</textarea>
@@ -111,12 +111,12 @@
                         <div class="space-y-4 flex flex-col">
                             <div class="flex items-center justify-between border-b border-gray-100 pb-2">
                                 <h3 class="font-bold text-sm uppercase tracking-wider text-gray-400">
-                                    2. Pilih Perangkat Target
+                                    2. Target Devices
                                 </h3>
                                 <div class="flex items-center gap-2">
                                     <button type="button" x-on:click="selectAllFilteredDevices()"
                                         class="text-[11px] font-semibold text-[#00828c] hover:underline">
-                                        Pilih Semua
+                                        Select All
                                     </button>
                                     <span class="text-gray-300">|</span>
                                     <button type="button" x-on:click="clearDeviceSelection()"
@@ -130,14 +130,14 @@
                             <div class="flex flex-col sm:flex-row items-center gap-2">
                                 <div class="relative flex-1 w-full">
                                     <input type="text" x-model="searchQuery"
-                                        placeholder="Cari nama perangkat, IP..."
+                                        placeholder="Search device name, IP..."
                                         class="w-full rounded-xl border-gray-200 text-xs py-2 focus:border-[#00828c] focus:ring-[#00828c] shadow-xs" />
                                 </div>
 
                                 <div class="w-full sm:w-44 shrink-0">
                                     <select x-model="selectedTagFilter"
                                         class="w-full rounded-xl border-gray-200 text-xs py-2 focus:border-[#00828c] focus:ring-[#00828c] shadow-xs bg-slate-50">
-                                        <option value="">Semua Tag</option>
+                                        <option value="">All Tags</option>
                                         <template x-for="tagName in availableTags" :key="tagName">
                                             <option :value="tagName" x-text="'#' + tagName"></option>
                                         </template>
@@ -173,13 +173,13 @@
 
                                 <p x-show="filteredDevices.length === 0"
                                     class="text-xs text-gray-400 italic text-center py-8">
-                                    Tidak ada perangkat yang cocok dengan pencarian.
+                                    No devices match search.
                                 </p>
                             </div>
 
                             <p class="text-[11px] text-gray-500 font-medium">
-                                Terpilih: <strong class="text-[#00828c] font-bold" x-text="selectedIds.length"></strong>
-                                dari <span x-text="allDevices.length"></span> perangkat.
+                                Selected: <strong class="text-[#00828c] font-bold" x-text="selectedIds.length"></strong>
+                                of <span x-text="allDevices.length"></span> devices.
                             </p>
                             <x-input-error :messages="$errors->get('computer_ids')" class="mt-1" />
                         </div>
@@ -189,13 +189,13 @@
                     <div class="pt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
                         <a href="{{ route('actions.index') }}"
                             class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition text-center">
-                            {{ __('Batal') }}
+                            {{ __('Cancel') }}
                         </a>
 
                         <button type="submit"
                             class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 bg-[#00828c] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#006e76] transition shadow-md shadow-[#00828c]/20 disabled:opacity-50"
                             x-bind:disabled="selectedIds.length === 0">
-                            {{ __('Simpan Action') }}
+                            {{ __('Save Action') }}
                         </button>
                     </div>
                 </form>

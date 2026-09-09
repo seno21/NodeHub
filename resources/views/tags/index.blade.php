@@ -10,10 +10,10 @@
                 </span>
                 <div>
                     <h2 class="font-bold text-xl text-gray-900 leading-tight">
-                        {{ __('Manajemen Tags Perangkat') }}
+                        {{ __('Device Tags') }}
                     </h2>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        {{ __('Kelola tag/kategori perangkat untuk kemudahan pengelompokkan dan pencarian remote action') }}
+                        {{ __('Manage device tags and categories for easy grouping and filtering') }}
                     </p>
                 </div>
             </div>
@@ -48,7 +48,7 @@
             <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
                 <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">
-                        {{ __('Daftar Tag Perangkat') }} ({{ $tags->count() }})
+                        {{ __('Device Tags') }} ({{ $tags->count() }})
                     </h3>
                 </div>
 
@@ -63,7 +63,7 @@
                                     <span class="font-bold text-sm text-gray-900">#{{ $tagItem->name }}</span>
                                 </div>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700 font-bold text-[11px]">
-                                    {{ $tagItem->computers_count }} Perangkat
+                                    {{ $tagItem->computers_count }} Devices
                                 </span>
                             </div>
 
@@ -80,13 +80,13 @@
                                 <button type="button"
                                     x-on:click="confirmDeleteTag({{ json_encode($tagItem) }})"
                                     class="px-3.5 py-1.5 bg-rose-50 border border-rose-100 text-rose-600 font-semibold rounded-xl text-xs hover:bg-rose-100 transition">
-                                    Hapus
+                                    Delete
                                 </button>
                             </div>
                         </div>
                     @empty
                         <div class="p-8 text-center text-gray-400 text-xs italic">
-                            Belum ada tag yang dibuat. Klik tombol "+ Create Tag" di atas untuk menambahkan tag baru.
+                            No tags created yet. Click "+ Create Tag" above to add one.
                         </div>
                     @endforelse
                 </div>
@@ -97,10 +97,10 @@
                         <thead>
                             <tr
                                 class="bg-slate-50 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                                <th scope="col" class="px-6 py-3.5">Nama Tag</th>
-                                <th scope="col" class="px-6 py-3.5">Deskripsi</th>
-                                <th scope="col" class="px-6 py-3.5 text-center">Jumlah Perangkat Target</th>
-                                <th scope="col" class="px-6 py-3.5 text-right">Aksi</th>
+                                <th scope="col" class="px-6 py-3.5">Tag Name</th>
+                                <th scope="col" class="px-6 py-3.5">Description</th>
+                                <th scope="col" class="px-6 py-3.5 text-center">Target Devices</th>
+                                <th scope="col" class="px-6 py-3.5 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -119,7 +119,7 @@
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
                                         <span
                                             class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-xs">
-                                            {{ $tagItem->computers_count }} Perangkat
+                                            {{ $tagItem->computers_count }} Devices
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right whitespace-nowrap">
@@ -132,7 +132,7 @@
                                             <button type="button"
                                                 x-on:click="confirmDeleteTag({{ json_encode($tagItem) }})"
                                                 class="px-3 py-1.5 bg-rose-50 text-rose-600 font-semibold rounded-xl hover:bg-rose-100 transition">
-                                                Hapus
+                                                Delete
                                             </button>
                                         </div>
                                     </td>
@@ -140,8 +140,7 @@
                             @empty
                                 <tr>
                                     <td colspan="4" class="p-12 text-center text-gray-400 text-xs italic">
-                                        Belum ada tag yang dibuat. Klik tombol "+ Create Tag" di atas untuk menambahkan
-                                        tag baru.
+                                        No tags created yet. Click "+ Create Tag" above to add one.
                                     </td>
                                 </tr>
                             @endforelse
@@ -169,8 +168,8 @@
                         </span>
                         <div>
                             <h3 class="font-bold text-lg text-gray-900"
-                                x-text="isEditing ? 'Edit Tag Perangkat' : 'Create Tag Baru'"></h3>
-                            <p class="text-xs text-gray-500 mt-0.5">Konfigurasi nama tag dan deskripsi</p>
+                                x-text="isEditing ? 'Edit Tag' : 'Create Tag'"></h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Configure tag name, color, and description</p>
                         </div>
                     </div>
                     <button type="button" x-on:click="closeFormModal()"
@@ -189,14 +188,14 @@
                     </template>
 
                     <div>
-                        <x-input-label for="tag_name" :value="__('Nama Tag')" />
+                        <x-input-label for="tag_name" :value="__('Tag Name')" />
                         <x-text-input id="tag_name" name="name" type="text" x-model="form.name" required
                             class="mt-1.5 block w-full rounded-xl text-xs py-2.5"
-                            placeholder="Kasir, Display Utama, Ubuntu" />
+                            placeholder="Cashier, Main Display, Ubuntu" />
                     </div>
 
                     <div>
-                        <x-input-label for="tag_color" :value="__('Warna Aksen Tag')" />
+                        <x-input-label for="tag_color" :value="__('Accent Color')" />
                         <div class="flex items-center gap-3 mt-1.5">
                             <input id="tag_color" name="color" type="color" x-model="form.color"
                                 class="h-10 w-14 rounded-xl border border-gray-200 cursor-pointer p-1" />
@@ -206,20 +205,20 @@
                     </div>
 
                     <div>
-                        <x-input-label for="tag_description" :value="__('Deskripsi Singkat (Opsional)')" />
+                        <x-input-label for="tag_description" :value="__('Description (Optional)')" />
                         <x-text-input id="tag_description" name="description" type="text"
                             x-model="form.description" class="mt-1.5 block w-full rounded-xl text-xs py-2.5"
-                            placeholder="Perangkat pada area kasir utama..." />
+                            placeholder="Devices located in cashier area..." />
                     </div>
 
                     <div class="pt-5 mt-6 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
                         <button type="button" x-on:click="closeFormModal()"
                             class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
-                            Batal
+                            Cancel
                         </button>
                         <button type="submit"
                             class="w-full sm:w-auto px-6 py-2.5 bg-[#00828c] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#006e76] transition shadow-md shadow-[#00828c]/20">
-                            <span x-text="isEditing ? 'Update Tag' : 'Simpan Tag'"></span>
+                            <span x-text="isEditing ? 'Update Tag' : 'Save Tag'"></span>
                         </button>
                     </div>
                 </form>
@@ -240,10 +239,10 @@
                     </svg>
                 </div>
 
-                <h3 class="font-bold text-base text-gray-900 leading-snug">Hapus Tag ini?</h3>
+                <h3 class="font-bold text-base text-gray-900 leading-snug">Delete Tag?</h3>
                 <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
                     Tag <strong class="text-gray-800" x-text="selectedTag ? '#' + selectedTag.name : ''"></strong>
-                    akan dihapus. Perangkat terkait tidak akan terhapus.
+                    will be removed. Devices will not be deleted.
                 </p>
 
                 <form method="POST" x-bind:action="selectedTag ? '/tags/' + selectedTag.id : ''"
@@ -252,11 +251,11 @@
                     @method('delete')
                     <button type="button" x-on:click="showDeleteModal = false"
                         class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition">
-                        Batal
+                        Cancel
                     </button>
                     <button type="submit"
                         class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-md shadow-rose-500/20">
-                        Ya, Hapus
+                        Delete
                     </button>
                 </form>
             </div>

@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    {{-- SECTION: Informasi Utama Perangkat --}}
+    {{-- SECTION: Device Information --}}
     <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
         <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
             <span
@@ -10,23 +10,22 @@
                 </svg>
             </span>
             <div>
-                <h3 class="text-sm font-bold text-slate-900 leading-tight">Informasi Utama Perangkat</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Nama, alamat IP, sistem operasi, lokasi, dan tag kelompok.</p>
+                <h3 class="text-sm font-bold text-slate-900 leading-tight">Device Information</h3>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <x-input-label for="name" :value="__('Nama Perangkat (Device Name)')"
+                <x-input-label for="name" :value="__('Device Name')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <x-text-input id="name" name="name" type="text"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-                    :value="old('name', $computer?->name)" required autofocus placeholder="{{ __('Kasir / Server Utama') }}" />
+                    :value="old('name', $computer?->name)" required autofocus placeholder="{{ __('Main Server') }}" />
                 <x-input-error :messages="$errors->get('name')" class="mt-2 text-xs" />
             </div>
 
             <div>
-                <x-input-label for="ip_address" :value="__('Alamat IP (IP Address)')"
+                <x-input-label for="ip_address" :value="__('IP Address / Hostname')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <x-text-input id="ip_address" name="ip_address" type="text"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm font-mono"
@@ -37,7 +36,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <x-input-label for="os_type" :value="__('Sistem Operasi (OS Type)')"
+                <x-input-label for="os_type" :value="__('Operating System')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <select id="os_type" name="os_type"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm">
@@ -51,11 +50,11 @@
             </div>
 
             <div>
-                <x-input-label for="location" :value="__('Lokasi (Location)')"
+                <x-input-label for="location" :value="__('Location')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <x-text-input id="location" name="location" type="text"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
-                    :value="old('location', $computer?->location)" placeholder="{{ __('Lab B / Lantai 1') }}" />
+                    :value="old('location', $computer?->location)" placeholder="{{ __('Floor 1') }}" />
                 <x-input-error :messages="$errors->get('location')" class="mt-2 text-xs" />
             </div>
         </div>
@@ -64,13 +63,13 @@
         <div>
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-1.5">
-                    <x-input-label for="tag_ids" :value="__('Pilih Tag Perangkat')"
+                    <x-input-label for="tag_ids" :value="__('Tags')"
                         class="text-xs font-semibold text-slate-700 uppercase tracking-wider" />
-                    <span class="text-xs font-bold text-red-500">* (Wajib)</span>
+                    <span class="text-xs font-bold text-red-500">* (Required)</span>
                 </div>
                 <a href="{{ route('tags.index') }}" target="_blank"
                     class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
-                    + Kelola Master Tag
+                    + Manage Tags
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -109,25 +108,24 @@
             @else
                 <div
                     class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center justify-between">
-                    <span>Belum ada Master Tag di database.</span>
-                    <a href="{{ route('tags.index') }}" class="font-bold text-[#00828c] hover:underline">+ Buat Tag
-                        Pertama</a>
+                    <span>No tags found in database.</span>
+                    <a href="{{ route('tags.index') }}" class="font-bold text-[#00828c] hover:underline">+ Create Tag</a>
                 </div>
             @endif
             <x-input-error :messages="$errors->get('tag_ids')" class="mt-2 text-xs" />
         </div>
 
         <div>
-            <x-input-label for="description" :value="__('Deskripsi / Catatan (Description)')"
+            <x-input-label for="description" :value="__('Description')"
                 class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
             <textarea id="description" name="description" rows="3"
                 class="mt-1 block w-full border-slate-200 focus:border-[#00828c] focus:ring-[#00828c] rounded-xl shadow-sm text-sm placeholder-gray-400"
-                placeholder="{{ __('Catatan spesifikasi, keperluan, atau informasi tambahan perangkat...') }}">{{ old('description', $computer?->description) }}</textarea>
+                placeholder="{{ __('Notes, specifications, or additional device info...') }}">{{ old('description', $computer?->description) }}</textarea>
             <x-input-error :messages="$errors->get('description')" class="mt-2 text-xs" />
         </div>
     </div>
 
-    {{-- SECTION 1 CREDENTIALS: VNC Credentials & Settings --}}
+    {{-- SECTION 1 CREDENTIALS: VNC Credentials --}}
     <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div class="flex items-center gap-3">
@@ -139,16 +137,14 @@
                     </svg>
                 </span>
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 leading-tight">1. Kredensial & Pengaturan VNC (Remote
-                        Desktop)</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Port dan autentikasi untuk koneksi visual noVNC.</p>
+                    <h3 class="text-sm font-bold text-slate-900 leading-tight">VNC Credentials</h3>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-                <x-input-label for="vnc_port" :value="__('Port VNC')"
+                <x-input-label for="vnc_port" :value="__('VNC Port')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <x-text-input id="vnc_port" name="vnc_port" type="number" min="1" max="65535"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm font-mono"
@@ -157,7 +153,7 @@
             </div>
 
             <div>
-                <x-input-label for="vnc_password" :value="__('Password VNC (Opsional)')"
+                <x-input-label for="vnc_password" :value="__('VNC Password (Optional)')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <x-text-input id="vnc_password" name="vnc_password" type="password"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
@@ -169,7 +165,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {{ __('Password VNC akan disalin dari perangkat asal jika dikosongkan.') }}
+                        {{ __('VNC password will be copied from source if empty.') }}
                     </p>
                 @elseif ($computer?->vnc_password)
                     <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
@@ -178,11 +174,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {{ __('Password VNC sudah tersimpan.') }}
+                        {{ __('VNC password is set.') }}
                     </p>
                 @else
                     <p class="mt-1.5 text-xs text-slate-500">
-                        {{ __('Kosongkan jika server VNC target tidak memakai autentikasi.') }}
+                        {{ __('Leave blank if no password required.') }}
                     </p>
                 @endif
                 <x-input-error :messages="$errors->get('vnc_password')" class="mt-2 text-xs" />
@@ -191,7 +187,15 @@
     </div>
 
     {{-- SECTION 2 CREDENTIALS: SSH Credentials & Settings --}}
-    <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+    @php
+        $defaultEnableSsh =
+            old('enable_ssh') !== null
+                ? (bool) old('enable_ssh')
+                : (bool) ($computer?->ssh_password || (isset($duplicateFrom) && $duplicateFrom->ssh_password));
+    @endphp
+
+    <div x-data="{ enableSsh: {{ $defaultEnableSsh ? 'true' : 'false' }} }"
+        class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4 flex-wrap gap-2">
             <div class="flex items-center gap-3">
                 <span
@@ -199,42 +203,73 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M6.75 7.5h10.5a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 14.25v-4.5A2.25 2.25 0 0 1 6.75 7.5Z" />
+                            d="M6.75 7.5l3 3-3 3m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 19.5V4.5A2.25 2.25 0 0 0 18.75 2.25H5.25A2.25 2.25 0 0 0 3 4.5v15A2.25 2.25 0 0 0 5.25 21.75z" />
                     </svg>
                 </span>
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 leading-tight">2. Kredensial & Pengaturan SSH (Remote
-                        Action)</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Akses perintah jarak jauh (SSH command execution).</p>
+                    <h3 class="text-sm font-bold text-slate-900 leading-tight">SSH Credentials</h3>
                 </div>
             </div>
 
             @if ($computer?->exists)
-                @if ($computer->ssh_password)
-                    <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-xs">
-                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z" />
-                        </svg>
-                        {{ __('SSH Terkonfigurasi') }}
-                    </span>
-                @else
-                    <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-800 border border-amber-500/30 shadow-xs">
-                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM10.29 3.86l-8.6 14.8A1.5 1.5 0 003 21h18a1.5 1.5 0 001.29-2.34l-8.6-14.8a1.5 1.5 0 00-2.58 0z" />
-                        </svg>
-                        {{ __('SSH Belum Konfigurasi') }}
-                    </span>
-                @endif
+                <template x-if="enableSsh">
+                    <div>
+                        @if ($computer->ssh_password)
+                            <span
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-xs">
+                                <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.959 11.959 0 0112 2.714z" />
+                                </svg>
+                                {{ __('SSH Configured') }}
+                            </span>
+                        @else
+                            <span
+                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-800 border border-amber-500/30 shadow-xs">
+                                <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM10.29 3.86l-8.6 14.8A1.5 1.5 0 003 21h18a1.5 1.5 0 001.29-2.34l-8.6-14.8a1.5 1.5 0 00-2.58 0z" />
+                                </svg>
+                                {{ __('SSH Not Configured') }}
+                            </span>
+                        @endif
+                    </div>
+                </template>
             @endif
         </div>
 
-        <div class="space-y-4">
+        {{-- Toggle / Switch for Enable SSH --}}
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+                <input type="hidden" name="enable_ssh" value="0">
+                <input type="checkbox" name="enable_ssh" value="1" x-model="enableSsh" class="sr-only peer">
+                <div
+                    class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#00828c] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00828c]">
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-slate-800">Enable SSH Access</span>
+                </div>
+            </label>
+            <template x-if="enableSsh">
+                <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    SSH Active
+                </span>
+            </template>
+            <template x-if="!enableSsh">
+                <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                    <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                    VNC Only
+                </span>
+            </template>
+        </div>
+
+        {{-- SSH Fields Form --}}
+        <div x-show="enableSsh" x-transition class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                     <x-input-label for="ssh_user" :value="__('SSH Username')"
@@ -256,7 +291,7 @@
             </div>
 
             <div>
-                <x-input-label for="ssh_password" :value="__('Password SSH')"
+                <x-input-label for="ssh_password" :value="__('SSH Password')"
                     class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" />
                 <x-text-input id="ssh_password" name="ssh_password" type="password"
                     class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm"
@@ -268,7 +303,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {{ __('Password SSH akan disalin dari perangkat asal jika dikosongkan.') }}
+                        {{ __('SSH password will be copied from source if empty.') }}
                     </p>
                 @elseif ($computer?->ssh_password)
                     <p class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1.5 font-medium">
@@ -277,7 +312,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {{ __('Password SSH sudah tersimpan. Biarkan kosong jika tidak ingin mengubah password.') }}
+                        {{ __('SSH password is set. Leave blank to keep unchanged.') }}
                     </p>
                 @else
                     <div
@@ -292,9 +327,9 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">
-                                {{ __('Password SSH Belum Konfigurasi') }}</h4>
+                                {{ __('SSH Password Not Set') }}</h4>
                             <p class="mt-0.5 text-xs text-amber-800 leading-relaxed">
-                                {{ __('Password SSH untuk perangkat ini belum diisi. Silakan masukkan password SSH agar fitur Remote Action dapat digunakan.') }}
+                                {{ __('Enter SSH password to enable Remote Action features.') }}
                             </p>
                         </div>
                     </div>
@@ -307,11 +342,12 @@
     <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
         <a href="{{ route('computers.index') }}"
             class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl font-semibold text-xs text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00828c] focus:ring-offset-2 transition shadow-sm text-center">
-            {{ __('Batal') }}
+            {{ __('Cancel') }}
         </a>
 
-        <x-primary-button class="w-full sm:w-auto justify-center py-2.5 px-6 rounded-xl bg-[#00828c] hover:bg-[#006e76]">
-            {{ $submitText ?? __('Simpan Perangkat') }}
+        <x-primary-button
+            class="w-full sm:w-auto justify-center py-2.5 px-6 rounded-xl bg-[#00828c] hover:bg-[#006e76]">
+            {{ $submitText ?? __('Save Device') }}
         </x-primary-button>
     </div>
 </div>

@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        AuditLogger::log('auth.login', 'Pengguna berhasil login ke sistem', [
+        AuditLogger::log('auth.login', 'User logged in successfully', [
             'email' => $request->input('email'),
         ]);
 

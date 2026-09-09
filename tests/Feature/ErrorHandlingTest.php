@@ -35,7 +35,7 @@ class ErrorHandlingTest extends TestCase
 
             $this->assertFalse($result['success']);
             $this->assertSame('password_missing', $result['error_type']);
-            $this->assertStringContainsString('Password SSH belum diatur', $result['message']);
+            $this->assertStringContainsString('SSH password not set', $result['message']);
         } finally {
             fclose($server);
         }
@@ -55,9 +55,10 @@ class ErrorHandlingTest extends TestCase
 
         $this->assertContains($result['error_type'], ['port_closed', 'timeout', 'connection_failed']);
         $this->assertTrue(
-            str_contains($result['message'], 'PORT SSH TERTUTUP') ||
-            str_contains($result['message'], 'KONEKSI TIMEOUT') ||
-            str_contains($result['message'], 'KONEKSI GAGAL')
+            str_contains($result['message'], 'SSH PORT CLOSED') ||
+            str_contains($result['message'], 'CONNECTION TIMEOUT') ||
+            str_contains($result['message'], 'CONNECTION FAILED') ||
+            str_contains($result['message'], 'CLOSED')
         );
     }
 

@@ -61,16 +61,16 @@ class RemoteActionService
 
             if ($errno === 111 || str_contains($errLower, 'refused')) {
                 $errorType = 'port_closed';
-                $msg = "PORT SSH TERTUTUP: Port {$port} pada {$computer->ip_address} tertutup / ditolak (Connection Refused). Service SSH belum berjalan atau diblokir firewall.";
+                $msg = "SSH PORT CLOSED: Port {$port} on {$computer->ip_address} is refused. Ensure SSH service is running.";
             } elseif ($errno === 110 || str_contains($errLower, 'timed out')) {
                 $errorType = 'timeout';
-                $msg = "KONEKSI TIMEOUT: {$computer->ip_address}:{$port} tidak merespons dalam 2 detik. Alamat IP tidak terjangkau atau diblokir firewall.";
+                $msg = "CONNECTION TIMEOUT: {$computer->ip_address}:{$port} did not respond. Check IP or firewall.";
             } elseif (str_contains($errLower, 'route') || str_contains($errLower, 'unreachable')) {
                 $errorType = 'host_unreachable';
-                $msg = "HOST UNREACHABLE: Alamat IP {$computer->ip_address} tidak dapat dijangkau di jaringan.";
+                $msg = "HOST UNREACHABLE: IP address {$computer->ip_address} is unreachable.";
             } else {
                 $errorType = 'connection_failed';
-                $msg = "KONEKSI GAGAL: Tidak dapat terhubung ke {$computer->ip_address}:{$port} - " . ($errstr ?: "Error #{$errno}");
+                $msg = "CONNECTION FAILED: Unable to connect to {$computer->ip_address}:{$port} - " . ($errstr ?: "Error #{$errno}");
             }
 
             return [
@@ -90,7 +90,7 @@ class RemoteActionService
                 'ssh' => null,
                 'success' => false,
                 'error_type' => 'password_missing',
-                'message' => "Password SSH belum diatur pada perangkat ini ($user@{$computer->ip_address}:$port)",
+                'message' => "SSH password not set for this device ($user@{$computer->ip_address}:$port)",
                 'latency_ms' => $latency,
             ];
         }
@@ -105,7 +105,7 @@ class RemoteActionService
                     'ssh' => null,
                     'success' => false,
                     'error_type' => 'wrong_password',
-                    'message' => "AUTENTIKASI GAGAL (SALAH PASSWORD): Username '$user' atau Password SSH salah pada {$computer->ip_address}:{$port}. Mohon periksa kembali kredensial SSH.",
+                    'message' => "AUTHENTICATION FAILED: Incorrect SSH username or password on {$computer->ip_address}:{$port}.",
                     'latency_ms' => $latency,
                 ];
             }
@@ -115,7 +115,7 @@ class RemoteActionService
                 'ssh' => $ssh,
                 'success' => true,
                 'error_type' => 'ok',
-                'message' => "Koneksi SSH Terhubung & Autentikasi Berhasil ($user@{$computer->ip_address}:$port)",
+                'message' => "SSH Connection & Auth Successful ($user@{$computer->ip_address}:$port)",
                 'latency_ms' => $latency,
             ];
         } catch (\Throwable $e) {
@@ -126,7 +126,7 @@ class RemoteActionService
                 'ssh' => null,
                 'success' => false,
                 'error_type' => 'ssh_handshake_error',
-                'message' => "ERROR HANDSHAKE SSH ({$computer->ip_address}:$port): {$e->getMessage()}",
+                'message' => "SSH HANDSHAKE ERROR ({$computer->ip_address}:$port): {$e->getMessage()}",
                 'latency_ms' => $latency,
             ];
         }
@@ -151,7 +151,7 @@ class RemoteActionService
                 ],
                 'execution' => null,
                 'success' => false,
-                'message' => "[SSH CHECK GAGAL] " . $check['message'],
+                'message' => "[SSH CHECK FAILED] " . $check['message'],
                 'output' => null,
                 'latency_ms' => $check['latency_ms'],
             ];
@@ -190,7 +190,7 @@ class RemoteActionService
             }
 
             $isSuccess = ($exitStatus === 0 || $exitStatus === false || $exitStatus === null);
-            $outputText = trim($rawOutput) ?: ($isSuccess ? 'Perintah berhasil dieksekusi (no stdout)' : 'Perintah gagal tanpa output');
+            $outputText = trim($rawOutput) ?: ($isSuccess ? 'Command executed successfully (no stdout)' : 'Command failed with no output');
 
             return [
                 'computer_id' => $computer->id,
@@ -203,13 +203,13 @@ class RemoteActionService
                 'execution' => [
                     'success' => $isSuccess,
                     'message' => $isSuccess
-                        ? "Script berhasil dijalankan ({$execLatency}ms)"
-                        : "Script gagal dengan exit status {$exitStatus} ({$execLatency}ms)",
+                        ? "Script executed successfully ({$execLatency}ms)"
+                        : "Script failed with exit status {$exitStatus} ({$execLatency}ms)",
                     'output' => $outputText,
                     'latency_ms' => $execLatency,
                 ],
                 'success' => $isSuccess,
-                'message' => $isSuccess ? "SUKSES ({$totalLatency}ms)" : "GAGAL (Exit status: {$exitStatus})",
+                'message' => $isSuccess ? "SUCCESS ({$totalLatency}ms)" : "FAILED (Exit status: {$exitStatus})",
                 'output' => $outputText,
                 'latency_ms' => $totalLatency,
             ];
@@ -227,12 +227,12 @@ class RemoteActionService
                 ],
                 'execution' => [
                     'success' => false,
-                    'message' => "Error eksekusi script: {$e->getMessage()}",
+                    'message' => "Script execution error: {$e->getMessage()}",
                     'output' => null,
                     'latency_ms' => $execLatency,
                 ],
                 'success' => false,
-                'message' => "Gagal eksekusi script: {$e->getMessage()}",
+                'message' => "Script execution failed: {$e->getMessage()}",
                 'output' => null,
                 'latency_ms' => $totalLatency,
             ];

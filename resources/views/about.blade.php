@@ -12,7 +12,7 @@
                     {{ __('NodeHub (Centralized Infrastructure Control)') }}
                 </h2>
                 <p class="text-xs text-gray-500 mt-0.5">
-                    {{ __('Sistem Manajemen Remote Desktop Portal') }}
+                    {{ __('Centralized Infrastructure Remote Desktop Portal') }}
                 </p>
             </div>
         </div>
@@ -31,8 +31,7 @@
                     </span>
                     <h3 class="text-xl sm:text-2xl font-extrabold tracking-tight">NodeHub - Centralized Infrastructure Control</h3>
                     <p class="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-                        Aplikasi manajemen terpusat untuk mengendalikan perangkat display VNC secara langsung melalui
-                        browser HTML5 tanpa instalasi software tambahan.
+                        Centralized infrastructure management system to control remote VNC display devices directly via HTML5 browser without additional software installation.
                     </p>
                 </div>
             </div>
@@ -45,8 +44,7 @@
                         PHP
                     </div>
                     <h4 class="font-bold text-sm text-gray-900">Laravel 11</h4>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">High performance PHP Web Framework dengan
-                        Blade views, Eloquent ORM, dan Artisan CLI.</p>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">High-performance PHP Web Framework with Blade views, Eloquent ORM, and Artisan CLI.</p>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs">
@@ -55,8 +53,7 @@
                         VNC
                     </div>
                     <h4 class="font-bold text-sm text-gray-900">noVNC & Websockify</h4>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Client VNC HTML5 murni yang terhubung via
-                        WebSocket proxy tunnel berkecepatan tinggi.</p>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Pure HTML5 VNC client connecting via high-speed WebSocket proxy tunnel.</p>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs">
@@ -65,8 +62,7 @@
                         🐳
                     </div>
                     <h4 class="font-bold text-sm text-gray-900">Docker Compose</h4>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Arsitektur multi-container terisolasi
-                        (`nodehub-app`, `nodehub-db`, `nodehub-bridge`).</p>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">Isolated multi-container architecture (`nodehub-app`, `nodehub-db`, `nodehub-bridge`).</p>
                 </div>
             </div>
 
