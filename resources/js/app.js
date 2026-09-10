@@ -38,10 +38,91 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     csrfToken: document.querySelector('meta[name="csrf-token"]')?.content || '',
 
     init() {
-        this.$watch('searchQuery', () => { this.currentPage = 1; });
-        this.$watch('selectedTag', () => { this.currentPage = 1; });
-        this.$watch('selectedOs', () => { this.currentPage = 1; });
-        this.$watch('perPage', () => { this.currentPage = 1; });
+        this.loadFilterState();
+
+        this.$watch('searchQuery', () => {
+            this.currentPage = 1;
+            this.saveFilterState();
+        });
+        this.$watch('selectedTag', () => {
+            this.currentPage = 1;
+            this.saveFilterState();
+        });
+        this.$watch('selectedOs', () => {
+            this.currentPage = 1;
+            this.saveFilterState();
+        });
+        this.$watch('perPage', () => {
+            this.currentPage = 1;
+            this.saveFilterState();
+        });
+        this.$watch('currentPage', () => {
+            this.saveFilterState();
+        });
+    },
+
+    saveFilterState() {
+        const state = {
+            searchQuery: this.searchQuery || '',
+            selectedTag: this.selectedTag || '',
+            selectedOs: this.selectedOs || '',
+            currentPage: this.currentPage || 1,
+        };
+        try {
+            sessionStorage.setItem('nodehub_device_filters', JSON.stringify(state));
+        } catch {
+            // ignore storage errors
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (this.searchQuery) params.set('search', this.searchQuery); else params.delete('search');
+        if (this.selectedTag) params.set('tag', this.selectedTag); else params.delete('tag');
+        if (this.selectedOs) params.set('os', this.selectedOs); else params.delete('os');
+        if (this.currentPage > 1) params.set('page', String(this.currentPage)); else params.delete('page');
+
+        const newPath = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        history.replaceState(null, '', newPath);
+    },
+
+    loadFilterState() {
+        const params = new URLSearchParams(window.location.search);
+        let search = params.get('search');
+        let tag = params.get('tag');
+        let os = params.get('os');
+        let page = params.get('page');
+
+        if (!search && !tag && !os && !page) {
+            try {
+                const saved = sessionStorage.getItem('nodehub_device_filters');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    search = parsed.searchQuery || '';
+                    tag = parsed.selectedTag || '';
+                    os = parsed.selectedOs || '';
+                    page = parsed.currentPage || 1;
+                }
+            } catch {
+                // ignore
+            }
+        }
+
+        if (search) this.searchQuery = search;
+        if (tag) this.selectedTag = tag;
+        if (os) this.selectedOs = os;
+        if (page && !isNaN(parseInt(page, 10))) this.currentPage = parseInt(page, 10);
+    },
+
+    resetFilters() {
+        this.searchQuery = '';
+        this.selectedTag = '';
+        this.selectedOs = '';
+        this.currentPage = 1;
+        try {
+            sessionStorage.removeItem('nodehub_device_filters');
+        } catch {
+            // ignore
+        }
+        history.replaceState(null, '', window.location.pathname);
     },
 
     get availableTags() {
@@ -141,13 +222,6 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         }
     },
 
-    resetFilters() {
-        this.searchQuery = '';
-        this.selectedTag = '';
-        this.selectedOs = '';
-        this.currentPage = 1;
-    },
-
     /** @type {Record<string, boolean|undefined>} */
     statuses: {},
     connecting: false,
@@ -220,7 +294,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
             this.term.lines = [];
             this.term.running = true;
             await this.typeLine(`$ nodehub ping --all --count=${this.allDevices.length}`, 'text-emerald-400 font-bold');
-            await this.typeLine(`→ Memulai pemindaian koneksi ke ${this.allDevices.length} perangkat...`, 'text-cyan-400');
+            await this.typeLine(`Memulai pemindaian koneksi ke ${this.allDevices.length} perangkat...`, 'text-cyan-400');
         }
 
         let data = null;
@@ -238,7 +312,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         if (!data) {
             this.showBoardError('Gagal melakukan pengecekan status koneksi massal.');
             if (openTerminal) {
-                await this.typeLine(`→ ERROR: Gagal menghubungi server portal`, 'text-red-400');
+                await this.typeLine(`ERROR: Gagal menghubungi server portal`, 'text-red-400');
                 this.term.running = false;
             }
             this.checkingAll = false;
@@ -258,17 +332,21 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
             if (isVncOk) {
                 onlineCount++;
                 if (openTerminal) {
-                    await this.typeLine(`✔ [ONLINE]  ${device.name} (${device.ip_address}:${device.vnc_port})`, 'text-emerald-400');
+                    if (device.has_ssh && !isSshOk) {
+                        await this.typeLine(`[SSH OFF] ${device.name} (${device.ip_address}:${device.vnc_port}) — VNC Ok, SSH Off`, 'text-amber-400');
+                    } else {
+                        await this.typeLine(`[ONLINE]  ${device.name} (${device.ip_address}:${device.vnc_port})`, 'text-emerald-400');
+                    }
                 }
             } else if (isSshOk) {
                 offlineCount++;
                 if (openTerminal) {
-                    await this.typeLine(`⚠ [PORT OFF] ${device.name} (${device.ip_address}:${device.vnc_port}) — SSH Ok, VNC Off`, 'text-amber-400');
+                    await this.typeLine(`[VNC OFF] ${device.name} (${device.ip_address}:${device.vnc_port}) — SSH Ok, VNC Off`, 'text-amber-400');
                 }
             } else {
                 offlineCount++;
                 if (openTerminal) {
-                    await this.typeLine(`✘ [OFFLINE] ${device.name} (${device.ip_address}:${device.vnc_port})`, 'text-red-400');
+                    await this.typeLine(`[OFFLINE] ${device.name} (${device.ip_address}:${device.vnc_port})`, 'text-red-400');
                 }
             }
         }
@@ -285,7 +363,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
 
         if (openTerminal) {
             await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
-            await this.typeLine(`✔ Pengecekan Selesai: ${onlineCount} Online, ${offlineCount} Offline.`, onlineCount > 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold');
+            await this.typeLine(`Pengecekan Selesai: ${onlineCount} Online, ${offlineCount} Offline.`, onlineCount > 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold');
             this.term.running = false;
             this.scrollTerm();
         }
@@ -325,8 +403,25 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
             return 'bg-gray-300';
         }
 
-        const vncOk = typeof statusObj === 'object' ? statusObj.vnc : statusObj;
-        return vncOk ? 'bg-green-500' : 'bg-red-500';
+        const device = this.allDevices.find(d => String(d.id) === String(id));
+        const hasSsh = device ? Boolean(device.has_ssh) : false;
+
+        const vncOk = typeof statusObj === 'object' ? Boolean(statusObj.vnc) : Boolean(statusObj);
+        const sshOk = typeof statusObj === 'object' ? Boolean(statusObj.ssh) : false;
+
+        if (!vncOk && !sshOk) {
+            return 'bg-red-500';
+        }
+
+        if (hasSsh && !sshOk) {
+            return 'bg-yellow-500';
+        }
+
+        if (!vncOk && sshOk) {
+            return 'bg-yellow-500';
+        }
+
+        return 'bg-green-500';
     },
 
     statusLabel(id) {
@@ -336,8 +431,25 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
             return '—';
         }
 
-        const vncOk = typeof statusObj === 'object' ? statusObj.vnc : statusObj;
-        return vncOk ? 'Online' : 'Offline';
+        const device = this.allDevices.find(d => String(d.id) === String(id));
+        const hasSsh = device ? Boolean(device.has_ssh) : false;
+
+        const vncOk = typeof statusObj === 'object' ? Boolean(statusObj.vnc) : Boolean(statusObj);
+        const sshOk = typeof statusObj === 'object' ? Boolean(statusObj.ssh) : false;
+
+        if (!vncOk && !sshOk) {
+            return 'Offline';
+        }
+
+        if (hasSsh && !sshOk) {
+            return 'SSH Disconnected';
+        }
+
+        if (!vncOk && sshOk) {
+            return 'VNC Offline';
+        }
+
+        return 'Online';
     },
 
     isSshOpen(comp) {
@@ -412,58 +524,64 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         await sleep(120);
 
         if (!data) {
-            await this.typeLine(`→ Gagal menghubungi server web portal`, 'text-red-400');
+            await this.typeLine(`Gagal menghubungi server web portal`, 'text-red-400');
             this.term.running = false;
             return;
         }
 
         // ICMP Ping Result
         if (data.icmp_ok) {
-            await this.typeLine(`→ ICMP System Ping [${host}] ... REPLIED (Network Card Reachable)`, 'text-emerald-400');
+            await this.typeLine(`ICMP System Ping [${host}] ... REPLIED (Network Card Reachable)`, 'text-emerald-400');
         } else {
-            await this.typeLine(`→ ICMP System Ping [${host}] ... NO RESPONSE`, 'text-amber-400');
+            await this.typeLine(`ICMP System Ping [${host}] ... NO RESPONSE`, 'text-amber-400');
         }
 
         // VNC Port Result
         if (data.vnc_ok) {
-            await this.typeLine(`→ VNC Service Port [${port}] ... TERHUBUNG (${data.vnc_latency ?? 0} ms)`, 'text-emerald-400 font-bold');
-            this.statuses = { ...this.statuses, [id]: true };
+            await this.typeLine(`VNC Service Port [${port}] ... TERHUBUNG (${data.vnc_latency ?? 0} ms)`, 'text-emerald-400 font-bold');
         } else {
             const vncMsg = data.vnc_error_message || 'Port Tertutup / Not Listening';
-            await this.typeLine(`→ VNC Service Port [${port}] ... GAGAL: ${vncMsg}`, 'text-rose-400');
+            await this.typeLine(`VNC Service Port [${port}] ... GAGAL: ${vncMsg}`, 'text-rose-400');
         }
 
         // SSH Port & Auth Result
         if (data.ssh_auth_ok) {
-            await this.typeLine(`→ SSH Service & Auth [22] ... TERHUBUNG & PASSWORD VALID (${data.ssh_latency ?? 0} ms)`, 'text-emerald-400 font-bold');
+            await this.typeLine(`SSH Service & Auth [22] ... TERHUBUNG & PASSWORD VALID (${data.ssh_latency ?? 0} ms)`, 'text-emerald-400 font-bold');
         } else if (data.ssh_error_type === 'wrong_password') {
-            await this.typeLine(`→ SSH Auth [22] ... 🔴 SALAH PASSWORD / USERNAME: Kredensial SSH tidak cocok!`, 'text-rose-400 font-bold');
+            await this.typeLine(`SSH Auth [22] ... SALAH PASSWORD / USERNAME: Kredensial SSH tidak cocok!`, 'text-rose-400 font-bold');
         } else if (data.ssh_error_type === 'port_closed') {
-            await this.typeLine(`→ SSH Port [22] ... 🟠 PORT TERTUTUP: Service SSH mati atau diblokir firewall (Connection Refused)`, 'text-amber-400');
+            await this.typeLine(`SSH Port [22] ... PORT TERTUTUP: Service SSH mati atau diblokir firewall (Connection Refused)`, 'text-amber-400');
         } else if (data.ssh_error_type === 'timeout') {
-            await this.typeLine(`→ SSH Port [22] ... 🟡 KONEKSI TIMEOUT: IP Address tidak merespons dalam 2 detik`, 'text-amber-400');
+            await this.typeLine(`SSH Port [22] ... KONEKSI TIMEOUT: IP Address tidak merespons dalam 2 detik`, 'text-amber-400');
         } else if (data.ssh_error_type === 'password_missing') {
-            await this.typeLine(`→ SSH Config ... ⚪ PASSWORD BELUM DISERTAKAN: Password SSH belum diatur pada perangkat`, 'text-slate-400');
+            await this.typeLine(`SSH Config ... PASSWORD BELUM DISERTAKAN: Password SSH belum diatur pada perangkat`, 'text-slate-400');
         } else {
             const sshMsg = data.ssh_error_message || 'Tidak Aktif';
-            await this.typeLine(`→ SSH Service Port [22] ... GAGAL: ${sshMsg}`, 'text-slate-400');
+            await this.typeLine(`SSH Service Port [22] ... GAGAL: ${sshMsg}`, 'text-slate-400');
         }
+
+        this.statuses = {
+            ...this.statuses,
+            [id]: {
+                vnc: Boolean(data.vnc_ok),
+                ssh: Boolean(data.ssh_auth_ok || data.ssh_ok),
+            },
+        };
 
         await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
 
         if (data.vnc_ok && data.ssh_auth_ok) {
-            await this.typeLine('✔ HASIL: VNC Remote & SSH Kredensial 100% Siap & Berhasil Terverifikasi!', 'text-emerald-400 font-bold');
+            await this.typeLine('HASIL: VNC Remote & SSH Kredensial 100% Siap & Berhasil Terverifikasi!', 'text-emerald-400 font-bold');
         } else if (data.ssh_error_type === 'wrong_password') {
-            await this.typeLine('🔴 HASIL DIAGNOSA: SALAH PASSWORD SSH! Port SSH terbuka tetapi username/password SSH tidak valid.', 'text-rose-400 font-bold');
+            await this.typeLine('HASIL DIAGNOSA: SALAH PASSWORD SSH! Port SSH terbuka tetapi username/password SSH tidak valid.', 'text-rose-400 font-bold');
         } else if (data.vnc_error_type === 'port_closed' || data.ssh_error_type === 'port_closed') {
-            await this.typeLine('🟠 HASIL DIAGNOSA: PORT TERTUTUP! Port VNC/SSH ditolak (Connection Refused). Service belum jalan.', 'text-amber-400 font-bold');
+            await this.typeLine('HASIL DIAGNOSA: PORT TERTUTUP! Port VNC/SSH ditolak (Connection Refused). Service belum jalan.', 'text-amber-400 font-bold');
         } else if (data.vnc_error_type === 'timeout' || data.ssh_error_type === 'timeout') {
-            await this.typeLine('🟡 HASIL DIAGNOSA: KONEKSI TIMEOUT! IP target tidak merespons (Offline / Firewall).', 'text-amber-400 font-bold');
+            await this.typeLine('HASIL DIAGNOSA: KONEKSI TIMEOUT! IP target tidak merespons (Offline / Firewall).', 'text-amber-400 font-bold');
         } else if (data.vnc_ok) {
-            await this.typeLine('✔ HASIL: VNC Remote Siap, tetapi periksa konfigurasi SSH.', 'text-emerald-400 font-bold');
+            await this.typeLine('HASIL: VNC Remote Siap, tetapi periksa konfigurasi SSH.', 'text-emerald-400 font-bold');
         } else {
-            this.statuses = { ...this.statuses, [id]: false };
-            await this.typeLine('✘ HASIL: Perangkat tidak dapat terhubung. Cek koneksi fisik / IP target.', 'text-red-400 font-bold');
+            await this.typeLine('HASIL: Perangkat tidak dapat terhubung. Cek koneksi fisik / IP target.', 'text-red-400 font-bold');
         }
 
         this.term.running = false;
@@ -492,7 +610,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
             if (response.ok && data.redirect) {
                 this.connectingId = targetId;
                 this.connecting = true;
-                await sleep(800);
+                await sleep(500);
                 window.location.href = data.redirect;
 
                 return;
