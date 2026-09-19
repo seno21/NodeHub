@@ -158,6 +158,14 @@
 
                 <span class="h-5 w-px bg-white/15"></span>
 
+                {{-- Rotate Screen Button --}}
+                <button type="button" id="btn-rotate" title="{{ __('Rotate Screen (0°, 90°, 180°, 270°)') }}" class="toolbar-btn relative">
+                    <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span id="rotate-badge" class="hidden absolute -top-1 -right-1 text-[9px] font-black bg-emerald-500 text-black px-1 rounded-full">90°</span>
+                </button>
+
                 {{-- View-Only Toggle --}}
                 <button type="button" id="btn-view-only" title="{{ __('Toggle View-Only Mode') }}" class="toolbar-btn">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -205,7 +213,7 @@
                     </button>
 
                     <div id="settings-panel"
-                        class="hidden absolute right-0 top-10 z-50 w-52 sm:w-56 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
+                        class="hidden absolute right-0 top-10 z-50 w-56 sm:w-60 max-w-[calc(100vw-32px)] rounded-xl border border-white/15 bg-zinc-900/95 backdrop-blur-md p-3 shadow-2xl">
                         <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {{ __('Display Settings') }}
                         </p>
@@ -219,6 +227,18 @@
                             <input type="checkbox" id="chk-cursor" checked
                                 class="h-4 w-4 rounded border-gray-600 bg-zinc-800 text-[#00828c] focus:ring-[#00828c]" />
                         </label>
+
+                        <div class="pt-2 mt-2 border-t border-white/10">
+                            <p class="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                                {{ __('Rotate Screen') }}
+                            </p>
+                            <div class="grid grid-cols-4 gap-1">
+                                <button type="button" id="btn-rot-0" class="px-2 py-1 text-xs rounded bg-[#00828c] text-white font-semibold">0°</button>
+                                <button type="button" id="btn-rot-90" class="px-2 py-1 text-xs rounded bg-white/10 hover:bg-[#00828c] text-white font-semibold">90°</button>
+                                <button type="button" id="btn-rot-180" class="px-2 py-1 text-xs rounded bg-white/10 hover:bg-[#00828c] text-white font-semibold">180°</button>
+                                <button type="button" id="btn-rot-270" class="px-2 py-1 text-xs rounded bg-white/10 hover:bg-[#00828c] text-white font-semibold">270°</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

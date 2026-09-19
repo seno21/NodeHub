@@ -101,6 +101,81 @@ function setMobileZoom(level) {
     updateMobileCursorUI();
 }
 
+let rotationAngle = 0; // 0, 90, 180, 270
+
+function setRotation(deg) {
+    rotationAngle = ((deg % 360) + 360) % 360;
+
+    if (el.rotateBadge) {
+        if (rotationAngle === 0) {
+            el.rotateBadge.classList.add("hidden");
+        } else {
+            el.rotateBadge.textContent = `${rotationAngle}°`;
+            el.rotateBadge.classList.remove("hidden");
+        }
+    }
+
+    [0, 90, 180, 270].forEach((angle) => {
+        const btn = qs(`btn-rot-${angle}`);
+        if (btn) {
+            if (angle === rotationAngle) {
+                btn.classList.add("bg-[#00828c]", "text-white");
+                btn.classList.remove("bg-white/10");
+            } else {
+                btn.classList.remove("bg-[#00828c]");
+                btn.classList.add("bg-white/10");
+            }
+        }
+    });
+
+    updateCanvasRotationLayout();
+    setStatus(`Rotasi Layar: ${rotationAngle}°`);
+}
+
+function updateCanvasRotationLayout() {
+    if (!el.screen) return;
+    const canvas = el.screen.querySelector("canvas") || state?.rfb?._canvas;
+    if (!canvas) return;
+
+    canvas.style.transition = "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)";
+    canvas.style.transformOrigin = "center center";
+
+    if (rotationAngle === 0) {
+        canvas.style.transform = "none";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        if (isMobileMode()) updateMobileCursorUI();
+        return;
+    }
+
+    const containerRect = (
+        el.screenContainer || el.screen
+    ).getBoundingClientRect();
+    const fbW = state?.rfb?._fbWidth || canvas.width || 1024;
+    const fbH = state?.rfb?._fbHeight || canvas.height || 768;
+
+    if (rotationAngle === 90 || rotationAngle === 270) {
+        const scale = Math.min(
+            containerRect.width / fbH,
+            containerRect.height / fbW
+        );
+        const renderW = fbW * scale;
+        const renderH = fbH * scale;
+
+        canvas.style.width = `${renderW}px`;
+        canvas.style.height = `${renderH}px`;
+        canvas.style.transform = `rotate(${rotationAngle}deg)`;
+    } else if (rotationAngle === 180) {
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.transform = "rotate(180deg)";
+    }
+
+    if (isMobileMode()) {
+        setTimeout(updateMobileCursorUI, 50);
+    }
+}
+
 function updateMobileCursorUI() {
     if (!isMobileMode() || !state?.rfb || !state.rfb._fbWidth) {
         el.virtualCursor?.classList.add("hidden");
@@ -135,27 +210,39 @@ function updateMobileCursorUI() {
         return;
     }
 
-    // Clamp virtual cursor position strictly inside [0, fbWidth] and [0, fbHeight]
     trackpadState.cursorX = Math.max(0, Math.min(fbW, trackpadState.cursorX));
     trackpadState.cursorY = Math.max(0, Math.min(fbH, trackpadState.cursorY));
 
-    // Calculate position strictly relative to the container element
+    const normX = trackpadState.cursorX / fbW;
+    const normY = trackpadState.cursorY / fbH;
+
+    let visualNormX = normX;
+    let visualNormY = normY;
+
+    if (rotationAngle === 90) {
+        visualNormX = 1 - normY;
+        visualNormY = normX;
+    } else if (rotationAngle === 180) {
+        visualNormX = 1 - normX;
+        visualNormY = 1 - normY;
+    } else if (rotationAngle === 270) {
+        visualNormX = normY;
+        visualNormY = 1 - normX;
+    }
+
     const canvasOffsetX = canvasRect.left - containerRect.left;
     const canvasOffsetY = canvasRect.top - containerRect.top;
 
-    const cursorLeft =
-        canvasOffsetX + (trackpadState.cursorX / fbW) * canvasRect.width;
-    const cursorTop =
-        canvasOffsetY + (trackpadState.cursorY / fbH) * canvasRect.height;
+    const cursorLeft = canvasOffsetX + visualNormX * canvasRect.width;
+    const cursorTop = canvasOffsetY + visualNormY * canvasRect.height;
 
     el.virtualCursor.style.left = `${cursorLeft}px`;
     el.virtualCursor.style.top = `${cursorTop}px`;
     el.virtualCursor.classList.remove("hidden");
 
-    // Auto-scroll screen container if cursor moves near viewport boundaries in zoom mode
     if (mobileZoomLevel > 1.0 && el.screenContainer) {
-        const cursorLeftPx = (trackpadState.cursorX / fbW) * canvasRect.width;
-        const cursorTopPx = (trackpadState.cursorY / fbH) * canvasRect.height;
+        const cursorLeftPx = visualNormX * canvasRect.width;
+        const cursorTopPx = visualNormY * canvasRect.height;
         const viewWidth = el.screenContainer.clientWidth;
         const viewHeight = el.screenContainer.clientHeight;
 
@@ -193,8 +280,8 @@ function getCanvasElementCoordinates() {
     if (canvasRect.width <= 0 || canvasRect.height <= 0)
         return { elementX: 0, elementY: 0 };
 
-    const elementX = (trackpadState.cursorX / fbW) * canvasRect.width;
-    const elementY = (trackpadState.cursorY / fbH) * canvasRect.height;
+    const elementX = (trackpadState.cursorX / fbW) * (canvas.clientWidth || canvasRect.width);
+    const elementY = (trackpadState.cursorY / fbH) * (canvas.clientHeight || canvasRect.height);
 
     return { elementX, elementY };
 }
@@ -832,6 +919,69 @@ function screenshot() {
     setStatus("Screenshot saved");
 }
 
+function bindRotatedPointerEvents() {
+    if (!el.screen) return;
+
+    function handlePointer(e) {
+        if (!state?.rfb || !state.connected || state.viewOnly) return;
+        if (rotationAngle === 0) return;
+
+        const canvas = el.screen.querySelector("canvas") || state.rfb._canvas;
+        if (!canvas) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        const relX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const relY = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+
+        let elemX = 0;
+        let elemY = 0;
+
+        const cW = canvas.clientWidth || rect.width;
+        const cH = canvas.clientHeight || rect.height;
+
+        switch (rotationAngle) {
+            case 90:
+                elemX = relY * cW;
+                elemY = (1 - relX) * cH;
+                break;
+            case 180:
+                elemX = (1 - relX) * cW;
+                elemY = (1 - relY) * cH;
+                break;
+            case 270:
+                elemX = (1 - relY) * cW;
+                elemY = relX * cH;
+                break;
+            default:
+                elemX = relX * cW;
+                elemY = relY * cH;
+                break;
+        }
+
+        let buttonMask = 0;
+        if (e.type === "pointerdown" || e.type === "pointermove") {
+            buttonMask = (e.buttons & 1) | ((e.buttons & 4) >> 1) | ((e.buttons & 2) << 1);
+        }
+
+        if (typeof state.rfb._sendMouse === "function") {
+            state.rfb._sendMouse(elemX, elemY, buttonMask);
+        }
+    }
+
+    ["pointerdown", "pointermove", "pointerup", "contextmenu"].forEach((evtName) => {
+        el.screen.addEventListener(evtName, handlePointer, { capture: true, passive: false });
+    });
+
+    window.addEventListener("resize", () => {
+        if (rotationAngle !== 0) updateCanvasRotationLayout();
+    });
+}
+
 function bindToolbar() {
     el.btnToggleMenu?.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -882,6 +1032,16 @@ function bindToolbar() {
 
         const updatedTicket = { ...state.ticket, password: password };
         connect(updatedTicket);
+    });
+
+    el.btnRotate?.addEventListener("click", () => {
+        setRotation(rotationAngle + 90);
+    });
+
+    [0, 90, 180, 270].forEach((angle) => {
+        qs(`btn-rot-${angle}`)?.addEventListener("click", () => {
+            setRotation(angle);
+        });
     });
 
     el.btnQuickKeys?.addEventListener("click", (event) => {
@@ -1199,6 +1359,7 @@ function bindToolbar() {
     }
 
     bindMobileTrackpad();
+    bindRotatedPointerEvents();
 }
 
 /* ------------------------------------------------------------------ */
@@ -1231,6 +1392,8 @@ async function init() {
     el.passwordError = qs("password-error");
     el.btnPasswordBack = qs("btn-password-back");
     el.btnBack = qs("btn-back");
+    el.btnRotate = qs("btn-rotate");
+    el.rotateBadge = qs("rotate-badge");
     el.btnQuickKeys = qs("btn-quick-keys");
     el.quickKeysPanel = qs("quick-keys-panel");
     el.qkCtrlAltDel = qs("qk-ctrl-alt-del");
