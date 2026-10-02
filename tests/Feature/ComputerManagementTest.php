@@ -444,6 +444,25 @@ class ComputerManagementTest extends TestCase
         $this->assertSame("10.10.10.10-dup-{$comp2->id}", $comp2->ip_address);
     }
 
+    public function test_edit_form_contains_registered_passwords_and_show_toggle(): void
+    {
+        $user = User::factory()->create();
+        $computer = Computer::factory()->create([
+            'name' => 'Server PC',
+            'vnc_password' => 'vnc-secret-123',
+            'ssh_user' => 'admin',
+            'ssh_password' => 'ssh-secret-456',
+        ]);
+
+        $response = $this->actingAs($user)->get("/computers/{$computer->id}/edit");
+
+        $response->assertOk();
+        $response->assertSee('value="vnc-secret-123"', false);
+        $response->assertSee('value="ssh-secret-456"', false);
+        $response->assertSee('showVncPassword', false);
+        $response->assertSee('showSshPassword', false);
+    }
+
     /**
      * Open a temporary TCP listener simulating a reachable VNC target.
      *
