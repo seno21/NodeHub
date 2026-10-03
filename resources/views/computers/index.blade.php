@@ -238,7 +238,8 @@
                         <!-- Action 1: VNC F5 Refresh -->
                         <button type="button" x-on:click="executeVncF5Refresh()"
                             :disabled="vncRefreshing || checkingAll"
-                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition shadow-lg shadow-amber-900/30 disabled:opacity-60 disabled:cursor-not-allowed">
+                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition shadow-lg shadow-amber-900/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                            title="Refresh F5 VNC Perangkat Terpilih">
                             <svg class="w-4 h-4 animate-spin" x-show="vncRefreshing" fill="none"
                                 viewBox="0 0 24 24" x-cloak>
                                 <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -251,14 +252,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                             </svg>
-                            <span>Refresh F5 (VNC)</span>
+                            <span>Refresh</span>
                         </button>
 
                         <!-- Action 2: Ping Selected -->
                         <button type="button"
                             x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
                             :disabled="checkingAll || vncRefreshing"
-                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-700 hover:from-emerald-600 hover:to-teal-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-emerald-950/40 disabled:opacity-60 disabled:cursor-not-allowed"
+                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-700 hover:from-emerald-600 hover:to-teal-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-emerald-950/40 disabled:opacity-60 disabled:cursor-not-allowed"
                             title="Diagnosa Ping & Status Port Perangkat Terpilih">
                             <svg class="w-4 h-4 animate-spin" x-show="checkingAll" fill="none"
                                 viewBox="0 0 24 24" x-cloak>
@@ -272,12 +273,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856a9.75 9.75 0 0 1 13.788 0M1.924 8.674a14.25 14.25 0 0 1 20.152 0M12 18.75h.008v.008H12v-.008Z" />
                             </svg>
-                            <span>Cek Ping</span>
+                            <span>Ping</span>
                         </button>
 
                         <button type="button" x-on:click="clearSelection()"
-                            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition border border-slate-700">
-                            <span>Batal Pilihan</span>
+                            class="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition border border-slate-700">
+                            <span>Batal</span>
                         </button>
                     </div>
                 </div>
