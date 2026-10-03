@@ -136,7 +136,7 @@
                             </svg>
                         </button>
 
-                        <a href="{{ route('computers.edit', $computer) }}"
+                        <a href="{{ route('computers.edit', is_array($computer) ? $computer['id'] : $computer) }}"
                            class="rounded-xl p-2.5 text-gray-500 hover:text-[#00828c] hover:bg-[#00828c]/10 bg-slate-100 transition"
                            title="{{ __('Edit') }}">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -289,7 +289,7 @@
                                     </svg>
                                 </button>
 
-                                <a href="{{ route('computers.edit', $computer) }}"
+                                <a href="{{ route('computers.edit', is_array($computer) ? $computer['id'] : $computer) }}"
                                    class="rounded-md p-1.5 text-gray-400 hover:text-[#00828c] hover:bg-[#00828c]/10 transition"
                                    title="{{ __('Edit') }}">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">

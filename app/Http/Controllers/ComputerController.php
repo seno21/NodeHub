@@ -275,7 +275,7 @@ class ComputerController extends Controller
             $data['ssh_password'] = $request->input('ssh_password');
         }
 
-        if ($request->has('tag_ids') && Schema::hasTable('tags')) {
+        if (Schema::hasTable('tags')) {
             $computer->tagsRelation()->sync($tagIds);
             $data['tags'] = Tag::query()->whereIn('id', $tagIds)->pluck('name')->implode(', ');
         }

@@ -128,6 +128,28 @@ class ComputerManagementTest extends TestCase
         $this->assertSame('old-secret', $computer->vnc_password, 'Empty password must keep the stored one.');
     }
 
+    public function test_user_can_update_a_device_without_selecting_tags(): void
+    {
+        $user = User::factory()->create();
+        $computer = Computer::factory()->create([
+            'name' => 'Device No Tags',
+            'ip_address' => '192.168.1.99',
+            'vnc_port' => 5900,
+            'os_type' => 'linux',
+        ]);
+
+        $response = $this->actingAs($user)->put("/computers/{$computer->id}", [
+            'name' => 'Device Updated No Tags',
+            'ip_address' => '192.168.1.99',
+            'vnc_port' => '5900',
+            'os_type' => 'linux',
+            'location' => 'Room 101',
+        ]);
+
+        $response->assertRedirect('/computers');
+        $this->assertSame('Device Updated No Tags', $computer->fresh()->name);
+    }
+
     public function test_user_can_create_device_with_ssh_disabled_by_default(): void
     {
         $user = User::factory()->create();

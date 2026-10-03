@@ -65,7 +65,7 @@
                 <div class="flex items-center gap-1.5">
                     <x-input-label for="tag_ids" :value="__('Tags')"
                         class="text-xs font-semibold text-slate-700 uppercase tracking-wider" />
-                    <span class="text-xs font-bold text-red-500">* (Required)</span>
+                    <span class="text-xs text-slate-400 font-medium">(Optional)</span>
                 </div>
                 <a href="{{ route('tags.index') }}" target="_blank"
                     class="text-xs font-semibold text-[#00828c] hover:underline flex items-center gap-1">
@@ -87,6 +87,10 @@
                         ? $computer->tagsRelation->pluck('id')->all()
                         : [],
                 );
+                if (empty($selectedTagIds) && !empty($computer?->tags) && $tagsList->isNotEmpty()) {
+                    $names = array_map('trim', explode(',', $computer->tags));
+                    $selectedTagIds = $tagsList->whereIn('name', $names)->pluck('id')->all();
+                }
             @endphp
 
             @if ($tagsList->count() > 0)
