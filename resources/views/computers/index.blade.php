@@ -251,7 +251,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                             </svg>
-                            <span>Refresh F5</span>
+                            <span>Refresh</span>
                         </button>
 
                         <!-- Action 2: Ping Selected -->
@@ -271,7 +271,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21M6.75 6.75h10.5a2.25 2.25 0 0 1 2.25 2.25v6.525a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
                             </svg>
-                            <span>Ping All</span>
+                            <span>Ping</span>
                         </button>
 
                         <button type="button" x-on:click="clearSelection()"
@@ -1580,118 +1580,129 @@
                             </svg>
                             Import Devices
                         </button>
-        <!-- Floating Batch Action Bar (Appears when 1+ checkboxes are selected) -->
-        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/95 text-white border border-white/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 max-w-xl w-11/12 transition-all duration-300"
-            x-show="selectedDeviceIds.length > 0" x-transition.opacity.duration.200ms x-cloak>
-            <div class="flex items-center gap-2.5">
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
-                </span>
-                <span class="text-xs font-bold font-mono tracking-wide" x-text="selectedDeviceIds.length + ' Perangkat Terpilih'"></span>
-            </div>
+                        <!-- Floating Batch Action Bar (Appears when 1+ checkboxes are selected) -->
+                        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/95 text-white border border-white/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 max-w-xl w-11/12 transition-all duration-300"
+                            x-show="selectedDeviceIds.length > 0" x-transition.opacity.duration.200ms x-cloak>
+                            <div class="flex items-center gap-2.5">
+                                <span class="relative flex h-2.5 w-2.5">
+                                    <span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                                </span>
+                                <span class="text-xs font-bold font-mono tracking-wide"
+                                    x-text="selectedDeviceIds.length + ' Perangkat Terpilih'"></span>
+                            </div>
 
-            <div class="flex items-center gap-2">
-                <button type="button" x-on:click="executeVncMassRefresh(selectedDeviceIds)"
-                    x-bind:disabled="executingVncRefresh"
-                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#00828c] hover:bg-[#006e76] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-md shadow-[#00828c]/30 disabled:opacity-50">
-                    <svg class="h-4 w-4 animate-spin" x-show="executingVncRefresh" fill="none" viewBox="0 0 24 24" x-cloak>
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    <svg class="h-3.5 w-3.5 text-cyan-200" x-show="!executingVncRefresh" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                    <span>⚡ Refresh VNC F5</span>
-                </button>
+                            <div class="flex items-center gap-2">
+                                <button type="button" x-on:click="executeVncMassRefresh(selectedDeviceIds)"
+                                    x-bind:disabled="executingVncRefresh"
+                                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#00828c] hover:bg-[#006e76] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-md shadow-[#00828c]/30 disabled:opacity-50">
+                                    <svg class="h-4 w-4 animate-spin" x-show="executingVncRefresh" fill="none"
+                                        viewBox="0 0 24 24" x-cloak>
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    <svg class="h-3.5 w-3.5 text-cyan-200" x-show="!executingVncRefresh"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                    <span>⚡ Refresh VNC F5</span>
+                                </button>
 
-                <button type="button" x-on:click="clearDeviceSelection()"
-                    class="text-xs text-slate-400 hover:text-white px-2.5 py-2 font-semibold transition">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-
-    @foreach ($allDevices as $computer)
-        <x-modal name="confirm-computer-deletion-{{ is_array($computer) ? $computer['id'] : $computer->id }}"
-            maxWidth="md" :show="false" focusable>
-            <form method="post"
-                action="{{ route('computers.destroy', is_array($computer) ? $computer['id'] : $computer->id) }}"
-                class="p-6">
-                @csrf
-                @method('delete')
-
-                <div class="flex items-start gap-4">
-                    <div
-                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 shadow-xs">
-                        <svg class="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                    </div>
-
-                    <div class="flex-1 min-w-0">
-                        <h2 class="text-base font-bold text-gray-900 leading-snug">
-                            {{ __('Delete Device') }}
-                        </h2>
-                        <p class="mt-0.5 text-xs text-rose-600 font-medium">
-                            {{ __('This action is permanent and cannot be undone.') }}
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Device Card Preview --}}
-                <div class="mt-4 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 space-y-2">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <span class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
-                                </svg>
-                            </span>
-                            <span
-                                class="font-semibold text-sm text-slate-900 truncate">{{ is_array($computer) ? $computer['name'] : $computer->name }}</span>
+                                <button type="button" x-on:click="clearDeviceSelection()"
+                                    class="text-xs text-slate-400 hover:text-white px-2.5 py-2 font-semibold transition">
+                                    Batal
+                                </button>
+                            </div>
                         </div>
-                        <span
-                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0 {{ (is_array($computer) ? $computer['os_type'] : $computer->os_type) === 'windows' ? 'bg-blue-100/80 text-blue-700' : 'bg-orange-100/80 text-orange-700' }}">
-                            {{ ucfirst(is_array($computer) ? $computer['os_type'] : $computer->os_type) }}
-                        </span>
                     </div>
 
-                    <div
-                        class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200/60">
-                        <span
-                            class="font-mono text-slate-600">{{ is_array($computer) ? $computer['ip_address'] : $computer->ip_address }}:{{ is_array($computer) ? $computer['vnc_port'] : $computer->vnc_port }}</span>
-                        @if (is_array($computer) ? $computer['location'] : $computer->location)
-                            <span
-                                class="truncate max-w-[150px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200 text-[11px]">
-                                {{ is_array($computer) ? $computer['location'] : $computer->location }}
-                            </span>
-                        @endif
-                    </div>
-                </div>
+                    @foreach ($allDevices as $computer)
+                        <x-modal
+                            name="confirm-computer-deletion-{{ is_array($computer) ? $computer['id'] : $computer->id }}"
+                            maxWidth="md" :show="false" focusable>
+                            <form method="post"
+                                action="{{ route('computers.destroy', is_array($computer) ? $computer['id'] : $computer->id) }}"
+                                class="p-6">
+                                @csrf
+                                @method('delete')
 
-                <div class="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
-                    <button type="button" x-on:click="$dispatch('close')"
-                        class="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition duration-150 focus:outline-none focus:ring-2 focus:ring-slate-300 text-center">
-                        {{ __('Cancel') }}
-                    </button>
+                                <div class="flex items-start gap-4">
+                                    <div
+                                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 shadow-xs">
+                                        <svg class="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" stroke-width="1.8">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </div>
 
-                    <button type="submit"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 font-semibold text-xs shadow-xs shadow-rose-200 transition duration-150 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                        {{ __('Delete Device') }}
-                    </button>
-                </div>
-            </form>
-        </x-modal>
-    @endforeach
+                                    <div class="flex-1 min-w-0">
+                                        <h2 class="text-base font-bold text-gray-900 leading-snug">
+                                            {{ __('Delete Device') }}
+                                        </h2>
+                                        <p class="mt-0.5 text-xs text-rose-600 font-medium">
+                                            {{ __('This action is permanent and cannot be undone.') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- Device Card Preview --}}
+                                <div
+                                    class="mt-4 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 space-y-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span
+                                                class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                                                </svg>
+                                            </span>
+                                            <span
+                                                class="font-semibold text-sm text-slate-900 truncate">{{ is_array($computer) ? $computer['name'] : $computer->name }}</span>
+                                        </div>
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0 {{ (is_array($computer) ? $computer['os_type'] : $computer->os_type) === 'windows' ? 'bg-blue-100/80 text-blue-700' : 'bg-orange-100/80 text-orange-700' }}">
+                                            {{ ucfirst(is_array($computer) ? $computer['os_type'] : $computer->os_type) }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200/60">
+                                        <span
+                                            class="font-mono text-slate-600">{{ is_array($computer) ? $computer['ip_address'] : $computer->ip_address }}:{{ is_array($computer) ? $computer['vnc_port'] : $computer->vnc_port }}</span>
+                                        @if (is_array($computer) ? $computer['location'] : $computer->location)
+                                            <span
+                                                class="truncate max-w-[150px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200 text-[11px]">
+                                                {{ is_array($computer) ? $computer['location'] : $computer->location }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
+                                    <button type="button" x-on:click="$dispatch('close')"
+                                        class="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-100 font-semibold text-xs transition duration-150 focus:outline-none focus:ring-2 focus:ring-slate-300 text-center">
+                                        {{ __('Cancel') }}
+                                    </button>
+
+                                    <button type="submit"
+                                        class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 font-semibold text-xs shadow-xs shadow-rose-200 transition duration-150 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                        {{ __('Delete Device') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </x-modal>
+                    @endforeach
 </x-app-layout>
