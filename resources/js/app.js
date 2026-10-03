@@ -28,8 +28,9 @@ Alpine.data('deviceStats', (statusUrl) => ({
     },
 }));
 
-Alpine.data('deviceBoard', (initialDevices = []) => ({
+Alpine.data('deviceBoard', (initialDevices = [], initialActions = []) => ({
     allDevices: Array.isArray(initialDevices) ? initialDevices : [],
+    remoteActions: Array.isArray(initialActions) ? initialActions : [],
     searchQuery: '',
     selectedTag: '',
     selectedOs: '',
@@ -485,6 +486,182 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
 
     dismissBatchSummary() {
         this.batchSummary = null;
+    },
+
+    executingActionId: null,
+
+    async executeBatchAction(actionId = null) {
+        if (this.executingActionId !== null) return;
+
+        const targetDevices = this.filteredDevices;
+        if (targetDevices.length === 0) {
+            this.showBoardError('Tidak ada perangkat yang sesuai dengan filter saat ini.');
+            return;
+        }
+
+        let action = null;
+        if (actionId) {
+            action = this.remoteActions.find(a => String(a.id) === String(actionId));
+        }
+
+        if (!action) {
+            // Find "Refresh Firefox (F5)" or first action
+            action = this.remoteActions.find(a => a.name.toLowerCase().includes('refresh') || a.name.toLowerCase().includes('f5'))
+                || this.remoteActions[0];
+        }
+
+        if (!action) {
+            this.showBoardError('Belum ada Remote Action terkonfigurasi. Silakan buat di menu Remote Actions.');
+            return;
+        }
+
+        const targetIds = targetDevices.map(d => d.id);
+        this.executingActionId = action.id;
+
+        this.term.open = true;
+        this.term.title = `Eksekusi Remote Action — ${action.name} (${targetIds.length} Perangkat)`;
+        this.term.lines = [];
+        this.term.running = true;
+
+        await this.typeLine(`$ nodehub action exec --id=${action.id} --targets=${targetIds.length}`, 'text-cyan-400 font-bold');
+        await this.typeLine(`Perintah SSH: ${action.command}`, 'text-slate-400 font-mono');
+        await this.typeLine(`Memulai koneksi SSH & eksekusi ke ${targetIds.length} perangkat target...`, 'text-blue-400');
+
+        try {
+            const response = await fetch(`/actions/${action.id}/execute`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': this.csrfToken,
+                },
+                body: JSON.stringify({ computer_ids: targetIds }),
+            });
+
+            const data = await response.json();
+
+            if (data.results) {
+                await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+
+                for (const res of Object.values(data.results)) {
+                    if (res.ssh_check) {
+                        if (res.ssh_check.success) {
+                            await this.typeLine(`[SSH OK]     ${res.computer_name}: ${res.ssh_check.message}`, 'text-emerald-400');
+                        } else {
+                            await this.typeLine(`[SSH FAILED] ${res.computer_name}: ${res.ssh_check.message}`, 'text-rose-400 font-bold');
+                        }
+                    }
+
+                    if (res.execution) {
+                        if (res.execution.success) {
+                            await this.typeLine(`[SUCCESS]    ${res.computer_name}: ${res.execution.message} -> ${res.execution.output}`, 'text-emerald-400 font-bold');
+                        } else {
+                            await this.typeLine(`[FAILED]     ${res.computer_name}: ${res.execution.message}`, 'text-rose-400 font-bold');
+                        }
+                    }
+                }
+
+                await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+                await this.typeLine(`HASIL EKSEKUSI: ${data.success_count} Berhasil, ${data.fail_count} Gagal (Total ${data.total} Perangkat).`, data.fail_count === 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold');
+            } else {
+                await this.typeLine(`ERROR: Eksekusi gagal — ${data.message || 'Respon tidak valid'}`, 'text-rose-400');
+            }
+        } catch (e) {
+            await this.typeLine(`ERROR KONEKSI: ${e.message}`, 'text-rose-400 font-bold');
+        } finally {
+            this.term.running = false;
+            this.executingActionId = null;
+            this.scrollTerm();
+        }
+    },
+
+    selectedDeviceIds: [],
+
+    get isAllFilteredSelected() {
+        if (this.filteredDevices.length === 0) return false;
+        return this.filteredDevices.every(d => this.selectedDeviceIds.includes(d.id));
+    },
+
+    toggleSelectAllFiltered() {
+        if (this.isAllFilteredSelected) {
+            const filteredIds = new Set(this.filteredDevices.map(d => d.id));
+            this.selectedDeviceIds = this.selectedDeviceIds.filter(id => !filteredIds.has(id));
+        } else {
+            const filteredIds = this.filteredDevices.map(d => d.id);
+            this.selectedDeviceIds = Array.from(new Set([...this.selectedDeviceIds, ...filteredIds]));
+        }
+    },
+
+    clearDeviceSelection() {
+        this.selectedDeviceIds = [];
+    },
+
+    executingVncRefresh: false,
+
+    async executeVncMassRefresh(specifiedTargetIds = null) {
+        if (this.executingVncRefresh) return;
+
+        let targetIds = [];
+        if (Array.isArray(specifiedTargetIds) && specifiedTargetIds.length > 0) {
+            targetIds = specifiedTargetIds;
+        } else if (this.selectedDeviceIds.length > 0) {
+            targetIds = [...this.selectedDeviceIds];
+        } else {
+            targetIds = this.filteredDevices.map(d => d.id);
+        }
+
+        if (targetIds.length === 0) {
+            this.showBoardError('Tidak ada perangkat yang dipilih atau sesuai filter saat ini.');
+            return;
+        }
+
+        this.executingVncRefresh = true;
+
+        this.term.open = true;
+        this.term.title = `VNC Mass Refresh F5 (No SSH) — (${targetIds.length} Perangkat)`;
+        this.term.lines = [];
+        this.term.running = true;
+
+        await this.typeLine(`$ nodehub vnc-rfb refresh --key=F5 --targets=${targetIds.length}`, 'text-cyan-400 font-bold');
+        await this.typeLine(`Protokol: VNC RFB Direct Socket (Tanpa SSH)`, 'text-slate-400 font-mono');
+        await this.typeLine(`Menghubungkan langsung via socket TCP VNC ke ${targetIds.length} perangkat target...`, 'text-blue-400');
+
+        try {
+            const response = await fetch('/vnc/mass-refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': this.csrfToken,
+                },
+                body: JSON.stringify({ computer_ids: targetIds }),
+            });
+
+            const data = await response.json();
+
+            if (data.results) {
+                await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+
+                for (const res of Object.values(data.results)) {
+                    if (res.success) {
+                        await this.typeLine(`[VNC RFB F5 OK]   ${res.computer_name} (${res.ip_address}:${res.vnc_port}) -> ${res.message}`, 'text-emerald-400 font-bold');
+                    } else {
+                        await this.typeLine(`[VNC RFB FAILED] ${res.computer_name} (${res.ip_address}:${res.vnc_port}) -> ${res.message}`, 'text-rose-400 font-bold');
+                    }
+                }
+
+                await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+                await this.typeLine(`HASIL REFRESH VNC: ${data.success_count} Berhasil, ${data.fail_count} Gagal (Total ${data.total} Perangkat).`, data.fail_count === 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold');
+            } else {
+                await this.typeLine(`ERROR: Refresh gagal — ${data.message || 'Respon tidak valid'}`, 'text-rose-400');
+            }
+        } catch (e) {
+            await this.typeLine(`ERROR KONEKSI: ${e.message}`, 'text-rose-400 font-bold');
+        } finally {
+            this.term.running = false;
+            this.executingVncRefresh = false;
+            this.scrollTerm();
+        }
     },
 
     openDetailModal(comp) {

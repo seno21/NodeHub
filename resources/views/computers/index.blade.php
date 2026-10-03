@@ -46,7 +46,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }})" x-on:trigger-open-export-modal.window="openExportModal()"
+    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }}, {{ json_encode($remoteActions ?? []) }})" x-on:trigger-open-export-modal.window="openExportModal()"
         x-on:trigger-open-import-modal.window="openImportModal()"
         x-on:trigger-check-all-connections.window="checkAllConnections('{{ route('computers.status') }}', false)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1580,8 +1580,35 @@
                             </svg>
                             Import Devices
                         </button>
-                    </div>
-                </form>
+        <!-- Floating Batch Action Bar (Appears when 1+ checkboxes are selected) -->
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/95 text-white border border-white/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 max-w-xl w-11/12 transition-all duration-300"
+            x-show="selectedDeviceIds.length > 0" x-transition.opacity.duration.200ms x-cloak>
+            <div class="flex items-center gap-2.5">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                </span>
+                <span class="text-xs font-bold font-mono tracking-wide" x-text="selectedDeviceIds.length + ' Perangkat Terpilih'"></span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" x-on:click="executeVncMassRefresh(selectedDeviceIds)"
+                    x-bind:disabled="executingVncRefresh"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#00828c] hover:bg-[#006e76] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-md shadow-[#00828c]/30 disabled:opacity-50">
+                    <svg class="h-4 w-4 animate-spin" x-show="executingVncRefresh" fill="none" viewBox="0 0 24 24" x-cloak>
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    <svg class="h-3.5 w-3.5 text-cyan-200" x-show="!executingVncRefresh" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>⚡ Refresh VNC F5</span>
+                </button>
+
+                <button type="button" x-on:click="clearDeviceSelection()"
+                    class="text-xs text-slate-400 hover:text-white px-2.5 py-2 font-semibold transition">
+                    Batal
+                </button>
             </div>
         </div>
     </div>

@@ -1044,6 +1044,10 @@ function bindToolbar() {
         });
     });
 
+    el.btnQuickF5?.addEventListener("click", () => {
+        QUICK_KEYS.f5();
+    });
+
     el.btnQuickKeys?.addEventListener("click", (event) => {
         event.stopPropagation();
         el.quickKeysPanel?.classList.toggle("hidden");
@@ -1394,6 +1398,7 @@ async function init() {
     el.btnBack = qs("btn-back");
     el.btnRotate = qs("btn-rotate");
     el.rotateBadge = qs("rotate-badge");
+    el.btnQuickF5 = qs("btn-quick-f5");
     el.btnQuickKeys = qs("btn-quick-keys");
     el.quickKeysPanel = qs("quick-keys-panel");
     el.qkCtrlAltDel = qs("qk-ctrl-alt-del");

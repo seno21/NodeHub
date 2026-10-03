@@ -73,6 +73,16 @@ class ComputerController extends Controller
         $allTags = Schema::hasTable('tags') ? Tag::query()->orderBy('name')->get() : collect();
         $computers = (clone $query)->latest()->paginate(15)->withQueryString();
 
+        $remoteActions = Schema::hasTable('remote_actions')
+            ? \App\Models\RemoteAction::query()->latest()->get()->map(fn ($a) => [
+                'id' => $a->id,
+                'name' => $a->name,
+                'icon' => $a->icon ?: 'lucide:terminal',
+                'command' => $a->command,
+                'description' => $a->description,
+            ])->values()->all()
+            : [];
+
         $allDevices = (clone $query)->latest()->get()->map(function ($c) {
             $tagNames = [];
             if ($c->relationLoaded('tagsRelation') && $c->tagsRelation->isNotEmpty()) {
@@ -105,6 +115,7 @@ class ComputerController extends Controller
             'computers' => $computers,
             'allDevices' => $allDevices,
             'allTags' => $allTags,
+            'remoteActions' => $remoteActions,
         ]);
     }
 
