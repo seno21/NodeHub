@@ -164,7 +164,7 @@ class VncSessionTest extends TestCase
             'vnc_port' => 59999,
         ]);
 
-        $response = $this->actingAs($user)->postJson('/vnc/mass-refresh', [
+        $response = $this->actingAs($user)->postJson('/computers/vnc-refresh', [
             'computer_ids' => [$computer->id],
         ]);
 
