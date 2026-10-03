@@ -46,7 +46,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }})" x-on:trigger-open-export-modal.window="openExportModal()"
+    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }}, {{ json_encode($remoteActions ?? []) }})" x-on:trigger-open-export-modal.window="openExportModal()"
         x-on:trigger-open-import-modal.window="openImportModal()"
         x-on:trigger-check-all-connections.window="checkAllConnections('{{ route('computers.status') }}', false)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -207,6 +207,25 @@
                             </svg>
                             <span
                                 x-text="checkingAll ? '{{ __('Memeriksa...') }}' : '{{ __('Ping All') }}'">{{ __('Ping All') }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Action: Quick VNC F5 Mass Refresh (Pure VNC RFB Protocol - No SSH Required) -->
+                    <div class="w-full sm:w-auto shrink-0">
+                        <button type="button"
+                            x-on:click="executeVncMassRefresh()"
+                            x-bind:disabled="executingVncRefresh || filteredDevices.length === 0"
+                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00828c] hover:bg-[#006e76] active:bg-[#00585f] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
+                            :title="'Kirim sinyal VNC F5 Refresh (Tanpa SSH) ke ' + filteredDevices.length + ' perangkat'">
+                            <svg class="h-4 w-4 animate-spin" x-show="executingVncRefresh" fill="none" viewBox="0 0 24 24" x-cloak>
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <svg class="h-4 w-4 text-cyan-200" x-show="!executingVncRefresh" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            <span>⚡ VNC F5 (No SSH)</span>
+                            <span class="ml-0.5 bg-white/20 text-white font-mono px-1.5 py-0.5 rounded-full text-[10px]" x-text="filteredDevices.length"></span>
                         </button>
                     </div>
 

@@ -296,6 +296,210 @@ class VncSessionService
         rename($tmp, $path);
     }
 
+    /**
+     * Send native VNC RFB keypress (e.g. F5 = 0xffc2) directly via VNC TCP protocol to target computer without SSH.
+     *
+     * @return array{success: boolean, message: string, latency_ms: int}
+     */
+    public function sendVncKey(Computer $computer, int $keysym = 0xffc2): array
+    {
+        $startTime = microtime(true);
+        $host = $computer->ip_address;
+        $port = (int) ($computer->vnc_port ?: 5900);
+        $password = $computer->vnc_password;
+        $timeout = 2.5;
+
+        $socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
+        if (! is_resource($socket)) {
+            $latency = (int) round((microtime(true) - $startTime) * 1000);
+            $errLower = strtolower($errstr ?: '');
+            if ($errno === 111 || str_contains($errLower, 'refused')) {
+                $msg = "VNC PORT CLOSED: Port {$port} on {$host} is refused. Ensure VNC server is running.";
+            } elseif ($errno === 110 || str_contains($errLower, 'timed out')) {
+                $msg = "CONNECTION TIMEOUT: {$host}:{$port} did not respond.";
+            } else {
+                $msg = "Koneksi VNC gagal ke {$host}:{$port} - " . ($errstr ?: "Error #{$errno}");
+            }
+
+            return [
+                'success' => false,
+                'message' => $msg,
+                'latency_ms' => $latency,
+            ];
+        }
+
+        stream_set_timeout($socket, 2, 500000);
+
+        // 1. RFB ProtocolVersion Handshake
+        $serverProto = fread($socket, 12);
+        if ($serverProto === false || strlen($serverProto) < 12) {
+            fclose($socket);
+            $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+            return [
+                'success' => false,
+                'message' => "VNC Handshake gagal: Respon server tidak valid pada {$host}:{$port}",
+                'latency_ms' => $latency,
+            ];
+        }
+
+        fwrite($socket, "RFB 003.008\n");
+
+        // 2. Security Handshake
+        $secNumData = fread($socket, 1);
+        if ($secNumData === false || strlen($secNumData) < 1) {
+            fclose($socket);
+            $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+            return [
+                'success' => false,
+                'message' => "VNC Security handshake gagal pada {$host}:{$port}",
+                'latency_ms' => $latency,
+            ];
+        }
+
+        $secNum = ord($secNumData);
+        if ($secNum === 0) {
+            $reasonLenData = fread($socket, 4);
+            $reasonLen = (is_string($reasonLenData) && strlen($reasonLenData) === 4) ? unpack('N', $reasonLenData)[1] : 0;
+            $reason = $reasonLen > 0 ? fread($socket, $reasonLen) : 'Security handshake failed';
+            fclose($socket);
+            $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+            return [
+                'success' => false,
+                'message' => "VNC Security error ({$host}:{$port}): " . ($reason ?: 'Failed'),
+                'latency_ms' => $latency,
+            ];
+        }
+
+        $secTypes = fread($socket, $secNum);
+        if ($secTypes === false) {
+            $secTypes = "\x01";
+        }
+
+        $selectedType = 0;
+        if (str_contains($secTypes, "\x01")) {
+            // Type 1 = None
+            $selectedType = 1;
+            fwrite($socket, "\x01");
+        } elseif (str_contains($secTypes, "\x02")) {
+            // Type 2 = VNC Auth
+            $selectedType = 2;
+            fwrite($socket, "\x02");
+        } else {
+            $selectedType = ord($secTypes[0]);
+            fwrite($socket, chr($selectedType));
+        }
+
+        if ($selectedType === 2) {
+            if (empty($password)) {
+                fclose($socket);
+                $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+                return [
+                    'success' => false,
+                    'message' => "VNC Auth error: Password VNC belum diatur di portal untuk {$computer->name} ({$host}:{$port})",
+                    'latency_ms' => $latency,
+                ];
+            }
+
+            $challenge = fread($socket, 16);
+            if ($challenge === false || strlen($challenge) < 16) {
+                fclose($socket);
+                $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+                return [
+                    'success' => false,
+                    'message' => "VNC Auth challenge gagal dari {$host}:{$port}",
+                    'latency_ms' => $latency,
+                ];
+            }
+
+            $response = $this->vncEncryptPassword($password, $challenge);
+            fwrite($socket, $response);
+
+            $authResult = fread($socket, 4);
+            $resultVal = (is_string($authResult) && strlen($authResult) === 4) ? unpack('N', $authResult)[1] : 1;
+            if ($resultVal !== 0) {
+                fclose($socket);
+                $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+                return [
+                    'success' => false,
+                    'message' => "VNC Password salah / ditolak server {$host}:{$port}",
+                    'latency_ms' => $latency,
+                ];
+            }
+        } elseif ($selectedType !== 1) {
+            $authResult = fread($socket, 4);
+            $resultVal = (is_string($authResult) && strlen($authResult) === 4) ? unpack('N', $authResult)[1] : 1;
+            if ($resultVal !== 0) {
+                fclose($socket);
+                $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+                return [
+                    'success' => false,
+                    'message' => "VNC Auth gagal untuk {$host}:{$port}",
+                    'latency_ms' => $latency,
+                ];
+            }
+        } else {
+            // Type 1 in RFB 3.8 receives 4-byte SecurityResult
+            fread($socket, 4);
+        }
+
+        // 3. ClientInit (Shared = 1)
+        fwrite($socket, "\x01");
+
+        // Read ServerInit (24 bytes header + nameLen bytes)
+        $serverInit = fread($socket, 24);
+        if (is_string($serverInit) && strlen($serverInit) >= 24) {
+            $nameLen = unpack('N', substr($serverInit, 20, 4))[1] ?? 0;
+            if ($nameLen > 0) {
+                fread($socket, $nameLen);
+            }
+        }
+
+        // 4. Send RFB KeyEvent Message (F5 = 0xffc2)
+        // KeyDown (8 bytes): type=4, down=1, pad=0, keysym (N)
+        $keyDown = pack('CCnN', 4, 1, 0, $keysym);
+        // KeyUp (8 bytes): type=4, down=0, pad=0, keysym (N)
+        $keyUp = pack('CCnN', 4, 0, 0, $keysym);
+
+        fwrite($socket, $keyDown);
+        usleep(40000); // 40ms hold
+        fwrite($socket, $keyUp);
+
+        fclose($socket);
+        $latency = (int) round((microtime(true) - $startTime) * 1000);
+
+        return [
+            'success' => true,
+            'message' => "VNC RFB F5 Keypress berhasil terkirim via VNC protocol ({$latency}ms)",
+            'latency_ms' => $latency,
+        ];
+    }
+
+    private function vncEncryptPassword(string $password, string $challenge): string
+    {
+        $key = str_pad(substr($password, 0, 8), 8, "\0");
+        $reversedKey = '';
+        for ($i = 0; $i < 8; $i++) {
+            $b = ord($key[$i]);
+            $b = (($b & 0xF0) >> 4) | (($b & 0x0F) << 4);
+            $b = (($b & 0xCC) >> 2) | (($b & 0x33) << 2);
+            $b = (($b & 0xAA) >> 1) | (($b & 0x55) << 1);
+            $reversedKey .= chr($b);
+        }
+
+        if (function_exists('openssl_encrypt')) {
+            return (string) openssl_encrypt($challenge, 'DES-ECB', $reversedKey, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING);
+        }
+
+        return $challenge;
+    }
+
     private function cacheKey(string $token): string
     {
         return "vnc-session:{$token}";

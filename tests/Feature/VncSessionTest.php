@@ -156,6 +156,24 @@ class VncSessionTest extends TestCase
         $this->assertStringStartsWith($liveToken.':', $lines[0]);
     }
 
+    public function test_mass_refresh_vnc_keys_via_rfb(): void
+    {
+        $user = User::factory()->create();
+        $computer = Computer::factory()->create([
+            'ip_address' => '127.0.0.1',
+            'vnc_port' => 59999,
+        ]);
+
+        $response = $this->actingAs($user)->postJson('/vnc/mass-refresh', [
+            'computer_ids' => [$computer->id],
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('status', 'completed')
+            ->assertJsonPath('total', 1)
+            ->assertJsonPath('fail_count', 1);
+    }
+
     /**
      * Open a temporary TCP listener simulating a reachable VNC target.
      *

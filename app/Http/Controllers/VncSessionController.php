@@ -197,6 +197,57 @@ class VncSessionController extends Controller
     }
 
     /**
+     * Execute mass VNC F5 Keypress directly via VNC RFB protocol (no SSH required).
+     */
+    public function massRefresh(Request $request): JsonResponse
+    {
+        $targetIds = $request->input('computer_ids', []);
+
+        $query = Computer::query();
+        if (! empty($targetIds) && is_array($targetIds)) {
+            $query->whereIn('id', $targetIds);
+        }
+
+        $computers = $query->get();
+        $results = [];
+        $successCount = 0;
+
+        foreach ($computers as $computer) {
+            $res = $this->sessions->sendVncKey($computer, 0xffc2); // 0xffc2 = F5
+            $results[$computer->id] = [
+                'computer_id' => $computer->id,
+                'computer_name' => $computer->name,
+                'ip_address' => $computer->ip_address,
+                'vnc_port' => $computer->vnc_port,
+                'success' => $res['success'],
+                'message' => $res['message'],
+                'latency_ms' => $res['latency_ms'],
+            ];
+            if ($res['success']) {
+                $successCount++;
+            }
+        }
+
+        $total = count($computers);
+        $failCount = $total - $successCount;
+
+        AuditLogger::log('vnc.mass_refresh', "Executed VNC RFB F5 refresh on {$total} devices via VNC protocol (no SSH)", [
+            'total' => $total,
+            'success_count' => $successCount,
+            'fail_count' => $failCount,
+        ]);
+
+        return response()->json([
+            'status' => 'completed',
+            'action_name' => 'VNC F5 Mass Refresh (No SSH)',
+            'total' => $total,
+            'success_count' => $successCount,
+            'fail_count' => $failCount,
+            'results' => $results,
+        ]);
+    }
+
+    /**
      * Resolve the public websockify base URL.
      *
      * Falls back to the request host (including port) so the portal works
