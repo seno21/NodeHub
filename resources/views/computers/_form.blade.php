@@ -162,7 +162,7 @@
                 <div class="relative mt-1">
                     <input id="vnc_password" name="vnc_password"
                         :type="showVncPassword ? 'text' : 'password'"
-                        value="{{ old('vnc_password', $computer?->vnc_password ?? $duplicateFrom?->vnc_password) }}"
+                        value="{{ old('vnc_password', $computer?->vnc_password ?? ($duplicateFrom ?? null)?->vnc_password) }}"
                         class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm pr-10"
                         placeholder="{{ __('Enter VNC password') }}" autocomplete="new-password" />
                     <button type="button" x-on:click="showVncPassword = !showVncPassword"
@@ -318,7 +318,7 @@
                 <div class="relative mt-1">
                     <input id="ssh_password" name="ssh_password"
                         :type="showSshPassword ? 'text' : 'password'"
-                        value="{{ old('ssh_password', $computer?->ssh_password ?? $duplicateFrom?->ssh_password) }}"
+                        value="{{ old('ssh_password', $computer?->ssh_password ?? ($duplicateFrom ?? null)?->ssh_password) }}"
                         class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-[#00828c] focus:ring-[#00828c] text-sm pr-10"
                         placeholder="{{ __('Enter SSH password') }}" autocomplete="new-password" />
                     <button type="button" x-on:click="showSshPassword = !showSshPassword"
