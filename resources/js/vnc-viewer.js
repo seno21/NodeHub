@@ -914,7 +914,9 @@ function screenshot() {
 
     link.href = state.rfb.toDataURL();
     link.download = `${state.deviceName}-${stamp}.png`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
     setStatus("Screenshot saved");
 }

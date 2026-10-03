@@ -211,7 +211,9 @@
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = `remote-execution-log-${dateStamp}.txt`;
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
                     URL.revokeObjectURL(link.href);
                 },
 
@@ -229,7 +231,9 @@
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = `remote-execution-log-${dateStamp}.md`;
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
                     URL.revokeObjectURL(link.href);
                 },
 

@@ -1423,7 +1423,7 @@
                     </button>
                 </div>
 
-                <form method="GET" action="{{ route('computers.export') }}" x-on:submit="closeExportModal()"
+                <form method="GET" action="{{ route('computers.export') }}" x-data="{ exportFormat: 'json' }" x-on:submit="setTimeout(() => closeExportModal(), 500)"
                     class="p-4 sm:p-6 space-y-4">
                     <div
                         class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 text-xs flex items-start gap-2.5">
@@ -1443,17 +1443,19 @@
                             File Format</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label
-                                class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
-                                <input type="radio" name="format" value="json" checked
-                                    class="sr-only peer">
-                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">JSON Backup
+                                class="relative flex flex-col p-3.5 rounded-xl border-2 cursor-pointer transition"
+                                :class="exportFormat === 'json' ? 'border-[#00828c] bg-[#00828c]/5 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'">
+                                <input type="radio" name="format" value="json" x-model="exportFormat"
+                                    class="sr-only">
+                                <span class="text-xs font-bold" :class="exportFormat === 'json' ? 'text-[#00828c]' : 'text-slate-900'">JSON Backup
                                     (.json)</span>
                                 <span class="text-[11px] text-slate-500 mt-1">Recommended for NodeHub migration</span>
                             </label>
                             <label
-                                class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
-                                <input type="radio" name="format" value="csv" class="sr-only peer">
-                                <span class="text-xs font-bold text-slate-900 peer-checked:text-[#00828c]">CSV
+                                class="relative flex flex-col p-3.5 rounded-xl border-2 cursor-pointer transition"
+                                :class="exportFormat === 'csv' ? 'border-[#00828c] bg-[#00828c]/5 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'">
+                                <input type="radio" name="format" value="csv" x-model="exportFormat" class="sr-only">
+                                <span class="text-xs font-bold" :class="exportFormat === 'csv' ? 'text-[#00828c]' : 'text-slate-900'">CSV
                                     Spreadsheet (.csv)</span>
                                 <span class="text-[11px] text-slate-500 mt-1">For Excel or Google Sheets</span>
                             </label>
@@ -1585,8 +1587,10 @@
 
                     </div>
                 </form>
+            </div>
+        </div>
 
-                    @foreach ($allDevices as $computer)
+        @foreach ($allDevices as $computer)
                         <x-modal
                             name="confirm-computer-deletion-{{ is_array($computer) ? $computer['id'] : $computer->id }}"
                             maxWidth="md" :show="false" focusable>

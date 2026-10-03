@@ -49,7 +49,7 @@
                         <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">
                             {{ __('Total Devices') }}</p>
                         <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00828c]/10 text-[#00828c]">
-                            <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24"
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />

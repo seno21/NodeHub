@@ -242,7 +242,9 @@
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = `remote-action-${this.action.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${dateStamp}.txt`;
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
                     URL.revokeObjectURL(link.href);
                 },
 
@@ -262,7 +264,9 @@
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = `remote-action-${this.action.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${dateStamp}.md`;
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
                     URL.revokeObjectURL(link.href);
                 },
 
