@@ -208,7 +208,7 @@
                                 <span class="font-mono text-gray-400">{{ $log->ip_address ?? '-' }}</span>
                                 @if(!empty($log->properties))
                                     <button type="button"
-                                            @click="selectedLog = {{ json_encode($log) }}; modalOpen = true"
+                                            @click="selectedLog = @js($log); modalOpen = true"
                                             class="px-2 py-0.5 rounded-md text-[10px] font-semibold text-[#00828c] bg-teal-50 hover:bg-teal-100 transition border border-teal-200/60">
                                         JSON
                                     </button>
@@ -278,7 +278,7 @@
                                     <td class="px-5 py-3.5 whitespace-nowrap text-right">
                                         @if(!empty($log->properties))
                                             <button type="button"
-                                                    @click="selectedLog = {{ json_encode($log) }}; modalOpen = true"
+                                                    @click="selectedLog = @js($log); modalOpen = true"
                                                     class="px-2.5 py-1 rounded-lg text-xs font-semibold text-[#00828c] bg-teal-50 hover:bg-teal-100 transition border border-teal-200/60">
                                                 {{ __('Payload JSON') }}
                                             </button>

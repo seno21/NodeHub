@@ -78,7 +78,7 @@
         ];
     @endphp
 
-    <div class="py-6 sm:py-8" x-data="showActionView({{ json_encode($actionJson) }})">
+    <div class="py-6 sm:py-8" x-data="showActionView(@js($actionJson))">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             {{-- Action Info Card --}}

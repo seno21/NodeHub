@@ -42,7 +42,7 @@
         })->values();
     @endphp
 
-    <div class="py-6 sm:py-8" x-data="remoteActionDashboard({{ json_encode($actionsJson) }})">
+    <div class="py-6 sm:py-8" x-data="remoteActionDashboard(@js($actionsJson))">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             {{-- Flash status --}}

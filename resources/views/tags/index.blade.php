@@ -73,12 +73,12 @@
 
                             <div class="pt-2 border-t border-slate-200/60 flex items-center justify-end gap-2">
                                 <button type="button"
-                                    x-on:click="openEditModal({{ json_encode($tagItem) }})"
+                                    x-on:click="openEditModal(@js($tagItem))"
                                     class="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl text-xs hover:bg-slate-100 transition">
                                     Edit
                                 </button>
                                 <button type="button"
-                                    x-on:click="confirmDeleteTag({{ json_encode($tagItem) }})"
+                                    x-on:click="confirmDeleteTag(@js($tagItem))"
                                     class="px-3.5 py-1.5 bg-rose-50 border border-rose-100 text-rose-600 font-semibold rounded-xl text-xs hover:bg-rose-100 transition">
                                     Delete
                                 </button>
@@ -125,12 +125,12 @@
                                     <td class="px-6 py-4 text-right whitespace-nowrap">
                                         <div class="flex items-center justify-end gap-2">
                                             <button type="button"
-                                                x-on:click="openEditModal({{ json_encode($tagItem) }})"
+                                                x-on:click="openEditModal(@js($tagItem))"
                                                 class="px-3 py-1.5 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition">
                                                 Edit
                                             </button>
                                             <button type="button"
-                                                x-on:click="confirmDeleteTag({{ json_encode($tagItem) }})"
+                                                x-on:click="confirmDeleteTag(@js($tagItem))"
                                                 class="px-3 py-1.5 bg-rose-50 text-rose-600 font-semibold rounded-xl hover:bg-rose-100 transition">
                                                 Delete
                                             </button>

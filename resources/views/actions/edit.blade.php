@@ -43,7 +43,7 @@
         $selectedIdsJson = $action->computers->pluck('id')->all();
     @endphp
 
-    <div class="py-6 sm:py-8" x-data="editActionForm({{ json_encode($computersJson) }}, {{ json_encode($selectedIdsJson) }})">
+    <div class="py-6 sm:py-8" x-data="editActionForm(@js($computersJson), @js($selectedIdsJson))">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xs p-5 sm:p-8">
 

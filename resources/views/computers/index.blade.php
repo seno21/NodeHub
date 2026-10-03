@@ -46,7 +46,7 @@
         </div>
     </x-slot>
 
-    <div class="py-6 sm:py-10" x-data="deviceBoard({{ json_encode($allDevices) }}, {{ json_encode($remoteActions ?? []) }})" x-on:trigger-open-export-modal.window="openExportModal()"
+    <div class="py-6 sm:py-10" x-data="deviceBoard(@js($allDevices), @js($remoteActions ?? []))" x-on:trigger-open-export-modal.window="openExportModal()"
         x-on:trigger-open-import-modal.window="openImportModal()"
         x-on:trigger-check-all-connections.window="checkAllConnections('{{ route('computers.status') }}', false)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1584,6 +1584,7 @@
                         </button>
 
                     </div>
+                </form>
 
                     @foreach ($allDevices as $computer)
                         <x-modal
