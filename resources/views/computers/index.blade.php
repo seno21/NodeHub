@@ -251,14 +251,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                             </svg>
-                            <span>Refresh</span>
+                            <span>Refresh F5 (VNC)</span>
                         </button>
 
                         <!-- Action 2: Ping Selected -->
                         <button type="button"
                             x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
                             :disabled="checkingAll || vncRefreshing"
-                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition shadow-lg shadow-emerald-900/30 disabled:opacity-60 disabled:cursor-not-allowed">
+                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-700 hover:from-emerald-600 hover:to-teal-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-emerald-950/40 disabled:opacity-60 disabled:cursor-not-allowed"
+                            title="Diagnosa Ping & Status Port Perangkat Terpilih">
                             <svg class="w-4 h-4 animate-spin" x-show="checkingAll" fill="none"
                                 viewBox="0 0 24 24" x-cloak>
                                 <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -269,14 +270,14 @@
                             <svg class="w-4 h-4" x-show="!checkingAll" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21M6.75 6.75h10.5a2.25 2.25 0 0 1 2.25 2.25v6.525a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
+                                    d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856a9.75 9.75 0 0 1 13.788 0M1.924 8.674a14.25 14.25 0 0 1 20.152 0M12 18.75h.008v.008H12v-.008Z" />
                             </svg>
-                            <span>Ping</span>
+                            <span>Cek Ping</span>
                         </button>
 
                         <button type="button" x-on:click="clearSelection()"
                             class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition border border-slate-700">
-                            <span>Cancel</span>
+                            <span>Batal Pilihan</span>
                         </button>
                     </div>
                 </div>
@@ -473,13 +474,13 @@
                                         </svg>
                                     </button>
 
-                                    <button type="button" title="Ping & Port Diagnostics"
-                                        class="rounded-xl p-2.5 text-gray-500 hover:text-[#00828c] hover:bg-[#00828c]/10 bg-slate-100 transition"
+                                    <button type="button" title="Cek Diagnosa Ping & Port"
+                                        class="rounded-xl p-2.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 bg-emerald-50 border border-emerald-200/80 transition"
                                         x-on:click.prevent="ping(comp.id, comp.ip_address, comp.vnc_port, '/computers/' + comp.id + '/ping')">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor" stroke-width="1.8">
+                                            stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="m8.25 7.5 .415-.207a.75.75 0 0 1 1.085.67V10.5m6-3-.415-.207a.75.75 0 0 0-1.085.67V10.5M6.75 16.5h.008v.008h-.008v-.008Zm2.25 0h.008v.008H9v-.008Zm2.25 0h.008v.008H12v-.008Zm2.25 0h.008v.008h-.008v-.008ZM4.5 6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 17.25V6.75Z" />
+                                                d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856a9.75 9.75 0 0 1 13.788 0M1.924 8.674a14.25 14.25 0 0 1 20.152 0M12 18.75h.008v.008H12v-.008Z" />
                                         </svg>
                                     </button>
 
@@ -721,13 +722,13 @@
                                                 </button>
                                             </form>
 
-                                            <button type="button" title="Ping & Port Diagnostics"
-                                                class="rounded-md p-1.5 text-gray-400 hover:text-[#00828c] hover:bg-[#00828c]/10 transition"
+                                            <button type="button" title="Cek Diagnosa Ping & Port"
+                                                class="rounded-md p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 bg-emerald-50 border border-emerald-200/80 transition"
                                                 x-on:click.prevent="ping(comp.id, comp.ip_address, comp.vnc_port, '/computers/' + comp.id + '/ping')">
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor" stroke-width="1.8">
+                                                    stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="m8.25 7.5 .415-.207a.75.75 0 0 1 1.085.67V10.5m6-3-.415-.207a.75.75 0 0 0-1.085.67V10.5M6.75 16.5h.008v.008h-.008v-.008Zm2.25 0h.008v.008H9v-.008Zm2.25 0h.008v.008H12v-.008Zm2.25 0h.008v.008h-.008v-.008ZM4.5 6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 17.25V6.75Z" />
+                                                        d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856a9.75 9.75 0 0 1 13.788 0M1.924 8.674a14.25 14.25 0 0 1 20.152 0M12 18.75h.008v.008H12v-.008Z" />
                                                 </svg>
                                             </button>
 
@@ -1580,45 +1581,7 @@
                             </svg>
                             Import Devices
                         </button>
-                        <!-- Floating Batch Action Bar (Appears when 1+ checkboxes are selected) -->
-                        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/95 text-white border border-white/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 max-w-xl w-11/12 transition-all duration-300"
-                            x-show="selectedDeviceIds.length > 0" x-transition.opacity.duration.200ms x-cloak>
-                            <div class="flex items-center gap-2.5">
-                                <span class="relative flex h-2.5 w-2.5">
-                                    <span
-                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
-                                </span>
-                                <span class="text-xs font-bold font-mono tracking-wide"
-                                    x-text="selectedDeviceIds.length + ' Perangkat Terpilih'"></span>
-                            </div>
 
-                            <div class="flex items-center gap-2">
-                                <button type="button" x-on:click="executeVncMassRefresh(selectedDeviceIds)"
-                                    x-bind:disabled="executingVncRefresh"
-                                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#00828c] hover:bg-[#006e76] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-md shadow-[#00828c]/30 disabled:opacity-50">
-                                    <svg class="h-4 w-4 animate-spin" x-show="executingVncRefresh" fill="none"
-                                        viewBox="0 0 24 24" x-cloak>
-                                        <circle class="opacity-25" cx="12" cy="12" r="10"
-                                            stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                    </svg>
-                                    <svg class="h-3.5 w-3.5 text-cyan-200" x-show="!executingVncRefresh"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                    </svg>
-                                    <span>⚡ Refresh VNC F5</span>
-                                </button>
-
-                                <button type="button" x-on:click="clearDeviceSelection()"
-                                    class="text-xs text-slate-400 hover:text-white px-2.5 py-2 font-semibold transition">
-                                    Batal
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
                     @foreach ($allDevices as $computer)

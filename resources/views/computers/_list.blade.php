@@ -119,12 +119,20 @@
                     </form>
 
                     <div class="flex items-center gap-1 shrink-0">
+                        <button type="button" title="Refresh F5 via VNC (Tanpa SSH)"
+                                class="rounded-xl p-2.5 text-amber-600 hover:text-amber-700 hover:bg-amber-100 bg-amber-50 border border-amber-200/80 transition"
+                                x-on:click.prevent="executeVncF5Refresh({{ $computer->id }})">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </button>
+
                         <button type="button"
                                 title="{{ __('Cek Diagnosa Ping & Port') }}"
-                                class="rounded-xl p-2.5 text-gray-500 hover:text-[#00828c] hover:bg-[#00828c]/10 bg-slate-100 transition"
+                                class="rounded-xl p-2.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 bg-emerald-50 border border-emerald-200/80 transition"
                                 x-on:click.prevent="ping({{ $computer->id }}, '{{ $computer->ip_address }}', {{ $computer->vnc_port }}, '{{ route('computers.ping', $computer) }}')">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 7.5 .415-.207a.75.75 0 0 1 1.085.67V10.5m6-3-.415-.207a.75.75 0 0 0-1.085.67V10.5M6.75 16.5h.008v.008h-.008v-.008Zm2.25 0h.008v.008H9v-.008Zm2.25 0h.008v.008H12v-.008Zm2.25 0h.008v.008h-.008v-.008ZM4.5 6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 17.25V6.75Z"/>
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856a9.75 9.75 0 0 1 13.788 0M1.924 8.674a14.25 14.25 0 0 1 20.152 0M12 18.75h.008v.008H12v-.008Z" />
                             </svg>
                         </button>
 
@@ -264,13 +272,20 @@
                                     </button>
                                 </form>
 
+                                <button type="button" title="Refresh F5 via VNC (Tanpa SSH)"
+                                        class="rounded-md p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-100 bg-amber-50 border border-amber-200/80 transition me-0.5"
+                                        x-on:click.prevent="executeVncF5Refresh({{ $computer->id }})">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                </button>
+
                                 <button type="button"
                                         title="{{ __('Cek Diagnosa Ping & Port') }}"
-                                        class="rounded-md p-1.5 text-gray-400 hover:text-[#00828c] hover:bg-[#00828c]/10 transition"
+                                        class="rounded-md p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 bg-emerald-50 border border-emerald-200/80 transition"
                                         x-on:click.prevent="ping({{ $computer->id }}, '{{ $computer->ip_address }}', {{ $computer->vnc_port }}, '{{ route('computers.ping', $computer) }}')">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="m8.25 7.5 .415-.207a.75.75 0 0 1 1.085.67V10.5m6-3-.415-.207a.75.75 0 0 0-1.085.67V10.5M6.75 16.5h.008v.008h-.008v-.008Zm2.25 0h.008v.008H9v-.008Zm2.25 0h.008v.008H12v-.008Zm2.25 0h.008v.008h-.008v-.008ZM4.5 6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 17.25V6.75Z"/>
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856a9.75 9.75 0 0 1 13.788 0M1.924 8.674a14.25 14.25 0 0 1 20.152 0M12 18.75h.008v.008H12v-.008Z"/>
                                     </svg>
                                 </button>
 
