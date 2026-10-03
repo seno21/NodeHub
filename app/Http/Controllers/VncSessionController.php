@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Computer;
 use App\Services\AuditLogger;
+use App\Services\VncActionService;
 use App\Services\VncSessionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,10 @@ use Illuminate\Http\Request;
 
 class VncSessionController extends Controller
 {
-    public function __construct(private VncSessionService $sessions) {}
+    public function __construct(
+        private VncSessionService $sessions,
+        private VncActionService $vncActions
+    ) {}
 
     /**
      * Start a new VNC session and redirect to the viewer.
@@ -193,6 +197,46 @@ class VncSessionController extends Controller
             'device_name' => $session['name'] ?? '',
             'ip_address' => $session['ip_address'] ?? '',
             'vnc_port' => $session['vnc_port'] ?? 5900,
+        ]);
+    }
+
+    /**
+     * Execute VNC F5 Refresh on targeted devices directly via native RFB protocol (WITHOUT SSH).
+     */
+    public function vncRefresh(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'computer_ids' => ['nullable', 'array'],
+            'computer_ids.*' => ['integer', 'exists:computers,id'],
+            'computer_id' => ['nullable', 'integer', 'exists:computers,id'],
+        ]);
+
+        $ids = [];
+        if (!empty($validated['computer_ids'])) {
+            $ids = array_map('intval', $validated['computer_ids']);
+        } elseif (!empty($validated['computer_id'])) {
+            $ids = [(int) $validated['computer_id']];
+        }
+
+        $results = $this->vncActions->executeBatchF5Refresh($ids);
+
+        $successCount = collect($results)->where('success', true)->count();
+        $failCount = count($results) - $successCount;
+
+        AuditLogger::log('vnc.f5_refresh', "Executed VNC F5 Refresh (No SSH) on " . count($results) . " devices", [
+            'total_targets' => count($results),
+            'success_count' => $successCount,
+            'fail_count' => $failCount,
+            'target_ids' => array_keys($results),
+        ]);
+
+        return response()->json([
+            'status' => 'completed',
+            'action' => 'VNC F5 Refresh (No SSH)',
+            'total' => count($results),
+            'success_count' => $successCount,
+            'fail_count' => $failCount,
+            'results' => array_values($results),
         ]);
     }
 

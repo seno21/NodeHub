@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::post('vnc/fast-connect', [VncSessionController::class, 'fastConnect'])
         ->name('vnc.fastConnect');
 
+    Route::post('computers/vnc-refresh', [VncSessionController::class, 'vncRefresh'])
+        ->name('computers.vnc-refresh');
+
     Route::resource('actions', RemoteActionController::class);
     Route::post('actions/{action}/execute', [RemoteActionController::class, 'execute'])->name('actions.execute');
 

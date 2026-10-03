@@ -185,32 +185,7 @@
                             <option value="windows">Windows</option>
                             <option value="linux">Linux</option>
                         </select>
-                    </div>
-
-                    <!-- Action: Cek Semua Koneksi Button -->
-                    <div class="w-full sm:w-auto shrink-0">
-                        <button type="button"
-                            x-on:click="checkAllConnections('{{ route('computers.status') }}', false)"
-                            x-bind:disabled="checkingAll"
-                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition shadow-xs disabled:opacity-60 disabled:cursor-not-allowed">
-                            <svg class="h-4 w-4 animate-spin" x-show="checkingAll" fill="none"
-                                viewBox="0 0 24 24" x-cloak>
-                                <circle class="opacity-25" cx="12" cy="12" r="10"
-                                    stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                            <svg class="h-4 w-4" x-show="!checkingAll" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21M6.75 6.75h10.5a2.25 2.25 0 0 1 2.25 2.25v6.525a2.25 2.25 0 0 1-2.25-2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
-                            </svg>
-                            <span
-                                x-text="checkingAll ? '{{ __('Memeriksa...') }}' : '{{ __('Ping All') }}'">{{ __('Ping All') }}</span>
-                        </button>
-                    </div>
-
-                    <!-- Reset Button -->
+                    </div> <!-- Reset Button -->
                     <div class="flex items-center gap-2 w-full sm:w-auto shrink-0"
                         x-show="searchQuery || selectedTag || selectedOs" x-cloak>
                         <button type="button" x-on:click="resetFilters()"
@@ -221,6 +196,87 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                             </svg>
                             <span>{{ __('Reset') }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sticky Batch Actions Bar (F5 Refresh & Ping Selected) -->
+            <div x-show="selectedCount > 0" x-cloak x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-3 scale-98"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-3 scale-98"
+                class="sticky top-4 z-40 mb-6 bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 border border-cyan-500/30 rounded-2xl p-4 shadow-xl text-white backdrop-blur-md">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3.5">
+                        <span
+                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/30 shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-base text-white"
+                                    x-text="selectedCount + ' Perangkat Terpilih'"></span>
+                                <span
+                                    class="text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                                    VNC / Batch Actions
+                                </span>
+                            </div>
+                            <p class="text-xs text-cyan-200/70 mt-0.5">Pilih aksi massal untuk perangkat yang ditandai.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-white/10 pt-3 md:pt-0">
+                        <!-- Action 1: VNC F5 Refresh -->
+                        <button type="button" x-on:click="executeVncF5Refresh()"
+                            :disabled="vncRefreshing || checkingAll"
+                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition shadow-lg shadow-amber-900/30 disabled:opacity-60 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4 animate-spin" x-show="vncRefreshing" fill="none"
+                                viewBox="0 0 24 24" x-cloak>
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <svg class="w-4 h-4" x-show="!vncRefreshing" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            <span>Refresh F5</span>
+                        </button>
+
+                        <!-- Action 2: Ping Selected -->
+                        <button type="button"
+                            x-on:click="checkAllConnections('{{ route('computers.status') }}', true)"
+                            :disabled="checkingAll || vncRefreshing"
+                            class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition shadow-lg shadow-emerald-900/30 disabled:opacity-60 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4 animate-spin" x-show="checkingAll" fill="none"
+                                viewBox="0 0 24 24" x-cloak>
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <svg class="w-4 h-4" x-show="!checkingAll" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21M6.75 6.75h10.5a2.25 2.25 0 0 1 2.25 2.25v6.525a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
+                            </svg>
+                            <span>Ping All</span>
+                        </button>
+
+                        <button type="button" x-on:click="clearSelection()"
+                            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition border border-slate-700">
+                            <span>Cancel</span>
                         </button>
                     </div>
                 </div>
@@ -259,15 +315,21 @@
                     <template x-for="comp in paginatedDevices" :key="comp.id">
                         <div
                             class="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-4 space-y-3 transition hover:shadow-md hover:border-[#00828c]/40">
-                            <!-- Header: Status & OS -->
+                            <!-- Header: Checkbox, Status & OS -->
                             <div class="flex items-center justify-between gap-2">
-                                <span
-                                    class="inline-flex items-center gap-2 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/60">
-                                    <span class="h-2.5 w-2.5 rounded-full transition-colors duration-300"
-                                        :class="statusClass(comp.id)"></span>
-                                    <span class="text-xs font-semibold text-gray-700"
-                                        x-text="statusLabel(comp.id)"></span>
-                                </span>
+                                <div class="flex items-center gap-2.5">
+                                    <input type="checkbox" :checked="isSelected(comp.id)"
+                                        x-on:change="toggleSelectDevice(comp.id)"
+                                        class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c] h-4 w-4 cursor-pointer"
+                                        title="Pilih perangkat">
+                                    <span
+                                        class="inline-flex items-center gap-2 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/60">
+                                        <span class="h-2.5 w-2.5 rounded-full transition-colors duration-300"
+                                            :class="statusClass(comp.id)"></span>
+                                        <span class="text-xs font-semibold text-gray-700"
+                                            x-text="statusLabel(comp.id)"></span>
+                                    </span>
+                                </div>
 
                                 <span
                                     class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider shrink-0"
@@ -391,6 +453,16 @@
                                 </form>
 
                                 <div class="flex items-center gap-1 shrink-0">
+                                    <button type="button" title="Refresh F5 via VNC (Tanpa SSH)"
+                                        class="rounded-xl p-2.5 text-amber-600 hover:text-amber-700 hover:bg-amber-100 bg-amber-50 border border-amber-200/80 transition"
+                                        x-on:click.prevent="executeVncF5Refresh(comp.id)">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg>
+                                    </button>
+
                                     <button type="button" title="Device Details"
                                         class="rounded-xl p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 bg-slate-100 transition"
                                         x-on:click.prevent="openDetailModal(comp)">
@@ -454,16 +526,29 @@
                         <thead>
                             <tr
                                 class="bg-gray-50/80 text-left text-[11px] font-semibold uppercase tracking-widest text-gray-500">
+                                <th scope="col" class="pl-5 pr-2 py-3 w-10">
+                                    <input type="checkbox" :checked="isAllSelected" x-on:change="toggleSelectAll()"
+                                        class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c] h-4 w-4 cursor-pointer"
+                                        title="Pilih Semua Perangkat">
+                                </th>
                                 <th scope="col" class="px-5 py-3">{{ __('Device') }}</th>
                                 <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Location') }}</th>
                                 <th scope="col" class="px-5 py-3 hidden md:table-cell">{{ __('Address') }}</th>
-                                <th scope="col" class="px-3 py-3 w-px whitespace-nowrap hidden lg:table-cell">{{ __('OS') }}</th>
+                                <th scope="col" class="px-3 py-3 w-px whitespace-nowrap hidden lg:table-cell">
+                                    {{ __('OS') }}</th>
                                 <th scope="col" class="px-5 py-3 text-right">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <template x-for="comp in paginatedDevices" :key="comp.id">
-                                <tr class="group transition hover:bg-blue-50/40">
+                                <tr class="group transition hover:bg-blue-50/40"
+                                    :class="{ 'bg-cyan-50/50': isSelected(comp.id) }">
+                                    <td class="pl-5 pr-2 py-3.5 w-10">
+                                        <input type="checkbox" :checked="isSelected(comp.id)"
+                                            x-on:change="toggleSelectDevice(comp.id)"
+                                            class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c] h-4 w-4 cursor-pointer">
+                                    </td>
+
                                     {{-- Name & Tags --}}
                                     <td class="px-5 py-3.5">
                                         <p class="font-semibold text-gray-900 leading-snug" x-text="comp.name"></p>
@@ -563,7 +648,8 @@
 
                                     {{-- OS --}}
                                     <td class="px-3 py-3.5 w-px whitespace-nowrap hidden lg:table-cell">
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
                                             <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <template x-if="comp.os_type === 'windows'">
@@ -580,8 +666,7 @@
                                                     </g>
                                                 </template>
                                             </svg>
-                                            <span
-                                                x-text="comp.os_type === 'windows' ? 'Windows' : 'Linux'"></span>
+                                            <span x-text="comp.os_type === 'windows' ? 'Windows' : 'Linux'"></span>
                                         </span>
                                     </td>
 
@@ -589,9 +674,19 @@
                                     <td class="px-5 py-3.5 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <!-- Status Dot Only -->
-                                            <span class="h-2.5 w-2.5 rounded-full shrink-0 transition-colors duration-300 me-1"
-                                                :class="statusClass(comp.id)"
-                                                :title="statusLabel(comp.id)"></span>
+                                            <span
+                                                class="h-2.5 w-2.5 rounded-full shrink-0 transition-colors duration-300 me-1"
+                                                :class="statusClass(comp.id)" :title="statusLabel(comp.id)"></span>
+
+                                            <button type="button" title="Refresh F5 via VNC (Tanpa SSH)"
+                                                class="rounded-md p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-100 bg-amber-50 border border-amber-200/80 transition me-0.5"
+                                                x-on:click.prevent="executeVncF5Refresh(comp.id)">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                                </svg>
+                                            </button>
                                             <button type="button" title="Device Details"
                                                 class="rounded-md p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition"
                                                 x-on:click.prevent="openDetailModal(comp)">
@@ -903,7 +998,8 @@
                                     x-text="selectedDevice.location || '-'"></p>
                             </div>
                             <div class="p-3 rounded-xl bg-slate-50/70 border border-slate-100">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Created At</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Created
+                                    At</span>
                                 <p class="text-xs font-semibold text-slate-800 mt-0.5"
                                     x-text="selectedDevice.created_at || '-'"></p>
                             </div>
@@ -922,7 +1018,8 @@
                                             <h4 class="font-bold text-xs text-emerald-900">SSH Port <span
                                                     x-text="selectedDevice.ssh_port || 22"></span> Open & Listening
                                             </h4>
-                                            <p class="text-[11px] text-emerald-700">SSH port is active and accepting TCP connections.</p>
+                                            <p class="text-[11px] text-emerald-700">SSH port is active and accepting
+                                                TCP connections.</p>
                                         </div>
                                     </div>
                                     <span
@@ -941,7 +1038,8 @@
                                             <h4 class="font-bold text-xs text-slate-800">SSH Port <span
                                                     x-text="selectedDevice.ssh_port || 22"></span> Closed / Unreachable
                                             </h4>
-                                            <p class="text-[11px] text-slate-500">SSH port is not responding or SSH service is disabled on target.</p>
+                                            <p class="text-[11px] text-slate-500">SSH port is not responding or SSH
+                                                service is disabled on target.</p>
                                         </div>
                                     </div>
                                     <span
@@ -963,9 +1061,11 @@
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">SSH Password Not Configured</h4>
+                                        <h4 class="font-bold text-xs uppercase tracking-wider text-amber-900">SSH
+                                            Password Not Configured</h4>
                                         <p class="mt-0.5 text-xs text-amber-800 leading-relaxed">
-                                            SSH password is not set for this device. Remote Actions (remote command execution) require an SSH password.
+                                            SSH password is not set for this device. Remote Actions (remote command
+                                            execution) require an SSH password.
                                         </p>
                                         <a :href="'/computers/' + selectedDevice.id + '/edit'"
                                             class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition">
@@ -983,7 +1083,8 @@
 
                         <!-- Description & Tags -->
                         <div class="space-y-2">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Description / Notes</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Description /
+                                Notes</span>
                             <p class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 whitespace-pre-line"
                                 x-text="selectedDevice.description || 'No description provided.'"></p>
                         </div>
@@ -1086,7 +1187,8 @@
                                         d="M11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                 </svg>
                                 <div>
-                                    <span class="font-bold">Duplication Info:</span> Settings & credentials copied from source. Enter new device details.
+                                    <span class="font-bold">Duplication Info:</span> Settings & credentials copied from
+                                    source. Enter new device details.
                                 </div>
                             </div>
 
@@ -1142,7 +1244,8 @@
                             </div>
 
                             <!-- Enable SSH Toggle for Duplicate Modal -->
-                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                            <div
+                                class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
                                 <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
                                     <input type="hidden" name="enable_ssh" value="0">
                                     <input type="checkbox" name="enable_ssh" value="1"
@@ -1151,10 +1254,14 @@
                                     <span class="text-xs font-bold text-slate-800">Enable SSH Access</span>
                                 </label>
                                 <template x-if="duplicateForm.enable_ssh">
-                                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">SSH Active</span>
+                                    <span
+                                        class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">SSH
+                                        Active</span>
                                 </template>
                                 <template x-if="!duplicateForm.enable_ssh">
-                                    <span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">VNC Only</span>
+                                    <span
+                                        class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">VNC
+                                        Only</span>
                                 </template>
                             </div>
 
@@ -1205,8 +1312,8 @@
                                         @foreach ($allTags as $tagItem)
                                             <label
                                                 class="inline-flex items-center gap-2 p-2 rounded-lg border border-slate-200 bg-white hover:border-[#00828c]/50 transition cursor-pointer text-xs">
-                                                <input type="checkbox" name="tag_ids[]" value="{{ $tagItem->id }}"
-                                                    x-model="duplicateForm.tag_ids"
+                                                <input type="checkbox" name="tag_ids[]"
+                                                    value="{{ $tagItem->id }}" x-model="duplicateForm.tag_ids"
                                                     class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                                 <span class="h-2 w-2 rounded-full shrink-0"
                                                     style="background-color: {{ $tagItem->color ?: '#00828c' }}"></span>
@@ -1224,7 +1331,8 @@
                                     <input type="checkbox" name="copy_vnc_password" value="1"
                                         x-model="duplicateForm.copy_vnc_password"
                                         class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                    <span class="text-xs font-semibold text-slate-800">Copy VNC password from source</span>
+                                    <span class="text-xs font-semibold text-slate-800">Copy VNC password from
+                                        source</span>
                                 </label>
                                 <template x-if="duplicateForm.enable_ssh">
                                     <div class="pt-1">
@@ -1232,7 +1340,8 @@
                                             <input type="checkbox" name="copy_ssh_password" value="1"
                                                 x-model="duplicateForm.copy_ssh_password"
                                                 class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                                            <span class="text-xs font-semibold text-slate-800">Copy SSH password from source</span>
+                                            <span class="text-xs font-semibold text-slate-800">Copy SSH password from
+                                                source</span>
                                         </label>
                                     </div>
                                 </template>
@@ -1322,12 +1431,14 @@
                                 d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 1 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                         </svg>
                         <div>
-                            <span class="font-bold">Backup Info:</span> Export includes all devices, IPs, ports, locations, tags, and credentials.
+                            <span class="font-bold">Backup Info:</span> Export includes all devices, IPs, ports,
+                            locations, tags, and credentials.
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select File Format</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select
+                            File Format</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label
                                 class="relative flex flex-col p-3.5 rounded-xl border-2 border-slate-200 bg-white hover:border-[#00828c] cursor-pointer transition">
@@ -1351,7 +1462,8 @@
                         <label class="inline-flex items-center gap-2.5 cursor-pointer">
                             <input type="checkbox" name="include_passwords" value="1" checked
                                 class="rounded border-slate-300 text-[#00828c] focus:ring-[#00828c]">
-                            <span class="text-xs font-semibold text-slate-800">Include VNC & SSH Passwords in Backup</span>
+                            <span class="text-xs font-semibold text-slate-800">Include VNC & SSH Passwords in
+                                Backup</span>
                         </label>
                     </div>
 
@@ -1422,14 +1534,17 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Duplicate Handling (By IP)</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Duplicate
+                            Handling (By IP)</label>
                         <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <label class="flex items-start gap-2.5 cursor-pointer">
                                 <input type="radio" name="duplicate_action" value="skip" checked
                                     class="mt-0.5 rounded-full border-slate-300 text-[#00828c] focus:ring-[#00828c]">
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800">Skip Duplicates (Recommended)</span>
-                                    <p class="text-[11px] text-slate-500">Keep existing device if IP already registered.</p>
+                                    <span class="text-xs font-bold text-slate-800">Skip Duplicates
+                                        (Recommended)</span>
+                                    <p class="text-[11px] text-slate-500">Keep existing device if IP already
+                                        registered.</p>
                                 </div>
                             </label>
                             <label class="flex items-start gap-2.5 cursor-pointer">

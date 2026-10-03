@@ -233,6 +233,106 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
     checkingAll: false,
     batchSummary: null,
 
+    // Batch Selection & VNC F5 Refresh (No SSH)
+    selectedIds: [],
+    vncRefreshing: false,
+    vncSummary: null,
+
+    get isAllSelected() {
+        if (!this.filteredDevices || this.filteredDevices.length === 0) return false;
+        return this.filteredDevices.every(d => this.selectedIds.includes(d.id));
+    },
+
+    get selectedCount() {
+        return this.selectedIds.length;
+    },
+
+    toggleSelectAll() {
+        if (this.isAllSelected) {
+            this.selectedIds = [];
+        } else {
+            this.selectedIds = this.filteredDevices.map(d => d.id);
+        }
+    },
+
+    toggleSelectDevice(id) {
+        const numId = Number(id);
+        const idx = this.selectedIds.indexOf(numId);
+        if (idx > -1) {
+            this.selectedIds.splice(idx, 1);
+        } else {
+            this.selectedIds.push(numId);
+        }
+    },
+
+    clearSelection() {
+        this.selectedIds = [];
+    },
+
+    isSelected(id) {
+        return this.selectedIds.includes(Number(id));
+    },
+
+    async executeVncF5Refresh(targetIds = null) {
+        const ids = targetIds ? (Array.isArray(targetIds) ? targetIds : [targetIds]) : this.selectedIds;
+        if (!ids || ids.length === 0) {
+            this.showBoardError('Pilih minimal 1 perangkat yang ingin di-refresh via VNC.');
+            return;
+        }
+
+        this.vncRefreshing = true;
+        this.term.open = true;
+        this.term.title = `VNC F5 Refresh (Tanpa SSH) — ${ids.length} Perangkat`;
+        this.term.lines = [];
+        this.term.running = true;
+
+        await this.typeLine(`$ nodehub vnc-refresh --targets=${ids.length} --protocol=RFB --ssh=disabled`, 'text-cyan-400 font-bold');
+        await this.typeLine(`Memulai eksekusi F5 Refresh via koneksi VNC socket langsung (Tanpa SSH)...`, 'text-slate-300');
+
+        try {
+            const response = await fetch('/computers/vnc-refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': this.csrfToken,
+                },
+                body: JSON.stringify({ computer_ids: ids }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.results) {
+                for (const res of data.results) {
+                    await sleep(80);
+                    if (res.success) {
+                        await this.typeLine(`[SUKSES] ${res.computer_name} (${res.ip_address}:${res.vnc_port}) — ${res.message}`, 'text-emerald-400 font-bold');
+                    } else {
+                        await this.typeLine(`[GAGAL]  ${res.computer_name} (${res.ip_address}:${res.vnc_port}) — ${res.message}`, 'text-rose-400 font-bold');
+                    }
+                }
+
+                await this.typeLine('------------------------------------------------------------------', 'text-slate-600');
+                await this.typeLine(`VNC F5 Refresh Selesai: ${data.success_count} Berhasil, ${data.fail_count} Gagal. (0 SSH Used)`, data.success_count > 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold');
+
+                this.vncSummary = {
+                    total: data.total,
+                    success: data.success_count,
+                    fail: data.fail_count,
+                    time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                };
+            } else {
+                await this.typeLine(`ERROR: ${data.message || 'Gagal mengeksekusi VNC Refresh'}`, 'text-rose-400');
+            }
+        } catch {
+            await this.typeLine(`NETWORK ERROR: Gagal terhubung ke server portal NodeHub`, 'text-rose-400');
+        } finally {
+            this.term.running = false;
+            this.vncRefreshing = false;
+            this.scrollTerm();
+        }
+    },
+
     detailModalOpen: false,
     selectedDevice: null,
 
@@ -284,17 +384,29 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         this.duplicateDevice = null;
     },
 
-    async checkAllConnections(statusUrl = '/computers/status', openTerminal = false) {
+    async checkAllConnections(statusUrl = '/computers/status', openTerminal = false, targetIds = null) {
         if (this.checkingAll) return;
+
+        let ids = targetIds ? (Array.isArray(targetIds) ? targetIds : [targetIds]) : this.selectedIds;
+        if (!ids || ids.length === 0) {
+            ids = this.allDevices.map(d => d.id);
+        }
+
+        const targetDevices = this.allDevices.filter(d => ids.map(Number).includes(Number(d.id)));
+        if (targetDevices.length === 0) {
+            this.showBoardError('Tidak ada perangkat yang dipilih untuk pengecekan koneksi.');
+            return;
+        }
+
         this.checkingAll = true;
 
         if (openTerminal) {
             this.term.open = true;
-            this.term.title = `Diagnosa Batch — Cek Semua Perangkat (${this.allDevices.length})`;
+            this.term.title = `Diagnosa Batch — Cek Koneksi (${targetDevices.length} Perangkat)`;
             this.term.lines = [];
             this.term.running = true;
-            await this.typeLine(`$ nodehub ping --all --count=${this.allDevices.length}`, 'text-emerald-400 font-bold');
-            await this.typeLine(`Memulai pemindaian koneksi ke ${this.allDevices.length} perangkat...`, 'text-cyan-400');
+            await this.typeLine(`$ nodehub ping --count=${targetDevices.length}`, 'text-emerald-400 font-bold');
+            await this.typeLine(`Memulai pemindaian koneksi ke ${targetDevices.length} perangkat...`, 'text-cyan-400');
         }
 
         let data = null;
@@ -310,7 +422,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         }
 
         if (!data) {
-            this.showBoardError('Gagal melakukan pengecekan status koneksi massal.');
+            this.showBoardError('Gagal melakukan pengecekan status koneksi.');
             if (openTerminal) {
                 await this.typeLine(`ERROR: Gagal menghubungi server portal`, 'text-red-400');
                 this.term.running = false;
@@ -324,7 +436,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         let onlineCount = 0;
         let offlineCount = 0;
 
-        for (const device of this.allDevices) {
+        for (const device of targetDevices) {
             const st = data[device.id];
             const isVncOk = typeof st === 'object' ? Boolean(st.vnc) : Boolean(st);
             const isSshOk = typeof st === 'object' ? Boolean(st.ssh) : false;
@@ -355,7 +467,7 @@ Alpine.data('deviceBoard', (initialDevices = []) => ({
         const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         this.batchSummary = {
-            total: this.allDevices.length,
+            total: targetDevices.length,
             online: onlineCount,
             offline: offlineCount,
             time: timeStr,
