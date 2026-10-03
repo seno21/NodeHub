@@ -463,18 +463,46 @@ Alpine.data('deviceBoard', (initialDevices = [], initialActions = []) => ({
         }
     },
 
+    selectedDeviceIds: [],
+
+    get isAllFilteredSelected() {
+        if (this.filteredDevices.length === 0) return false;
+        return this.filteredDevices.every(d => this.selectedDeviceIds.includes(d.id));
+    },
+
+    toggleSelectAllFiltered() {
+        if (this.isAllFilteredSelected) {
+            const filteredIds = new Set(this.filteredDevices.map(d => d.id));
+            this.selectedDeviceIds = this.selectedDeviceIds.filter(id => !filteredIds.has(id));
+        } else {
+            const filteredIds = this.filteredDevices.map(d => d.id);
+            this.selectedDeviceIds = Array.from(new Set([...this.selectedDeviceIds, ...filteredIds]));
+        }
+    },
+
+    clearDeviceSelection() {
+        this.selectedDeviceIds = [];
+    },
+
     executingVncRefresh: false,
 
-    async executeVncMassRefresh() {
+    async executeVncMassRefresh(specifiedTargetIds = null) {
         if (this.executingVncRefresh) return;
 
-        const targetDevices = this.filteredDevices;
-        if (targetDevices.length === 0) {
-            this.showBoardError('Tidak ada perangkat yang sesuai dengan filter saat ini.');
+        let targetIds = [];
+        if (Array.isArray(specifiedTargetIds) && specifiedTargetIds.length > 0) {
+            targetIds = specifiedTargetIds;
+        } else if (this.selectedDeviceIds.length > 0) {
+            targetIds = [...this.selectedDeviceIds];
+        } else {
+            targetIds = this.filteredDevices.map(d => d.id);
+        }
+
+        if (targetIds.length === 0) {
+            this.showBoardError('Tidak ada perangkat yang dipilih atau sesuai filter saat ini.');
             return;
         }
 
-        const targetIds = targetDevices.map(d => d.id);
         this.executingVncRefresh = true;
 
         this.term.open = true;
